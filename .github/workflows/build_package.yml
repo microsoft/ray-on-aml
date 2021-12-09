@@ -1,6 +1,6 @@
 name: Packaging python package 
 on: 
-  push:
+  release:
     branches:
       - master
 jobs:
@@ -26,6 +26,5 @@ jobs:
         with:
           user: __token__
           password: ${{ secrets.PYPI_SEC }}
-          repository_url: https://test.pypi.org/legacy/
 
 
