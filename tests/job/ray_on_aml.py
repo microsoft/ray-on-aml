@@ -23,7 +23,7 @@ class Ray_On_AML():
 # ray[default]==1.9.0
 # base_conda_dep =['gcsfs','fs-gcsfs','numpy','h5py','scipy','toolz','bokeh','dask','distributed','matplotlib','pandas','pandas-datareader','pytables','snakeviz','ujson','graphviz','fastparquet','dask-ml','adlfs','pytorch','torchvision','pip'], base_pip_dep = ['azureml-defaults','python-snappy', 'fastparquet', 'azureml-mlflow', 'ray[default]==1.8.0', 'xgboost_ray', 'raydp', 'xgboost', 'pyarrow==4.0.1']
     
-    def __init__(self, ws=None, base_conda_dep =['adlfs','pytorch','matplotlib','torchvision','pip'], base_pip_dep = ['sklearn','xgboost','lightgbm','ray[tune]==1.9.0', 'xgboost_ray', 'dask','pyarrow >= 4.0.1','fsspec==2021.10.1', 'azureml-mlflow'], vnet_rg = None, compute_cluster = 'ray_on_aml', vm_size='STANDARD_DS3_V2',vnet='rayvnet', subnet='default', exp ='ray_on_aml', maxnode =5, additional_conda_packages=[],additional_pip_packages=[], job_timeout=60000):
+    def __init__(self, ws=None, base_conda_dep =['adlfs','pytorch','matplotlib','torchvision','pip'], base_pip_dep = ['sklearn','xgboost','lightgbm','ray[tune]==1.9.0', 'xgboost_ray', 'dask','pyarrow >= 4.0.1','fsspec==2021.10.1', 'azureml-mlflow'], vnet_rg = None, compute_cluster = 'cpu-cluster', vm_size='STANDARD_DS3_V2',vnet='rayvnet', subnet='default', exp ='ray_on_aml', maxnode =5, additional_conda_packages=[],additional_pip_packages=[], job_timeout=60000):
         self.ws = ws
         self.base_conda_dep=base_conda_dep
         self.base_pip_dep= base_pip_dep
@@ -115,7 +115,7 @@ class Ray_On_AML():
         )
         self.flush(worker_proc, worker_log)
 
-    def getRay(self):
+    def getRay(self, init_ray_in_worker=False):
         if self.checkNodeType()!="interactive" and self.ws is None:
             #Interactive scenario, workspace object is require
             raise Exception("For interactive use, please pass AML workspace to the init")
@@ -126,7 +126,11 @@ class Ray_On_AML():
             ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True)
             return ray
         else:
+            time.sleep(10) #to wait for the head node to start first
             self.startRay()
+            if init_ray_in_worker:
+                ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True)
+                return ray 
 
     def getRayInteractive(self):
         
