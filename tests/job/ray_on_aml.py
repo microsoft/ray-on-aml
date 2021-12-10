@@ -75,9 +75,10 @@ class Ray_On_AML():
         return ip
     def checkNodeType(self):
         rank = os.environ.get("RANK")
+        print("rank returned is ", rank)
         if rank is None:
             return "interactive" # This is interactive scenario
-        elif rank ==0:
+        elif rank == '0':
             return "head"
         else:
             return "worker"
@@ -90,11 +91,11 @@ class Ray_On_AML():
         print("- env: LOCAL_RANK: ", os.environ.get("LOCAL_RANK"))
         print("- env: NODE_RANK: ", os.environ.get("NODE_RANK"))
         rank = os.environ.get("RANK")
-
-        master = os.environ.get("MASTER_ADDR")
+        if master_ip is None:
+            master_ip = os.environ.get("MASTER_ADDR")
         print("- my rank is ", rank)
         print("- my ip is ", ip)
-        print("- master is ", master)
+        print("- master is ", master_ip)
         if not os.path.exists("logs"):
             os.makedirs("logs")
 
@@ -116,16 +117,18 @@ class Ray_On_AML():
         self.flush(worker_proc, worker_log)
 
     def getRay(self, init_ray_in_worker=False):
-        if self.checkNodeType()!="interactive" and self.ws is None:
+        if self.checkNodeType()=="interactive" and self.ws is None:
             #Interactive scenario, workspace object is require
             raise Exception("For interactive use, please pass AML workspace to the init")
         if self.checkNodeType()=="interactive":
             return self.getRayInteractive()
         elif self.checkNodeType() =='head':
+            print("head node detected")
             self.startRayMaster()
             ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True)
             return ray
         else:
+            print("workder node detected")
             time.sleep(10) #to wait for the head node to start first
             self.startRay()
             if init_ray_in_worker:
