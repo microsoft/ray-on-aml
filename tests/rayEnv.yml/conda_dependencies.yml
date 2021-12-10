@@ -1,0 +1,24 @@
+channels:
+- anaconda
+- conda-forge
+dependencies:
+- python=3.6.9
+- pip:
+  - azureml-defaults
+  - sklearn
+  - xgboost
+  - lightgbm
+  - ray[default]==1.9.0
+  - xgboost_ray
+  - dask
+  - adlfs==2021.10.0
+  - pyarrow>=6.0.1
+  - xgboost-ray
+  - lightgbm_ray
+  - ray-lightning
+  - azureml-mlflow
+- pytorch
+- matplotlib
+- torchvision
+- pip
+name: azureml_4db8547ef0b35d30acbcbfb3dc3b2cfc
