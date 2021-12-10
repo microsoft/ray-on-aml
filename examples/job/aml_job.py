@@ -121,7 +121,7 @@ def get_data_count(account_key):
     data = ray.data.read_parquet("az://isdweatherdatacontainer/ISDWeather/year=2009", filesystem=abfs2)
     data2 = ray.data.read_parquet("az://mltraining/ISDWeatherDelta/year2008", filesystem=abfs)
     return data.count(), data2.count(),ddf.count().compute()
-    
+
 if __name__ == "__main__":
     run = Run.get_context()
     ws = run.experiment.workspace
