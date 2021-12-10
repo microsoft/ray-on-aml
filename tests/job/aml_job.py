@@ -9,10 +9,19 @@ import torch.nn as nn
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 import torch.nn.functional as F
-# import ray
 from ray import tune
 from ray.tune.schedulers import ASHAScheduler
 from ray_on_aml import Ray_On_AML
+#dask
+
+from ray.util.dask import ray_dask_get
+import dask.array as da
+import dask.dataframe as dd
+import numpy as np
+import dask
+from adlfs import AzureBlobFileSystem
+
+dask.config.set(scheduler=ray_dask_get)
 
 class ConvNet(nn.Module):
     def __init__(self):
@@ -100,6 +109,21 @@ search_space = {
     "momentum": tune.uniform(0.01, 0.09)
 }
 
+
+def get_data_count():
+    account_key='ak7nSgU/iRc5XCvXjaM2UwX18ybS9WO1BsE4Vm42XLmiZvBm1kCyZQD3USeCCOiwusWkDaq0jcRF1JpPHiAMhw=='
+    account_name="adlsgen7"
+    abfs = AzureBlobFileSystem(account_name="adlsgen7",account_key=account_key,  container_name="mltraining")
+    abfs2 = AzureBlobFileSystem(account_name="azureopendatastorage",  container_name="isdweatherdatacontainer")
+
+    storage_options={'account_name': account_name, 'account_key': account_key}
+    storage_options = {'account_name': 'azureopendatastorage'}
+    ddf = dd.read_parquet('az://nyctlc/green/puYear=2019/puMonth=*/*.parquet', storage_options=storage_options)
+
+    data = ray.data.read_parquet("az://isdweatherdatacontainer/ISDWeather/year=2009", filesystem=abfs2)
+    data2 = ray.data.read_parquet("az://mltraining/ISDWeatherDelta/year2008", filesystem=abfs)
+    return data.count(), data2.count(),ddf.count().compute()
+    
 if __name__ == "__main__":
 
     ray_on_aml =Ray_On_AML()
@@ -111,5 +135,8 @@ if __name__ == "__main__":
         datasets.MNIST("~/data", train=True, download=True)
 
         analysis = tune.run(train_mnist, config=search_space)
+        print(ray.cluster_resources())
+        print("data count result", get_data_count())
+
     else:
         print("in worker node")

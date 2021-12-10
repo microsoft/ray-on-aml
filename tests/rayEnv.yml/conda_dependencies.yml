@@ -10,7 +10,7 @@ dependencies:
   - lightgbm
   - ray[default]==1.9.0
   - xgboost_ray
-  - dask
+  - dask[complete]
   - adlfs==2021.10.0
   - pyarrow>=6.0.1
   - xgboost-ray
@@ -21,4 +21,4 @@ dependencies:
 - matplotlib
 - torchvision
 - pip
-name: azureml_4db8547ef0b35d30acbcbfb3dc3b2cfc
+name: azureml_6e902002e7ddb4ae255a84897f59d4e6

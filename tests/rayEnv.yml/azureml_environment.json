@@ -1,6 +1,6 @@
 {
     "name": "rayEnv",
-    "version": "14",
+    "version": "15",
     "environmentVariables": {
         "EXAMPLE_ENV_VAR": "EXAMPLE_VALUE"
     },

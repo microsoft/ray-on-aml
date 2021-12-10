@@ -125,11 +125,11 @@ class Ray_On_AML():
         elif self.checkNodeType() =='head':
             print("head node detected")
             self.startRayMaster()
+            time.sleep(10) # wait for the worker nodes to start first
             ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True)
             return ray
         else:
             print("workder node detected")
-            time.sleep(10) #to wait for the head node to start first
             self.startRay()
             if init_ray_in_worker:
                 ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True)
