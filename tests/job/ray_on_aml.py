@@ -147,6 +147,8 @@ class Ray_On_AML():
         except ComputeTargetException:
             if self.vnet_rg is None:
                 vnet_rg = ws_rg
+            else:
+                vnet_rg = self.vnet_rg
             compute_config = AmlCompute.provisioning_configuration(vm_size=self.vm_size,
                                                                 min_nodes=0, max_nodes=self.maxnode,
                                                                 vnet_resourcegroup_name=vnet_rg,
