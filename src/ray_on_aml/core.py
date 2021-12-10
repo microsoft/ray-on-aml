@@ -16,9 +16,14 @@ from azureml.core.compute_target import ComputeTargetException
 from azureml.core.environment import Environment
 from azureml.core.conda_dependencies import CondaDependencies
 class Ray_On_AML():
+#     pyarrow >=6.0.1
+# dask >=2021.11.2
+# adlfs >=2021.10.0
+# fsspec==2021.10.1
+# ray[default]==1.9.0
 # base_conda_dep =['gcsfs','fs-gcsfs','numpy','h5py','scipy','toolz','bokeh','dask','distributed','matplotlib','pandas','pandas-datareader','pytables','snakeviz','ujson','graphviz','fastparquet','dask-ml','adlfs','pytorch','torchvision','pip'], base_pip_dep = ['azureml-defaults','python-snappy', 'fastparquet', 'azureml-mlflow', 'ray[default]==1.8.0', 'xgboost_ray', 'raydp', 'xgboost', 'pyarrow==4.0.1']
     
-    def __init__(self, ws, base_conda_dep =['adlfs','pytorch','matplotlib','torchvision','pip'], base_pip_dep = ['sklearn','xgboost','lightgbm','ray[tune]==1.9.0', 'xgboost_ray', 'dask'], vnet_rg = None, compute_cluster = 'ray_on_aml', vm_size='STANDARD_DS3_V2',vnet='rayvnet', subnet='default', exp ='ray_on_aml', maxnode =5, additional_conda_packages=[],additional_pip_packages=[], job_timeout=60000):
+    def __init__(self, ws=None, base_conda_dep =['adlfs','pytorch','matplotlib','torchvision','pip'], base_pip_dep = ['sklearn','xgboost','lightgbm','ray[tune]==1.9.0', 'xgboost_ray', 'dask','pyarrow >= 4.0.1','fsspec==2021.10.1', 'azureml-mlflow'], vnet_rg = None, compute_cluster = 'cpu-cluster', vm_size='STANDARD_DS3_V2',vnet='rayvnet', subnet='default', exp ='ray_on_aml', maxnode =5, additional_conda_packages=[],additional_pip_packages=[], job_timeout=60000):
         self.ws = ws
         self.base_conda_dep=base_conda_dep
         self.base_pip_dep= base_pip_dep
@@ -68,19 +73,29 @@ class Ray_On_AML():
             subprocess.check_output(cmd, shell=True)
         ip = self.get_ip()
         return ip
+    def checkNodeType(self):
+        rank = os.environ.get("RANK")
+        print("rank returned is ", rank)
+        if rank is None:
+            return "interactive" # This is interactive scenario
+        elif rank == '0':
+            return "head"
+        else:
+            return "worker"
+        #check if the current node is headnode
     def startRay(self,master_ip=None):
-        ip = get_ip()
+        ip = self.get_ip()
         print("- env: MASTER_ADDR: ", os.environ.get("MASTER_ADDR"))
         print("- env: MASTER_PORT: ", os.environ.get("MASTER_PORT"))
         print("- env: RANK: ", os.environ.get("RANK"))
         print("- env: LOCAL_RANK: ", os.environ.get("LOCAL_RANK"))
         print("- env: NODE_RANK: ", os.environ.get("NODE_RANK"))
         rank = os.environ.get("RANK")
-
-        master = os.environ.get("MASTER_ADDR")
+        if master_ip is None:
+            master_ip = os.environ.get("MASTER_ADDR")
         print("- my rank is ", rank)
         print("- my ip is ", ip)
-        print("- master is ", master)
+        print("- master is ", master_ip)
         if not os.path.exists("logs"):
             os.makedirs("logs")
 
@@ -100,17 +115,28 @@ class Ray_On_AML():
         stderr=subprocess.STDOUT,
         )
         self.flush(worker_proc, worker_log)
-        time.sleep(self.job_timeout)
 
+    def getRay(self, init_ray_in_worker=False):
+        if self.checkNodeType()=="interactive" and self.ws is None:
+            #Interactive scenario, workspace object is require
+            raise Exception("For interactive use, please pass AML workspace to the init")
+        if self.checkNodeType()=="interactive":
+            return self.getRayInteractive()
+        elif self.checkNodeType() =='head':
+            print("head node detected")
+            self.startRayMaster()
+            time.sleep(10) # wait for the worker nodes to start first
+            ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True)
+            return ray
+        else:
+            print("workder node detected")
+            self.startRay()
+            if init_ray_in_worker:
+                ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True)
+                return ray 
 
-    def getRay(self):
-        #create or get the cluster with maxnode, then create an experiment to create ray cluster, get current ray and create ray init and return ray object
-    #     try:
-    #         #logic to check if ray cluster is already started and running, then return ray
-
-    #     except:
-            #ray is not there, go ahead and create
-        #start current node master
+    def getRayInteractive(self):
+        
         master_ip = self.startRayMaster()
         # Verify that cluster does not exist already
         ws_detail = self.ws.get_details()
@@ -119,8 +145,10 @@ class Ray_On_AML():
             ray_cluster = ComputeTarget(workspace=self.ws, name=self.compute_cluster)
             print('Found existing cluster, use it.')
         except ComputeTargetException:
-            if vnet_rg is None:
-                vnet_rg = self.ws.ws_rg
+            if self.vnet_rg is None:
+                vnet_rg = ws_rg
+            else:
+                vnet_rg = self.vnet_rg
             compute_config = AmlCompute.provisioning_configuration(vm_size=self.vm_size,
                                                                 min_nodes=0, max_nodes=self.maxnode,
                                                                 vnet_resourcegroup_name=vnet_rg,
@@ -262,7 +290,7 @@ class Ray_On_AML():
         run = Experiment(self.ws, self.exp).submit(src)
         time.sleep(10)
         ray.shutdown()
-        ray.init(address="auto",ignore_reinit_error=True)
+        ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True)
         self.run = run
         self.ray = ray
         while True:
