@@ -23,7 +23,7 @@ class Ray_On_AML():
 # ray[default]==1.9.0
 # base_conda_dep =['gcsfs','fs-gcsfs','numpy','h5py','scipy','toolz','bokeh','dask','distributed','matplotlib','pandas','pandas-datareader','pytables','snakeviz','ujson','graphviz','fastparquet','dask-ml','adlfs','pytorch','torchvision','pip'], base_pip_dep = ['azureml-defaults','python-snappy', 'fastparquet', 'azureml-mlflow', 'ray[default]==1.8.0', 'xgboost_ray', 'raydp', 'xgboost', 'pyarrow==4.0.1']
     
-    def __init__(self, ws=None, base_conda_dep =['adlfs','pytorch','matplotlib','torchvision','pip'], base_pip_dep = ['sklearn','xgboost','lightgbm','ray[tune]==1.9.0', 'xgboost_ray', 'dask','pyarrow >= 4.0.1','fsspec==2021.10.1', 'azureml-mlflow'], vnet_rg = None, compute_cluster = 'ray_on_aml', vm_size='STANDARD_DS3_V2',vnet='rayvnet', subnet='default', exp ='ray_on_aml', maxnode =5, additional_conda_packages=[],additional_pip_packages=[], job_timeout=60000):
+    def __init__(self, ws=None, base_conda_dep =['pytorch', 'matplotlib', 'torchvision', 'pip'], base_pip_dep = ['azureml-defaults','sklearn','xgboost','lightgbm','ray[default]==1.9.0','xgboost_ray','dask[complete]','adlfs==2021.10.0','pyarrow>=6.0.1','xgboost-ray','lightgbm_ray','ray-lightning','azureml-mlflow'], vnet_rg = None, compute_cluster = 'ray_on_aml', vm_size='STANDARD_DS3_V2',vnet='rayvnet', subnet='default', exp ='ray_on_aml', maxnode =5, additional_conda_packages=[],additional_pip_packages=[], job_timeout=60000):
         self.ws = ws
         self.base_conda_dep=base_conda_dep
         self.base_pip_dep= base_pip_dep
@@ -288,7 +288,7 @@ class Ray_On_AML():
             active_run = Run.get(self.ws,run.id)
             if active_run.status != 'Running':
                 print("Waiting: Cluster status is in ", active_run.status)
-                time.sleep(10)
+                time.sleep(30)
             else:
                 return active_run, ray
         

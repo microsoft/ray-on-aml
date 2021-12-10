@@ -110,8 +110,7 @@ search_space = {
 }
 
 
-def get_data_count():
-    account_key='ak7nSgU/iRc5XCvXjaM2UwX18ybS9WO1BsE4Vm42XLmiZvBm1kCyZQD3USeCCOiwusWkDaq0jcRF1JpPHiAMhw=='
+def get_data_count(account_key):
     account_name="adlsgen7"
     abfs = AzureBlobFileSystem(account_name="adlsgen7",account_key=account_key,  container_name="mltraining")
     abfs2 = AzureBlobFileSystem(account_name="azureopendatastorage",  container_name="isdweatherdatacontainer")
@@ -125,7 +124,9 @@ def get_data_count():
     return data.count(), data2.count(),ddf.count().compute()
     
 if __name__ == "__main__":
-
+    run = Run.get_context()
+    ws = run.experiment.workspace
+    account_key = ws.get_default_keyvault().get_secret("adls7-account-key")
     ray_on_aml =Ray_On_AML()
     ray = ray_on_aml.getRay()
 
@@ -136,7 +137,7 @@ if __name__ == "__main__":
 
         analysis = tune.run(train_mnist, config=search_space)
         print(ray.cluster_resources())
-        print("data count result", get_data_count())
+        print("data count result", get_data_count(account_key))
 
     else:
         print("in worker node")
