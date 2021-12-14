@@ -15,6 +15,7 @@ from azureml.core.compute import ComputeTarget, AmlCompute
 from azureml.core.compute_target import ComputeTargetException
 from azureml.core.environment import Environment
 from azureml.core.conda_dependencies import CondaDependencies
+import logging
 class Ray_On_AML():
 #     pyarrow >=6.0.1
 # dask >=2021.11.2
@@ -23,7 +24,7 @@ class Ray_On_AML():
 # ray[default]==1.9.0
 # base_conda_dep =['gcsfs','fs-gcsfs','numpy','h5py','scipy','toolz','bokeh','dask','distributed','matplotlib','pandas','pandas-datareader','pytables','snakeviz','ujson','graphviz','fastparquet','dask-ml','adlfs','pytorch','torchvision','pip'], base_pip_dep = ['azureml-defaults','python-snappy', 'fastparquet', 'azureml-mlflow', 'ray[default]==1.8.0', 'xgboost_ray', 'raydp', 'xgboost', 'pyarrow==4.0.1']
     
-    def __init__(self, ws=None, base_conda_dep =['adlfs','pytorch','matplotlib','torchvision','pip'], base_pip_dep = ['sklearn','xgboost','lightgbm','ray[tune]==1.9.0', 'xgboost_ray', 'dask','pyarrow >= 4.0.1','fsspec==2021.10.1', 'azureml-mlflow'], vnet_rg = None, compute_cluster = 'cpu-cluster', vm_size='STANDARD_DS3_V2',vnet='rayvnet', subnet='default', exp ='ray_on_aml', maxnode =5, additional_conda_packages=[],additional_pip_packages=[], job_timeout=60000):
+    def __init__(self, ws=None, base_conda_dep =['adlfs','pip'], base_pip_dep = ['ray[tune]==1.9.0', 'xgboost_ray', 'dask','pyarrow >= 4.0.1','fsspec==2021.10.1'], vnet_rg = None, compute_cluster = 'cpu-cluster', vm_size='STANDARD_DS3_V2',vnet='rayvnet', subnet='default', exp ='ray_on_aml', maxnode =5, additional_conda_packages=[],additional_pip_packages=[], job_timeout=60000):
         self.ws = ws
         self.base_conda_dep=base_conda_dep
         self.base_pip_dep= base_pip_dep
@@ -63,19 +64,19 @@ class Ray_On_AML():
         print(conda_env_name)
         #set the the python to this conda env
 
-        cmd =f'. $CONDA_PREFIX/etc/profile.d/conda.sh && conda activate {conda_env_name} && ray stop && ray start --head --port=6379 --object-manager-port=8076'
+        cmd =f'. /anaconda/etc/profile.d/conda.sh && conda activate {conda_env_name} && ray stop && ray start --head --port=6379 --object-manager-port=8076'
         try:
             #if this is not the default environment, it will run
             subprocess.check_output(cmd, shell=True)
         except:
     #         User runs this in default environment, just goahead without activating
+    
             cmd ='ray stop && ray start --head --port=6379 --object-manager-port=8076'
             subprocess.check_output(cmd, shell=True)
         ip = self.get_ip()
         return ip
     def checkNodeType(self):
         rank = os.environ.get("RANK")
-        print("rank returned is ", rank)
         if rank is None:
             return "interactive" # This is interactive scenario
         elif rank == '0':
@@ -116,12 +117,12 @@ class Ray_On_AML():
         )
         self.flush(worker_proc, worker_log)
 
-    def getRay(self, init_ray_in_worker=False):
+    def getRay(self, init_ray_in_worker=False, logging_level=logging.ERROR):
         if self.checkNodeType()=="interactive" and self.ws is None:
             #Interactive scenario, workspace object is require
             raise Exception("For interactive use, please pass AML workspace to the init")
         if self.checkNodeType()=="interactive":
-            return self.getRayInteractive()
+            return self.getRayInteractive(logging_level)
         elif self.checkNodeType() =='head':
             print("head node detected")
             self.startRayMaster()
@@ -290,7 +291,7 @@ class Ray_On_AML():
         run = Experiment(self.ws, self.exp).submit(src)
         time.sleep(10)
         ray.shutdown()
-        ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True)
+        ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True, logging_level=logging_level)
         self.run = run
         self.ray = ray
         while True:
@@ -301,17 +302,20 @@ class Ray_On_AML():
             else:
                 return active_run, ray
         
-    def shutdown(self):
-        try:
-            self.run.cancel()
-        except:
-            print("Run does not exisit, finding active run to cancel")
+    def shutdown(self, end_all_runs=False):
+        def end_all_run():
             exp= Experiment(self.ws,self.exp)
             runs = exp.get_runs()
             for run in runs:
                 if run.status =='Running':
                     print("Get active run ", run.id)
                     run.cancel()
+        if end_all_run:end_all_run()
+        try:
+            self.run.cancel()
+        except:
+            print("Run does not exisit, finding active runs to cancel")
+            end_all_run()
         try:
             self.ray.shutdown()
         except:
