@@ -3,14 +3,77 @@
     {
       "cell_type": "markdown",
       "source": [
-        "### Testing for Interactive use case"
+        "### Testing for Interactive use case\r\n",
+        "\r\n",
+        "Before you run this example, please make sure you have all the right version of libraries in Compute Instance.\r\n",
+        "\r\n",
+        "And aslo note that after you finish running jobs in Ray Cluster, make sure you run __ray.shutdown()__ to stop your Compute Cluster. \r\n",
+        "\r\n"
       ],
       "metadata": {}
     },
     {
+      "cell_type": "markdown",
+      "source": [
+        "# Make sure you have correct environment for Ray on AML\r\n",
+        "\r\n",
+        "To have the best experience Ray on Azure Machine Learning Services **Python 3.8.x** and **Ray 1.9.0** are recommened."
+      ],
+      "metadata": {
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
       "cell_type": "code",
       "source": [
-        "# pip install --upgrade ray-on-aml"
+        "import sys\r\n",
+        "import ray\r\n",
+        "\r\n",
+        "if not (sys.version_info.major == 3 and sys.version_info.minor == 8):\r\n",
+        "    print(\"Python 3.8 or higher is required.\")\r\n",
+        "    print(\"Change kerner to azureml_py38\")\r\n",
+        "    print(\"                 ^^^^^^^^^^^\")\r\n",
+        "else:\r\n",
+        "    print(f\"{sys.version_info.major}.{sys.version_info.minor} is detected.\")\r\n",
+        "\r\n",
+        "if not ray.__version__.startswith('1.9'):\r\n",
+        "    print(\"User Ray is not 1.9\")\r\n",
+        "    print(\"pip install ray==1.9.0\")\r\n",
+        "    print(\"           ^^^^^^^^^^^\")\r\n",
+        "else:\r\n",
+        "    print(f\"{ray.__version__} is detected\")\r\n"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "3.8 is detected.\n1.9.0 is detected\n"
+        }
+      ],
+      "execution_count": 13,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1639462908020
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# !pip install --upgrade ray-on-aml"
       ],
       "outputs": [],
       "execution_count": null,
@@ -36,10 +99,10 @@
         "import importlib\n"
       ],
       "outputs": [],
-      "execution_count": 1,
+      "execution_count": 14,
       "metadata": {
         "gather": {
-          "logged": 1639423111876
+          "logged": 1639462947012
         }
       }
     },
@@ -59,18 +122,18 @@
         {
           "output_type": "stream",
           "name": "stdout",
-          "text": "rank returned is  None\nrank returned is  None\nazureml_py38\nInProgress..\nSucceededProvisioning operation finished, operation \"Succeeded\"\nSucceeded\nAmlCompute wait for completion finished\n\nMinimum number of nodes requested have been provisioned\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\n"
+          "text": "rank returned is  None\nrank returned is  None\nazureml_py38\nFound existing cluster, use it.\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\nWaiting: Cluster status is in  Queued\n"
         },
         {
           "output_type": "stream",
           "name": "stderr",
-          "text": "2021-12-13 19:23:37,758\tINFO services.py:1338 -- View the Ray dashboard at \u001b[1m\u001b[32mhttp://127.0.0.1:8265\u001b[39m\u001b[22m\n2021-12-13 19:24:05,679\tINFO worker.py:842 -- Connecting to existing Ray cluster at address: 10.1.0.5:6379\n2021-12-13 19:24:05,824\tWARNING worker.py:1219 -- The autoscaler failed with the following error:\nTerminated with signal 15\n  File \"/anaconda/envs/azureml_py38/lib/python3.8/site-packages/ray/autoscaler/_private/monitor.py\", line 543, in <module>\n    monitor.run()\n  File \"/anaconda/envs/azureml_py38/lib/python3.8/site-packages/ray/autoscaler/_private/monitor.py\", line 439, in run\n    self._run()\n  File \"/anaconda/envs/azureml_py38/lib/python3.8/site-packages/ray/autoscaler/_private/monitor.py\", line 346, in _run\n    time.sleep(AUTOSCALER_UPDATE_INTERVAL_S)\n\n"
+          "text": "2021-12-14 06:22:37,400\tINFO services.py:1338 -- View the Ray dashboard at \u001b[1m\u001b[32mhttp://127.0.0.1:8265\u001b[39m\u001b[22m\n2021-12-14 06:22:54,856\tINFO worker.py:842 -- Connecting to existing Ray cluster at address: 10.1.0.5:6379\n2021-12-14 06:22:54,990\tWARNING worker.py:1219 -- The autoscaler failed with the following error:\nTerminated with signal 15\n  File \"/anaconda/envs/azureml_py38/lib/python3.8/site-packages/ray/autoscaler/_private/monitor.py\", line 543, in <module>\n    monitor.run()\n  File \"/anaconda/envs/azureml_py38/lib/python3.8/site-packages/ray/autoscaler/_private/monitor.py\", line 439, in run\n    self._run()\n  File \"/anaconda/envs/azureml_py38/lib/python3.8/site-packages/ray/autoscaler/_private/monitor.py\", line 346, in _run\n    time.sleep(AUTOSCALER_UPDATE_INTERVAL_S)\n\n"
         }
       ],
-      "execution_count": 3,
+      "execution_count": 15,
       "metadata": {
         "gather": {
-          "logged": 1639423878281
+          "logged": 1639463119365
         }
       }
     },
@@ -82,30 +145,31 @@
       "outputs": [
         {
           "output_type": "execute_result",
-          "execution_count": 4,
+          "execution_count": 16,
           "data": {
-            "text/plain": "{'node:10.1.0.12': 1.0,\n 'memory': 55648434588.0,\n 'CPU': 24.0,\n 'object_store_memory': 24289927985.0,\n 'node:10.1.0.5': 1.0,\n 'node:10.1.0.11': 1.0,\n 'node:10.1.0.13': 1.0,\n 'node:10.1.0.15': 1.0,\n 'node:10.1.0.9': 1.0}"
+            "text/plain": "{'node:10.1.0.11': 1.0,\n 'object_store_memory': 24777734552.0,\n 'memory': 56622848412.0,\n 'CPU': 24.0,\n 'node:10.1.0.9': 1.0,\n 'node:10.1.0.5': 1.0,\n 'node:10.1.0.7': 1.0,\n 'node:10.1.0.8': 1.0,\n 'node:10.1.0.4': 1.0}"
           },
           "metadata": {}
         }
       ],
-      "execution_count": 4,
+      "execution_count": 16,
       "metadata": {
         "gather": {
-          "logged": 1639428530663
+          "logged": 1639463388122
         }
       }
     },
     {
       "cell_type": "code",
       "source": [
-        "# ray_on_aml.shutdown()\n"
+        "# ray_on_aml.shutdown()\n",
+        "ray.shutdown()"
       ],
       "outputs": [],
-      "execution_count": null,
+      "execution_count": 17,
       "metadata": {
         "gather": {
-          "logged": 1639106683762
+          "logged": 1639463390695
         }
       }
     },
@@ -211,13 +275,21 @@
         {
           "output_type": "stream",
           "name": "stderr",
-          "text": "\r  0%|          | 0/16 [00:00<?, ?it/s]\rMetadata Fetch Progress:   0%|          | 0/16 [00:00<?, ?it/s]"
+          "text": "Metadata Fetch Progress: 100%|██████████| 16/16 [00:08<00:00,  1.78it/s]\n"
+        },
+        {
+          "output_type": "execute_result",
+          "execution_count": 6,
+          "data": {
+            "text/plain": "98904376"
+          },
+          "metadata": {}
         }
       ],
       "execution_count": 6,
       "metadata": {
         "gather": {
-          "logged": 1639106144831
+          "logged": 1639428612158
         }
       }
     },
@@ -336,8 +408,52 @@
         "\n",
         "analysis = tune.run(train_mnist, config=search_space)\n"
       ],
-      "outputs": [],
-      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": "2021-12-14 00:43:56,877\tWARNING function_runner.py:561 -- Function checkpointing is disabled. This may result in unexpected behavior when using checkpointing features or certain schedulers. To enable, set the train function arguments to be `func(config, checkpoint_dir=None)`.\n2021-12-14 00:43:56,917\tINFO logger.py:605 -- pip install \"ray[tune]\" to see TensorBoard files.\n2021-12-14 00:43:56,918\tWARNING callback.py:114 -- The TensorboardX logger cannot be instantiated because either TensorboardX or one of it's dependencies is not installed. Please make sure you have the latest version of TensorboardX installed: `pip install -U tensorboardx`\n"
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": "<IPython.core.display.HTML object>",
+            "text/html": "== Status ==<br>Current time: 2021-12-14 00:43:57 (running for 00:00:00.12)<br>Memory usage on this node: 5.7/13.7 GiB<br>Using FIFO scheduling algorithm.<br>Resources requested: 0/24 CPUs, 0/0 GPUs, 0.0/51.83 GiB heap, 0.0/22.62 GiB objects<br>Result logdir: /home/azureuser/ray_results/train_mnist_2021-12-14_00-43-56<br>Number of trials: 1/1 (1 PENDING)<br><table>\n<thead>\n<tr><th>Trial name             </th><th>status  </th><th>loc  </th><th style=\"text-align: right;\">         lr</th><th style=\"text-align: right;\">  momentum</th></tr>\n</thead>\n<tbody>\n<tr><td>train_mnist_eb850_00000</td><td>PENDING </td><td>     </td><td style=\"text-align: right;\">0.000300904</td><td style=\"text-align: right;\"> 0.0760256</td></tr>\n</tbody>\n</table><br><br>"
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": "2021-12-14 00:43:57,371\tERROR trial_runner.py:958 -- Trial train_mnist_eb850_00000: Error processing event.\nTraceback (most recent call last):\n  File \"/anaconda/envs/azureml_py38/lib/python3.8/site-packages/ray/tune/trial_runner.py\", line 924, in _process_trial\n    results = self.trial_executor.fetch_result(trial)\n  File \"/anaconda/envs/azureml_py38/lib/python3.8/site-packages/ray/tune/ray_trial_executor.py\", line 787, in fetch_result\n    result = ray.get(trial_future[0], timeout=DEFAULT_GET_TIMEOUT)\n  File \"/anaconda/envs/azureml_py38/lib/python3.8/site-packages/ray/_private/client_mode_hook.py\", line 105, in wrapper\n    return func(*args, **kwargs)\n  File \"/anaconda/envs/azureml_py38/lib/python3.8/site-packages/ray/worker.py\", line 1715, in get\n    raise value\nray.exceptions.RayActorError: The actor died because of an error raised in its creation task, \u001b[36mray::ImplicitFunc.__init__()\u001b[39m (pid=424, ip=10.1.0.13)\nRuntimeError: The actor with name ImplicitFunc failed to import on the worker. This may be because needed library dependencies are not installed in the worker environment:\n\n\u001b[36mray::ImplicitFunc.__init__()\u001b[39m (pid=424, ip=10.1.0.13)\n  File \"/azureml-envs/azureml_9f40ebd6c5e1a42ea1a7e894680858b1/lib/python3.8/site-packages/ray/cloudpickle/cloudpickle.py\", line 679, in subimport\n    __import__(name)\n  File \"/azureml-envs/azureml_9f40ebd6c5e1a42ea1a7e894680858b1/lib/python3.8/site-packages/torchvision/__init__.py\", line 6, in <module>\n    from torchvision import models\n  File \"/azureml-envs/azureml_9f40ebd6c5e1a42ea1a7e894680858b1/lib/python3.8/site-packages/torchvision/models/__init__.py\", line 12, in <module>\n    from . import detection\n  File \"/azureml-envs/azureml_9f40ebd6c5e1a42ea1a7e894680858b1/lib/python3.8/site-packages/torchvision/models/detection/__init__.py\", line 1, in <module>\n    from .faster_rcnn import *\n  File \"/azureml-envs/azureml_9f40ebd6c5e1a42ea1a7e894680858b1/lib/python3.8/site-packages/torchvision/models/detection/faster_rcnn.py\", line 7, in <module>\n    from torchvision.ops import misc as misc_nn_ops\n  File \"/azureml-envs/azureml_9f40ebd6c5e1a42ea1a7e894680858b1/lib/python3.8/site-packages/torchvision/ops/__init__.py\", line 1, in <module>\n    from .boxes import nms, batched_nms, remove_small_boxes, clip_boxes_to_image, box_area, box_iou, generalized_box_iou\n  File \"/azureml-envs/azureml_9f40ebd6c5e1a42ea1a7e894680858b1/lib/python3.8/site-packages/torchvision/ops/boxes.py\", line 45, in <module>\n    @torch.jit._script_if_tracing\nAttributeError: module 'torch.jit' has no attribute '_script_if_tracing'\n\u001b[2m\u001b[36m(TemporaryActor pid=424, ip=10.1.0.13)\u001b[0m 2021-12-14 00:43:57,366\tERROR worker.py:431 -- Exception raised in creation task: The actor died because of an error raised in its creation task, \u001b[36mray::ImplicitFunc.__init__()\u001b[39m (pid=424, ip=10.1.0.13)\n\u001b[2m\u001b[36m(TemporaryActor pid=424, ip=10.1.0.13)\u001b[0m RuntimeError: The actor with name ImplicitFunc failed to import on the worker. This may be because needed library dependencies are not installed in the worker environment:\n\u001b[2m\u001b[36m(TemporaryActor pid=424, ip=10.1.0.13)\u001b[0m \n\u001b[2m\u001b[36m(TemporaryActor pid=424, ip=10.1.0.13)\u001b[0m \u001b[36mray::ImplicitFunc.__init__()\u001b[39m (pid=424, ip=10.1.0.13)\n\u001b[2m\u001b[36m(TemporaryActor pid=424, ip=10.1.0.13)\u001b[0m   File \"/azureml-envs/azureml_9f40ebd6c5e1a42ea1a7e894680858b1/lib/python3.8/site-packages/ray/cloudpickle/cloudpickle.py\", line 679, in subimport\n\u001b[2m\u001b[36m(TemporaryActor pid=424, ip=10.1.0.13)\u001b[0m     __import__(name)\n\u001b[2m\u001b[36m(TemporaryActor pid=424, ip=10.1.0.13)\u001b[0m   File \"/azureml-envs/azureml_9f40ebd6c5e1a42ea1a7e894680858b1/lib/python3.8/site-packages/torchvision/__init__.py\", line 6, in <module>\n\u001b[2m\u001b[36m(TemporaryActor pid=424, ip=10.1.0.13)\u001b[0m     from torchvision import models\n\u001b[2m\u001b[36m(TemporaryActor pid=424, ip=10.1.0.13)\u001b[0m   File \"/azureml-envs/azureml_9f40ebd6c5e1a42ea1a7e894680858b1/lib/python3.8/site-packages/torchvision/models/__init__.py\", line 12, in <module>\n\u001b[2m\u001b[36m(TemporaryActor pid=424, ip=10.1.0.13)\u001b[0m     from . import detection\n\u001b[2m\u001b[36m(TemporaryActor pid=424, ip=10.1.0.13)\u001b[0m   File \"/azureml-envs/azureml_9f40ebd6c5e1a42ea1a7e894680858b1/lib/python3.8/site-packages/torchvision/models/detection/__init__.py\", line 1, in <module>\n\u001b[2m\u001b[36m(TemporaryActor pid=424, ip=10.1.0.13)\u001b[0m     from .faster_rcnn import *\n\u001b[2m\u001b[36m(TemporaryActor pid=424, ip=10.1.0.13)\u001b[0m   File \"/azureml-envs/azureml_9f40ebd6c5e1a42ea1a7e894680858b1/lib/python3.8/site-packages/torchvision/models/detection/faster_rcnn.py\", line 7, in <module>\n\u001b[2m\u001b[36m(TemporaryActor pid=424, ip=10.1.0.13)\u001b[0m     from torchvision.ops import misc as misc_nn_ops\n\u001b[2m\u001b[36m(TemporaryActor pid=424, ip=10.1.0.13)\u001b[0m   File \"/azureml-envs/azureml_9f40ebd6c5e1a42ea1a7e894680858b1/lib/python3.8/site-packages/torchvision/ops/__init__.py\", line 1, in <module>\n\u001b[2m\u001b[36m(TemporaryActor pid=424, ip=10.1.0.13)\u001b[0m     from .boxes import nms, batched_nms, remove_small_boxes, clip_boxes_to_image, box_area, box_iou, generalized_box_iou\n\u001b[2m\u001b[36m(TemporaryActor pid=424, ip=10.1.0.13)\u001b[0m   File \"/azureml-envs/azureml_9f40ebd6c5e1a42ea1a7e894680858b1/lib/python3.8/site-packages/torchvision/ops/boxes.py\", line 45, in <module>\n\u001b[2m\u001b[36m(TemporaryActor pid=424, ip=10.1.0.13)\u001b[0m     @torch.jit._script_if_tracing\n\u001b[2m\u001b[36m(TemporaryActor pid=424, ip=10.1.0.13)\u001b[0m AttributeError: module 'torch.jit' has no attribute '_script_if_tracing'\n"
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Result for train_mnist_eb850_00000:\n  trial_id: eb850_00000\n  \n"
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": "<IPython.core.display.HTML object>",
+            "text/html": "== Status ==<br>Current time: 2021-12-14 00:43:57 (running for 00:00:00.44)<br>Memory usage on this node: 5.7/13.7 GiB<br>Using FIFO scheduling algorithm.<br>Resources requested: 0/24 CPUs, 0/0 GPUs, 0.0/51.83 GiB heap, 0.0/22.62 GiB objects<br>Result logdir: /home/azureuser/ray_results/train_mnist_2021-12-14_00-43-56<br>Number of trials: 1/1 (1 ERROR)<br><table>\n<thead>\n<tr><th>Trial name             </th><th>status  </th><th>loc  </th><th style=\"text-align: right;\">         lr</th><th style=\"text-align: right;\">  momentum</th></tr>\n</thead>\n<tbody>\n<tr><td>train_mnist_eb850_00000</td><td>ERROR   </td><td>     </td><td style=\"text-align: right;\">0.000300904</td><td style=\"text-align: right;\"> 0.0760256</td></tr>\n</tbody>\n</table><br>Number of errored trials: 1<br><table>\n<thead>\n<tr><th>Trial name             </th><th style=\"text-align: right;\">  # failures</th><th>error file                                                                                                                                        </th></tr>\n</thead>\n<tbody>\n<tr><td>train_mnist_eb850_00000</td><td style=\"text-align: right;\">           1</td><td>/home/azureuser/ray_results/train_mnist_2021-12-14_00-43-56/train_mnist_eb850_00000_0_lr=0.0003009,momentum=0.076026_2021-12-14_00-43-57/error.txt</td></tr>\n</tbody>\n</table><br>"
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "error",
+          "ename": "TuneError",
+          "evalue": "('Trials did not complete', [train_mnist_eb850_00000])",
+          "traceback": [
+            "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+            "\u001b[0;31mTuneError\u001b[0m                                 Traceback (most recent call last)",
+            "\u001b[0;32m/tmp/ipykernel_13904/956064152.py\u001b[0m in \u001b[0;36m<module>\u001b[0;34m\u001b[0m\n\u001b[1;32m    102\u001b[0m \u001b[0mdatasets\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mMNIST\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m\"~/data\"\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mtrain\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;32mTrue\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mdownload\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;32mTrue\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    103\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 104\u001b[0;31m \u001b[0manalysis\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mtune\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mrun\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mtrain_mnist\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mconfig\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0msearch_space\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m",
+            "\u001b[0;32m/anaconda/envs/azureml_py38/lib/python3.8/site-packages/ray/tune/tune.py\u001b[0m in \u001b[0;36mrun\u001b[0;34m(run_or_experiment, name, metric, mode, stop, time_budget_s, config, resources_per_trial, num_samples, local_dir, search_alg, scheduler, keep_checkpoints_num, checkpoint_score_attr, checkpoint_freq, checkpoint_at_end, verbose, progress_reporter, log_to_file, trial_name_creator, trial_dirname_creator, sync_config, export_formats, max_failures, fail_fast, restore, server_port, resume, reuse_actors, trial_executor, raise_on_failed_trial, callbacks, max_concurrent_trials, queue_trials, loggers, _remote)\u001b[0m\n\u001b[1;32m    618\u001b[0m     \u001b[0;32mif\u001b[0m \u001b[0mincomplete_trials\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    619\u001b[0m         \u001b[0;32mif\u001b[0m \u001b[0mraise_on_failed_trial\u001b[0m \u001b[0;32mand\u001b[0m \u001b[0;32mnot\u001b[0m \u001b[0mstate\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0msignal\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mSIGINT\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 620\u001b[0;31m             \u001b[0;32mraise\u001b[0m \u001b[0mTuneError\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m\"Trials did not complete\"\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mincomplete_trials\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    621\u001b[0m         \u001b[0;32melse\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    622\u001b[0m             \u001b[0mlogger\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0merror\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m\"Trials did not complete: %s\"\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mincomplete_trials\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;31mTuneError\u001b[0m: ('Trials did not complete', [train_mnist_eb850_00000])"
+          ]
+        }
+      ],
+      "execution_count": 7,
       "metadata": {
         "gather": {
           "logged": 1639106657384
@@ -391,11 +507,43 @@
         "     config=config,\n",
         "     num_samples=10)\n"
       ],
-      "outputs": [],
-      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": "2021-12-14 00:44:11,009\tWARNING callback.py:114 -- The TensorboardX logger cannot be instantiated because either TensorboardX or one of it's dependencies is not installed. Please make sure you have the latest version of TensorboardX installed: `pip install -U tensorboardx`\n"
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": "<IPython.core.display.HTML object>",
+            "text/html": "== Status ==<br>Current time: 2021-12-14 00:44:12 (running for 00:00:01.00)<br>Memory usage on this node: 5.7/13.7 GiB<br>Using FIFO scheduling algorithm.<br>Resources requested: 1.0/24 CPUs, 0/0 GPUs, 0.0/51.83 GiB heap, 0.0/22.62 GiB objects<br>Result logdir: /home/azureuser/ray_results/train_breast_cancer_2021-12-14_00-44-11<br>Number of trials: 10/10 (9 PENDING, 1 RUNNING)<br><table>\n<thead>\n<tr><th>Trial name                     </th><th>status  </th><th>loc           </th><th style=\"text-align: right;\">        eta</th><th style=\"text-align: right;\">  max_depth</th><th style=\"text-align: right;\">  min_child_weight</th><th style=\"text-align: right;\">  subsample</th></tr>\n</thead>\n<tbody>\n<tr><td>train_breast_cancer_f3ef5_00000</td><td>RUNNING </td><td>10.1.0.5:23891</td><td style=\"text-align: right;\">0.00186465 </td><td style=\"text-align: right;\">          2</td><td style=\"text-align: right;\">                 2</td><td style=\"text-align: right;\">   0.71512 </td></tr>\n<tr><td>train_breast_cancer_f3ef5_00001</td><td>PENDING </td><td>              </td><td style=\"text-align: right;\">0.00391335 </td><td style=\"text-align: right;\">          1</td><td style=\"text-align: right;\">                 1</td><td style=\"text-align: right;\">   0.814205</td></tr>\n<tr><td>train_breast_cancer_f3ef5_00002</td><td>PENDING </td><td>              </td><td style=\"text-align: right;\">0.0537188  </td><td style=\"text-align: right;\">          6</td><td style=\"text-align: right;\">                 2</td><td style=\"text-align: right;\">   0.829706</td></tr>\n<tr><td>train_breast_cancer_f3ef5_00003</td><td>PENDING </td><td>              </td><td style=\"text-align: right;\">0.0570274  </td><td style=\"text-align: right;\">          5</td><td style=\"text-align: right;\">                 1</td><td style=\"text-align: right;\">   0.818953</td></tr>\n<tr><td>train_breast_cancer_f3ef5_00004</td><td>PENDING </td><td>              </td><td style=\"text-align: right;\">0.00288771 </td><td style=\"text-align: right;\">          5</td><td style=\"text-align: right;\">                 2</td><td style=\"text-align: right;\">   0.503914</td></tr>\n<tr><td>train_breast_cancer_f3ef5_00005</td><td>PENDING </td><td>              </td><td style=\"text-align: right;\">0.000167493</td><td style=\"text-align: right;\">          3</td><td style=\"text-align: right;\">                 2</td><td style=\"text-align: right;\">   0.757776</td></tr>\n<tr><td>train_breast_cancer_f3ef5_00006</td><td>PENDING </td><td>              </td><td style=\"text-align: right;\">0.000111108</td><td style=\"text-align: right;\">          3</td><td style=\"text-align: right;\">                 2</td><td style=\"text-align: right;\">   0.618197</td></tr>\n<tr><td>train_breast_cancer_f3ef5_00007</td><td>PENDING </td><td>              </td><td style=\"text-align: right;\">0.000585458</td><td style=\"text-align: right;\">          1</td><td style=\"text-align: right;\">                 2</td><td style=\"text-align: right;\">   0.750409</td></tr>\n<tr><td>train_breast_cancer_f3ef5_00008</td><td>PENDING </td><td>              </td><td style=\"text-align: right;\">0.000692446</td><td style=\"text-align: right;\">          3</td><td style=\"text-align: right;\">                 1</td><td style=\"text-align: right;\">   0.810961</td></tr>\n<tr><td>train_breast_cancer_f3ef5_00009</td><td>PENDING </td><td>              </td><td style=\"text-align: right;\">0.0050665  </td><td style=\"text-align: right;\">          4</td><td style=\"text-align: right;\">                 3</td><td style=\"text-align: right;\">   0.532366</td></tr>\n</tbody>\n</table><br><br>"
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Result for train_breast_cancer_f3ef5_00001:\n  date: 2021-12-14_00-44-12\n  done: true\n  experiment_id: 68117f4f09694788aad9e3e3ce611e91\n  hostname: fcddd95c17024a528498abb65fa46bc8000002\n  iterations_since_restore: 1\n  mean_accuracy: 0.895105\n  node_ip: 10.1.0.11\n  pid: 423\n  time_since_restore: 0.06230735778808594\n  time_this_iter_s: 0.06230735778808594\n  time_total_s: 0.06230735778808594\n  timestamp: 1639442652\n  timesteps_since_restore: 0\n  training_iteration: 1\n  trial_id: f3ef5_00001\n  \nResult for train_breast_cancer_f3ef5_00000:\n  date: 2021-12-14_00-44-12\n  done: true\n  experiment_id: 279d327638884103abc5df2edab520a1\n  hostname: hyssh1\n  iterations_since_restore: 1\n  mean_accuracy: 0.93007\n  node_ip: 10.1.0.5\n  pid: 23891\n  time_since_restore: 0.4081110954284668\n  time_this_iter_s: 0.4081110954284668\n  time_total_s: 0.4081110954284668\n  timestamp: 1639442652\n  timesteps_since_restore: 0\n  training_iteration: 1\n  trial_id: f3ef5_00000\n  \nResult for train_breast_cancer_f3ef5_00005:\n  date: 2021-12-14_00-44-12\n  done: true\n  experiment_id: c93b5602281b4a05a210a631e14786d4\n  hostname: fcddd95c17024a528498abb65fa46bc8000001\n  iterations_since_restore: 1\n  mean_accuracy: 0.916084\n  node_ip: 10.1.0.9\n  pid: 364\n  time_since_restore: 0.1194605827331543\n  time_this_iter_s: 0.1194605827331543\n  time_total_s: 0.1194605827331543\n  timestamp: 1639442652\n  timesteps_since_restore: 0\n  training_iteration: 1\n  trial_id: f3ef5_00005\n  \nResult for train_breast_cancer_f3ef5_00003:\n  date: 2021-12-14_00-44-12\n  done: true\n  experiment_id: ed82e583bfc3448ab2236c89a0af7d95\n  hostname: fcddd95c17024a528498abb65fa46bc8000001\n  iterations_since_restore: 1\n  mean_accuracy: 0.951049\n  node_ip: 10.1.0.9\n  pid: 445\n  time_since_restore: 0.1364755630493164\n  time_this_iter_s: 0.1364755630493164\n  time_total_s: 0.1364755630493164\n  timestamp: 1639442652\n  timesteps_since_restore: 0\n  training_iteration: 1\n  trial_id: f3ef5_00003\n  \nResult for train_breast_cancer_f3ef5_00004:\n  date: 2021-12-14_00-44-12\n  done: true\n  experiment_id: 4a8b1a342f4c4edc84b6183c05d8ac08\n  hostname: fcddd95c17024a528498abb65fa46bc8000003\n  iterations_since_restore: 1\n  mean_accuracy: 0.944056\n  node_ip: 10.1.0.12\n  pid: 340\n  time_since_restore: 0.13007092475891113\n  time_this_iter_s: 0.13007092475891113\n  time_total_s: 0.13007092475891113\n  timestamp: 1639442652\n  timesteps_since_restore: 0\n  training_iteration: 1\n  trial_id: f3ef5_00004\n  \nResult for train_breast_cancer_f3ef5_00002:\n  date: 2021-12-14_00-44-12\n  done: true\n  experiment_id: ced4abbfc9514ab9a065d38cb29769fc\n  hostname: fcddd95c17024a528498abb65fa46bc8000006\n  iterations_since_restore: 1\n  mean_accuracy: 0.965035\n  node_ip: 10.1.0.15\n  pid: 342\n  time_since_restore: 0.1389150619506836\n  time_this_iter_s: 0.1389150619506836\n  time_total_s: 0.1389150619506836\n  timestamp: 1639442652\n  timesteps_since_restore: 0\n  training_iteration: 1\n  trial_id: f3ef5_00002\n  \nResult for train_breast_cancer_f3ef5_00007:\n  date: 2021-12-14_00-44-12\n  done: true\n  experiment_id: ba0ce8fd314f40fcad44b62ad361e862\n  hostname: fcddd95c17024a528498abb65fa46bc8000004\n  iterations_since_restore: 1\n  mean_accuracy: 0.888112\n  node_ip: 10.1.0.13\n  pid: 344\n  time_since_restore: 0.12878918647766113\n  time_this_iter_s: 0.12878918647766113\n  time_total_s: 0.12878918647766113\n  timestamp: 1639442652\n  timesteps_since_restore: 0\n  training_iteration: 1\n  trial_id: f3ef5_00007\n  \nResult for train_breast_cancer_f3ef5_00009:\n  date: 2021-12-14_00-44-12\n  done: true\n  experiment_id: 56543f4807f64a1180cd05b757d05579\n  hostname: fcddd95c17024a528498abb65fa46bc8000006\n  iterations_since_restore: 1\n  mean_accuracy: 0.93007\n  node_ip: 10.1.0.15\n  pid: 425\n  time_since_restore: 0.14608120918273926\n  time_this_iter_s: 0.14608120918273926\n  time_total_s: 0.14608120918273926\n  timestamp: 1639442652\n  timesteps_since_restore: 0\n  training_iteration: 1\n  trial_id: f3ef5_00009\n  \nResult for train_breast_cancer_f3ef5_00008:\n  date: 2021-12-14_00-44-12\n  done: true\n  experiment_id: c07768e72bf94343b0f5841a62dfa54b\n  hostname: fcddd95c17024a528498abb65fa46bc8000003\n  iterations_since_restore: 1\n  mean_accuracy: 0.965035\n  node_ip: 10.1.0.12\n  pid: 422\n  time_since_restore: 0.14992022514343262\n  time_this_iter_s: 0.14992022514343262\n  time_total_s: 0.14992022514343262\n  timestamp: 1639442652\n  timesteps_since_restore: 0\n  training_iteration: 1\n  trial_id: f3ef5_00008\n  \nResult for train_breast_cancer_f3ef5_00006:\n  date: 2021-12-14_00-44-12\n  done: true\n  experiment_id: e9a977f75627458eb8ae75dc31125257\n  hostname: fcddd95c17024a528498abb65fa46bc8000004\n  iterations_since_restore: 1\n  mean_accuracy: 0.937063\n  node_ip: 10.1.0.13\n  pid: 343\n  time_since_restore: 0.06719303131103516\n  time_this_iter_s: 0.06719303131103516\n  time_total_s: 0.06719303131103516\n  timestamp: 1639442652\n  timesteps_since_restore: 0\n  training_iteration: 1\n  trial_id: f3ef5_00006\n  \n"
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": "<IPython.core.display.HTML object>",
+            "text/html": "== Status ==<br>Current time: 2021-12-14 00:44:12 (running for 00:00:01.86)<br>Memory usage on this node: 5.5/13.7 GiB<br>Using FIFO scheduling algorithm.<br>Resources requested: 0/24 CPUs, 0/0 GPUs, 0.0/51.83 GiB heap, 0.0/22.62 GiB objects<br>Result logdir: /home/azureuser/ray_results/train_breast_cancer_2021-12-14_00-44-11<br>Number of trials: 10/10 (10 TERMINATED)<br><table>\n<thead>\n<tr><th>Trial name                     </th><th>status    </th><th>loc           </th><th style=\"text-align: right;\">        eta</th><th style=\"text-align: right;\">  max_depth</th><th style=\"text-align: right;\">  min_child_weight</th><th style=\"text-align: right;\">  subsample</th><th style=\"text-align: right;\">     acc</th><th style=\"text-align: right;\">  iter</th><th style=\"text-align: right;\">  total time (s)</th></tr>\n</thead>\n<tbody>\n<tr><td>train_breast_cancer_f3ef5_00000</td><td>TERMINATED</td><td>10.1.0.5:23891</td><td style=\"text-align: right;\">0.00186465 </td><td style=\"text-align: right;\">          2</td><td style=\"text-align: right;\">                 2</td><td style=\"text-align: right;\">   0.71512 </td><td style=\"text-align: right;\">0.93007 </td><td style=\"text-align: right;\">     1</td><td style=\"text-align: right;\">       0.408111 </td></tr>\n<tr><td>train_breast_cancer_f3ef5_00001</td><td>TERMINATED</td><td>10.1.0.11:423 </td><td style=\"text-align: right;\">0.00391335 </td><td style=\"text-align: right;\">          1</td><td style=\"text-align: right;\">                 1</td><td style=\"text-align: right;\">   0.814205</td><td style=\"text-align: right;\">0.895105</td><td style=\"text-align: right;\">     1</td><td style=\"text-align: right;\">       0.0623074</td></tr>\n<tr><td>train_breast_cancer_f3ef5_00002</td><td>TERMINATED</td><td>10.1.0.15:342 </td><td style=\"text-align: right;\">0.0537188  </td><td style=\"text-align: right;\">          6</td><td style=\"text-align: right;\">                 2</td><td style=\"text-align: right;\">   0.829706</td><td style=\"text-align: right;\">0.965035</td><td style=\"text-align: right;\">     1</td><td style=\"text-align: right;\">       0.138915 </td></tr>\n<tr><td>train_breast_cancer_f3ef5_00003</td><td>TERMINATED</td><td>10.1.0.9:445  </td><td style=\"text-align: right;\">0.0570274  </td><td style=\"text-align: right;\">          5</td><td style=\"text-align: right;\">                 1</td><td style=\"text-align: right;\">   0.818953</td><td style=\"text-align: right;\">0.951049</td><td style=\"text-align: right;\">     1</td><td style=\"text-align: right;\">       0.136476 </td></tr>\n<tr><td>train_breast_cancer_f3ef5_00004</td><td>TERMINATED</td><td>10.1.0.12:340 </td><td style=\"text-align: right;\">0.00288771 </td><td style=\"text-align: right;\">          5</td><td style=\"text-align: right;\">                 2</td><td style=\"text-align: right;\">   0.503914</td><td style=\"text-align: right;\">0.944056</td><td style=\"text-align: right;\">     1</td><td style=\"text-align: right;\">       0.130071 </td></tr>\n<tr><td>train_breast_cancer_f3ef5_00005</td><td>TERMINATED</td><td>10.1.0.9:364  </td><td style=\"text-align: right;\">0.000167493</td><td style=\"text-align: right;\">          3</td><td style=\"text-align: right;\">                 2</td><td style=\"text-align: right;\">   0.757776</td><td style=\"text-align: right;\">0.916084</td><td style=\"text-align: right;\">     1</td><td style=\"text-align: right;\">       0.119461 </td></tr>\n<tr><td>train_breast_cancer_f3ef5_00006</td><td>TERMINATED</td><td>10.1.0.13:343 </td><td style=\"text-align: right;\">0.000111108</td><td style=\"text-align: right;\">          3</td><td style=\"text-align: right;\">                 2</td><td style=\"text-align: right;\">   0.618197</td><td style=\"text-align: right;\">0.937063</td><td style=\"text-align: right;\">     1</td><td style=\"text-align: right;\">       0.067193 </td></tr>\n<tr><td>train_breast_cancer_f3ef5_00007</td><td>TERMINATED</td><td>10.1.0.13:344 </td><td style=\"text-align: right;\">0.000585458</td><td style=\"text-align: right;\">          1</td><td style=\"text-align: right;\">                 2</td><td style=\"text-align: right;\">   0.750409</td><td style=\"text-align: right;\">0.888112</td><td style=\"text-align: right;\">     1</td><td style=\"text-align: right;\">       0.128789 </td></tr>\n<tr><td>train_breast_cancer_f3ef5_00008</td><td>TERMINATED</td><td>10.1.0.12:422 </td><td style=\"text-align: right;\">0.000692446</td><td style=\"text-align: right;\">          3</td><td style=\"text-align: right;\">                 1</td><td style=\"text-align: right;\">   0.810961</td><td style=\"text-align: right;\">0.965035</td><td style=\"text-align: right;\">     1</td><td style=\"text-align: right;\">       0.14992  </td></tr>\n<tr><td>train_breast_cancer_f3ef5_00009</td><td>TERMINATED</td><td>10.1.0.15:425 </td><td style=\"text-align: right;\">0.0050665  </td><td style=\"text-align: right;\">          4</td><td style=\"text-align: right;\">                 3</td><td style=\"text-align: right;\">   0.532366</td><td style=\"text-align: right;\">0.93007 </td><td style=\"text-align: right;\">     1</td><td style=\"text-align: right;\">       0.146081 </td></tr>\n</tbody>\n</table><br><br>"
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": "2021-12-14 00:44:12,990\tINFO tune.py:626 -- Total run time: 1.99 seconds (1.84 seconds for the tuning loop).\n"
+        }
+      ],
+      "execution_count": 8,
       "metadata": {
         "gather": {
-          "logged": 1639106681808
+          "logged": 1639442652624
         }
       }
     },

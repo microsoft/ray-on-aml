@@ -2,6 +2,10 @@
 
 This package simplifies setup of Ray and Ray's components such as DaskOnRay, SparkOnRay, Ray Machine Learning in Azure ML for your data science projects.
 
+## Architecture
+
+![RayOnAML_Interactive_Arch](./images/RayOnAML_Interactive_Arch.png)
+
 ## Prerequistes
 
 Before you run sample, please check followings.
@@ -25,14 +29,14 @@ pip install --upgrade ray-on-aml
 ```
 Also install additional library 
 
-> [ ] install libraries i.e. Ray 1.9, etc in Compute Instance
+> [ ] install libraries i.e. Ray 1.9.0, etc in Compute Instance
 
 ### 3. Select kernel 
 
 Use ```azureml_py38``` from ```(Jupyter) Notebook``` in Azure Machine Learning Studio to run following examples. 
 > Note: VSCode is not supported yet.
 
-### Run ray-on-aml
+### 4. Run ray-on-aml
 
 ```python
 from ray_on_aml.core import Ray_On_AML
@@ -55,4 +59,13 @@ from ray_on_aml.core import Ray_On_AML
     else:
         print("in worker node")
 ```
+### 5. Shutdown ray cluster
+
+To shutdown cluster you must run following.
+```ptyhon
+from ray_on_aml.core import Ray_On_AML
+
+ray_on_aml.shutdown()
+```
+
 Check out examples to learn more 

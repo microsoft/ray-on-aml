@@ -10,6 +10,49 @@
     {
       "cell_type": "code",
       "source": [
+        "import sys\r\n",
+        "import ray\r\n",
+        "\r\n",
+        "if not (sys.version_info.major == 3 and sys.version_info.minor == 8):\r\n",
+        "    print(\"Python 3.8 or higher is required.\")\r\n",
+        "    print(\"Change kerner to azureml_py38\")\r\n",
+        "    print(\"                 ^^^^^^^^^^^\")\r\n",
+        "else:\r\n",
+        "    print(f\"{sys.version_info.major}.{sys.version_info.minor} is detected.\")\r\n",
+        "\r\n",
+        "if not ray.__version__.startswith('1.9'):\r\n",
+        "    print(\"User Ray is not 1.9\")\r\n",
+        "    print(\"pip install ray==1.9.0\")\r\n",
+        "    print(\"           ^^^^^^^^^^^\")\r\n",
+        "else:\r\n",
+        "    print(f\"{ray.__version__} is detected\")\r\n"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "3.8 is detected.\n1.9.0 is detected\n"
+        }
+      ],
+      "execution_count": 4,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1639464905474
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
         "import mlflow\n",
         "from azureml.core import Workspace, Experiment, Environment, Datastore, Dataset, ScriptRunConfig\n",
         "from azureml.core.runconfig import PyTorchConfiguration\n",
@@ -28,17 +71,17 @@
         "import importlib\n"
       ],
       "outputs": [],
-      "execution_count": 1,
+      "execution_count": 5,
       "metadata": {
         "gather": {
-          "logged": 1639168219519
+          "logged": 1639464907468
         }
       }
     },
     {
       "cell_type": "code",
       "source": [
-        "from src.ray_on_azureml.ray_on_aml import Ray_On_AML\n",
+        "from src.ray_on_aml.core import Ray_On_AML\n",
         "ws = Workspace.from_config()\n",
         "ray_on_aml =Ray_On_AML(ws=ws, compute_cluster =\"worker-cpu-v3\")\n",
         "_, ray = ray_on_aml.getRay()\n",
@@ -48,59 +91,85 @@
         {
           "output_type": "stream",
           "name": "stdout",
-          "text": "azureml_py38\n"
+          "text": "rank returned is  None\nrank returned is  None\nazureml_py38\nFound existing cluster, use it.\n"
         },
         {
           "output_type": "stream",
           "name": "stderr",
-          "text": "2021-12-10 20:30:47,412\tINFO services.py:1338 -- View the Ray dashboard at \u001b[1m\u001b[32mhttp://127.0.0.1:8265\u001b[39m\u001b[22m\n"
+          "text": "2021-12-14 06:55:17,517\tINFO services.py:1338 -- View the Ray dashboard at \u001b[1m\u001b[32mhttp://127.0.0.1:8265\u001b[39m\u001b[22m\n2021-12-14 06:55:32,057\tINFO worker.py:842 -- Connecting to existing Ray cluster at address: 10.1.0.5:6379\n2021-12-14 06:55:32,208\tWARNING worker.py:1219 -- The autoscaler failed with the following error:\nTerminated with signal 15\n  File \"/anaconda/envs/azureml_py38/lib/python3.8/site-packages/ray/autoscaler/_private/monitor.py\", line 543, in <module>\n    monitor.run()\n  File \"/anaconda/envs/azureml_py38/lib/python3.8/site-packages/ray/autoscaler/_private/monitor.py\", line 439, in run\n    self._run()\n  File \"/anaconda/envs/azureml_py38/lib/python3.8/site-packages/ray/autoscaler/_private/monitor.py\", line 346, in _run\n    time.sleep(AUTOSCALER_UPDATE_INTERVAL_S)\n\n"
         },
         {
-          "output_type": "stream",
-          "name": "stdout",
-          "text": "Found existing cluster, use it.\n"
-        },
-        {
-          "output_type": "stream",
-          "name": "stderr",
-          "text": "2021-12-10 20:31:02,265\tINFO worker.py:842 -- Connecting to existing Ray cluster at address: 10.0.0.11:6379\n2021-12-10 20:31:02,400\tWARNING worker.py:1219 -- The autoscaler failed with the following error:\nTraceback (most recent call last):\n  File \"/anaconda/envs/azureml_py36/lib/python3.6/site-packages/ray/autoscaler/_private/monitor.py\", line 439, in run\n    self._run()\n  File \"/anaconda/envs/azureml_py36/lib/python3.6/site-packages/ray/autoscaler/_private/monitor.py\", line 346, in _run\n    time.sleep(AUTOSCALER_UPDATE_INTERVAL_S)\n  File \"/anaconda/envs/azureml_py36/lib/python3.6/site-packages/ray/autoscaler/_private/monitor.py\", line 427, in _signal_handler\n    \"\".join(traceback.format_stack(frame)))\n  File \"/anaconda/envs/azureml_py36/lib/python3.6/site-packages/ray/autoscaler/_private/monitor.py\", line 409, in _handle_failure\n    _internal_kv_put(DEBUG_AUTOSCALING_ERROR, message, overwrite=True)\n  File \"/anaconda/envs/azureml_py36/lib/python3.6/site-packages/ray/_private/client_mode_hook.py\", line 105, in wrapper\n    return func(*args, **kwargs)\n  File \"/anaconda/envs/azureml_py36/lib/python3.6/site-packages/ray/experimental/internal_kv.py\", line 79, in _internal_kv_put\n    namespace) == 0\n  File \"/anaconda/envs/azureml_py36/lib/python3.6/site-packages/ray/_private/gcs_utils.py\", line 130, in wrapper\n    return f(self, *args, **kwargs)\n  File \"/anaconda/envs/azureml_py36/lib/python3.6/site-packages/ray/_private/gcs_utils.py\", line 249, in internal_kv_put\n    reply = self._kv_stub.InternalKVPut(req)\n  File \"/anaconda/envs/azureml_py36/lib/python3.6/site-packages/grpc/_channel.py\", line 946, in __call__\n    return _end_unary_response_blocking(state, call, False, None)\n  File \"/anaconda/envs/azureml_py36/lib/python3.6/site-packages/grpc/_channel.py\", line 849, in _end_unary_response_blocking\n    raise _InactiveRpcError(state)\ngrpc._channel._InactiveRpcError: <_InactiveRpcError of RPC that terminated with:\n\tstatus = StatusCode.UNAVAILABLE\n\tdetails = \"failed to connect to all addresses\"\n\tdebug_error_string = \"{\"created\":\"@1639168243.735582650\",\"description\":\"Failed to pick subchannel\",\"file\":\"src/core/ext/filters/client_channel/client_channel.cc\",\"file_line\":3008,\"referenced_errors\":[{\"created\":\"@1639168242.734484647\",\"description\":\"failed to connect to all addresses\",\"file\":\"src/core/ext/filters/client_channel/lb_policy/pick_first/pick_first.cc\",\"file_line\":397,\"grpc_status\":14}]}\"\n>\n\n"
-        },
-        {
-          "output_type": "stream",
-          "name": "stdout",
-          "text": "Waiting: Cluster status is in  Preparing\n"
-        },
-        {
-          "output_type": "stream",
-          "name": "stdout",
-          "text": "Waiting: Cluster status is in  Preparing\n"
-        },
-        {
-          "output_type": "stream",
-          "name": "stdout",
-          "text": "Waiting: Cluster status is in  Preparing\nWaiting: Cluster status is in  Preparing\nWaiting: Cluster status is in  Preparing\nWaiting: Cluster status is in  Preparing\nWaiting: Cluster status is in  Preparing\nWaiting: Cluster status is in  Preparing\nWaiting: Cluster status is in  Preparing\nWaiting: Cluster status is in  Preparing\nWaiting: Cluster status is in  Preparing\nWaiting: Cluster status is in  Preparing\nWaiting: Cluster status is in  Preparing\nWaiting: Cluster status is in  Preparing\n"
+          "output_type": "execute_result",
+          "execution_count": 6,
+          "data": {
+            "text/plain": "{'node:10.1.0.5': 1.0,\n 'CPU': 4.0,\n 'object_store_memory': 3305130393.0,\n 'memory': 6610260788.0}"
+          },
+          "metadata": {}
         }
       ],
-      "execution_count": 2,
+      "execution_count": 6,
       "metadata": {
         "gather": {
-          "logged": 1639167793538
+          "logged": 1639464931994
         }
       }
     },
     {
       "cell_type": "code",
       "source": [
-        "ray_on_aml.shutdown()\n",
+        "ray.cluster_resources()"
+      ],
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "execution_count": 14,
+          "data": {
+            "text/plain": "{'object_store_memory': 24512124516.0,\n 'node:10.1.0.5': 1.0,\n 'memory': 56093247081.0,\n 'CPU': 24.0,\n 'node:10.1.0.4': 1.0,\n 'node:10.1.0.9': 1.0,\n 'node:10.1.0.8': 1.0,\n 'node:10.1.0.7': 1.0,\n 'node:10.1.0.11': 1.0}"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 14,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1639464969085
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "print(ray_on_aml.run)\n",
+        "# ray_on_aml.shutdown()\n",
         "# import ray\n",
         "# ray.shutdown()\n",
         "# ray.init()"
       ],
-      "outputs": [],
-      "execution_count": 11,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Run(Experiment: ray_on_aml,\nId: ray_on_aml_1639464919_93c6f227,\nType: azureml.scriptrun,\nStatus: Queued)\n"
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": "2021-12-14 07:00:28,670\tWARNING worker.py:1245 -- The node with node id: 359ec449b46156a3fbfb8080f2cec158cbba5cccfacff1f07dd43189 and ip: 10.1.0.7 has been marked dead because the detector has missed too many heartbeats from it. This can happen when a raylet crashes unexpectedly or has lagging heartbeats.\n"
+        }
+      ],
+      "execution_count": 15,
       "metadata": {
         "gather": {
-          "logged": 1639106683762
+          "logged": 1639464971727
         }
       }
     },
@@ -719,24 +788,21 @@
       "name": "python38-azureml"
     },
     "kernelspec": {
-      "display_name": "Python 3.8 - AzureML",
+      "name": "python38-azureml",
       "language": "python",
-      "name": "python3"
+      "display_name": "Python 3.8 - AzureML"
     },
     "language_info": {
+      "name": "python",
+      "version": "3.8.12",
+      "mimetype": "text/x-python",
       "codemirror_mode": {
         "name": "ipython",
         "version": 3
       },
-      "file_extension": ".py",
-      "mimetype": "text/x-python",
-      "name": "python",
-      "nbconvert_exporter": "python",
       "pygments_lexer": "ipython3",
-      "version": "3.8.1"
-    },
-    "nteract": {
-      "version": "nteract-front-end@1.0.0"
+      "nbconvert_exporter": "python",
+      "file_extension": ".py"
     },
     "microsoft": {
       "host": {
@@ -744,6 +810,9 @@
           "notebookHasBeenCompleted": true
         }
       }
+    },
+    "nteract": {
+      "version": "nteract-front-end@1.0.0"
     }
   },
   "nbformat": 4,
