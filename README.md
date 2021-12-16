@@ -38,6 +38,7 @@ pip install --upgrade ray-on-aml
 
 
 ### 4. Run ray-on-aml
+Run in interactive mode in compute instance's notebook
 
 ```python
 from ray_on_aml.core import Ray_On_AML
