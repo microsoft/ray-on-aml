@@ -66,4 +66,4 @@ To shutdown cluster you must run following.
 ray_on_aml.shutdown()
 ```
 
-Check out ![quick start examples](./examples/quick_use_cases.ipynb) to learn more 
+Check out [quick start examples](./examples/quick_use_cases.ipynb) to learn more 
