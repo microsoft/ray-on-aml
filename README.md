@@ -29,7 +29,7 @@ pip install --upgrade ray-on-aml
 ```
 Also install additional library 
 
-> [ ] install libraries i.e. Ray 1.9.0, etc in Compute Instance
+> [ ] install libraries i.e. Ray 1.9.1, etc in Compute Instance
 
 ### 3. Select kernel 
 
@@ -42,7 +42,7 @@ Use ```azureml_py38``` from ```(Jupyter) Notebook``` in Azure Machine Learning S
 from ray_on_aml.core import Ray_On_AML
 ws = Workspace.from_config()
 ray_on_aml =Ray_On_AML(ws=ws, compute_cluster ="worker-cpu-v3")
-_, ray = ray_on_aml.getRay() # may take around 7 or more mintues
+ray = ray_on_aml.getRay() # may take around 7 or more mintues
 ```
 
 For use in an AML job, include ray_on_aml as a pip dependency and inside your script, do this to get ray
