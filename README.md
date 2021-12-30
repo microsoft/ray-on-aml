@@ -41,10 +41,10 @@ pip install --upgrade ray-on-aml
 ### 3. Select kernel 
 
 Use ```azureml_py38``` from ```(Jupyter) Notebook``` in Azure Machine Learning Studio to run following examples. 
-> Note: Due to Conda env issue, VSCode is not supported yet when using the compute instance as head node when using with ci_is_head = True in getRay() method 
+> Note: Due to Conda env issue,VSCode is not supported yet when using the compute instance as head node when using with ci_is_head = True in getRay() method 
 
 ### 4. Run ray-on-aml
-Run in interactive mode in compute instance's notebook
+Run in interactive mode in a Compute Instance notebook
 
 ```python
 from ray_on_aml.core import Ray_On_AML
@@ -54,7 +54,7 @@ ray = ray_on_aml.getRay() # may take around 7 or more mintues
 
 ```
 
-For use in an AML job, include ray_on_aml as a pip dependency and inside your script, do this to get ray
+For use in an Azure ML job, include ray_on_aml as a pip dependency and inside your script, do this to get ray
 ```python
 
 from ray_on_aml.core import Ray_On_AML
