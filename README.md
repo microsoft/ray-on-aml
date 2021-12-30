@@ -36,12 +36,12 @@ To install ray-on-aml
 pip install --upgrade ray-on-aml
 ```
 
-> [ ] install libraries i.e. Ray 1.9.1, etc in Compute Instance
+> Installing this library will also install ray[default]==1.9.1, pyarrow>= 5.0.0, dask[complete]==2021.12.0, adlfs==2021.10.0 and fsspec==2021.10.1
 
 ### 3. Select kernel 
 
 Use ```azureml_py38``` from ```(Jupyter) Notebook``` in Azure Machine Learning Studio to run following examples. 
-> Note: VSCode is not supported yet.
+> Note: Due to Conda env issue, VSCode is not supported yet when using the compute instance as head node when using with ci_is_head = True in getRay() method 
 
 ### 4. Run ray-on-aml
 Run in interactive mode in compute instance's notebook
