@@ -1,4 +1,3 @@
-import mlflow
 import ray
 import numpy as np
 from azureml.core import Run
@@ -108,24 +107,20 @@ search_space = {
     "momentum": tune.uniform(0.01, 0.09)
 }
 
+#demonstrate parallel data processing
+def get_data_count():
 
-def get_data_count(account_key):
-    account_name="adlsgen7"
-    abfs = AzureBlobFileSystem(account_name="adlsgen7",account_key=account_key,  container_name="mltraining")
-    abfs2 = AzureBlobFileSystem(account_name="azureopendatastorage",  container_name="isdweatherdatacontainer")
+    abfs = AzureBlobFileSystem(account_name="azureopendatastorage",  container_name="isdweatherdatacontainer")
 
-    storage_options={'account_name': account_name, 'account_key': account_key}
     storage_options = {'account_name': 'azureopendatastorage'}
     ddf = dd.read_parquet('az://nyctlc/green/puYear=2019/puMonth=*/*.parquet', storage_options=storage_options)
 
-    data = ray.data.read_parquet("az://isdweatherdatacontainer/ISDWeather/year=2009", filesystem=abfs2)
-    data2 = ray.data.read_parquet("az://mltraining/ISDWeatherDelta/year2008", filesystem=abfs)
-    return data.count(), data2.count(),ddf.count().compute()
+    data = ray.data.read_parquet("az://isdweatherdatacontainer/ISDWeather/year=2009", filesystem=abfs)
+    return data.count(),ddf.count().compute()
 
 if __name__ == "__main__":
     run = Run.get_context()
     ws = run.experiment.workspace
-    account_key = ws.get_default_keyvault().get_secret("adls7-account-key")
     ray_on_aml =Ray_On_AML()
     ray = ray_on_aml.getRay()
 
@@ -133,10 +128,12 @@ if __name__ == "__main__":
         print("head node detected")
 
         datasets.MNIST("~/data", train=True, download=True)
-
+        #demonstate parallel hyper param tuning
         analysis = tune.run(train_mnist, config=search_space)
         print(ray.cluster_resources())
-        print("data count result", get_data_count(account_key))
+        #demonstrate parallel data processing
+
+        print("data count result", get_data_count())
 
     else:
         print("in worker node")
