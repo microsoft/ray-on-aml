@@ -1,6 +1,7 @@
 # Ray on Azure ML
 
 This package simplifies setup of Ray and Ray's components such as DaskOnRay, SparkOnRay, Ray Machine Learning in Azure ML for your data science projects.
+This allows you to use AML compute as Ray/Dask cluster in both interactive and job modes.
 
 ## Architecture
 
@@ -25,9 +26,8 @@ Check list
 
 ### 2. Select kernel 
 
-Use ```azureml_py38``` from ```(Jupyter) Notebook``` in Azure Machine Learning Studio to run following examples. 
-> Note: VSCode is not supported yet.
-
+Use ```azureml_py38``` conda environment from ```(Jupyter) Notebook``` in Azure Machine Learning Studio. 
+> Note: Due to Conda env issue,VSCode is not supported yet when using the compute instance as head node when using with ci_is_head = True in getRay() method
 
 ### 3. Install library
 
@@ -37,10 +37,6 @@ pip install --upgrade ray-on-aml
 
 > Installing this library will also install ray[default]==1.9.1, pyarrow>= 5.0.0, dask[complete]==2021.12.0, adlfs==2021.10.0 and fsspec==2021.10.1
 
-### 3. Select kernel 
-
-Use ```azureml_py38``` from ```(Jupyter) Notebook``` in Azure Machine Learning Studio to run following examples. 
-> Note: Due to Conda env issue,VSCode is not supported yet when using the compute instance as head node when using with ci_is_head = True in getRay() method 
 
 ### 4. Run ray-on-aml
 Run in interactive mode in a Compute Instance notebook
