@@ -1,4 +1,3 @@
-import mlflow
 import ray
 import numpy as np
 from azureml.core import Run
@@ -10,7 +9,7 @@ from torch.utils.data import DataLoader
 import torch.nn.functional as F
 from ray import tune
 from ray.tune.schedulers import ASHAScheduler
-from ray_on_aml.core import Ray_On_AML
+from core import Ray_On_AML
 #dask
 
 from ray.util.dask import ray_dask_get

@@ -1,13 +1,10 @@
 import os
 import time
 import subprocess
-import threading
 import socket
 import sys, uuid
 import platform
-import mlflow
 import ray
-import inspect
 from textwrap import dedent
 from azureml.core import Workspace, Experiment, Environment, Datastore, Dataset, ScriptRunConfig, Run
 from azureml.core.runconfig import PyTorchConfiguration
@@ -15,6 +12,7 @@ from azureml.core.compute import ComputeTarget, AmlCompute
 from azureml.core.compute_target import ComputeTargetException
 from azureml.core.environment import Environment
 from azureml.core.conda_dependencies import CondaDependencies
+import logging
 class Ray_On_AML():
 #     pyarrow >=6.0.1
 # dask >=2021.11.2
@@ -23,7 +21,7 @@ class Ray_On_AML():
 # ray[default]==1.9.0
 # base_conda_dep =['gcsfs','fs-gcsfs','numpy','h5py','scipy','toolz','bokeh','dask','distributed','matplotlib','pandas','pandas-datareader','pytables','snakeviz','ujson','graphviz','fastparquet','dask-ml','adlfs','pytorch','torchvision','pip'], base_pip_dep = ['azureml-defaults','python-snappy', 'fastparquet', 'azureml-mlflow', 'ray[default]==1.8.0', 'xgboost_ray', 'raydp', 'xgboost', 'pyarrow==4.0.1']
     
-    def __init__(self, ws=None, base_conda_dep =['adlfs','pytorch','matplotlib','torchvision','pip'], base_pip_dep = ['sklearn','xgboost','lightgbm','ray[tune]==1.9.0', 'xgboost_ray', 'dask','pyarrow >= 4.0.1','fsspec==2021.10.1', 'azureml-mlflow'], vnet_rg = None, compute_cluster = 'cpu-cluster', vm_size='STANDARD_DS3_V2',vnet='rayvnet', subnet='default', exp ='ray_on_aml', maxnode =5, additional_conda_packages=[],additional_pip_packages=[], job_timeout=60000):
+    def __init__(self, ws=None, base_conda_dep =['adlfs==2021.10.0','pip'], base_pip_dep = ['ray[tune]==1.9.1', 'xgboost_ray==0.1.5', 'dask==2021.12.0','pyarrow >= 5.0.0','fsspec==2021.10.1'], vnet_rg = None, compute_cluster = 'cpu-cluster', vm_size='STANDARD_DS3_V2',vnet='rayvnet', subnet='default', exp ='ray_on_aml', maxnode =5, additional_conda_packages=[],additional_pip_packages=[], job_timeout=60000):
         self.ws = ws
         self.base_conda_dep=base_conda_dep
         self.base_pip_dep= base_pip_dep
@@ -37,6 +35,8 @@ class Ray_On_AML():
         self.additional_conda_packages=additional_conda_packages
         self.additional_pip_packages=additional_pip_packages
         self.job_timeout = job_timeout
+
+
     def flush(self,proc, proc_log):
         while True:
             proc_out = proc.stdout.readline()
@@ -47,6 +47,8 @@ class Ray_On_AML():
                 sys.stdout.write(proc_out)
                 proc_log.write(proc_out)
                 proc_log.flush()
+
+
     def get_ip(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         try:
@@ -58,31 +60,37 @@ class Ray_On_AML():
         finally:
             s.close()
         return IP
+
+
     def startRayMaster(self):
         conda_env_name = sys.executable.split('/')[-3]
-        print(conda_env_name)
+        print(f"Using {conda_env_name} for the master node")
         #set the the python to this conda env
 
-        cmd =f'. $CONDA_PREFIX/etc/profile.d/conda.sh && conda activate {conda_env_name} && ray stop && ray start --head --port=6379 --object-manager-port=8076'
+        cmd =f'. /anaconda/etc/profile.d/conda.sh && conda activate {conda_env_name} && ray stop && ray start --head --port=6379 --object-manager-port=8076'
         try:
             #if this is not the default environment, it will run
             subprocess.check_output(cmd, shell=True)
         except:
     #         User runs this in default environment, just goahead without activating
+    
             cmd ='ray stop && ray start --head --port=6379 --object-manager-port=8076'
             subprocess.check_output(cmd, shell=True)
         ip = self.get_ip()
         return ip
+
+
     def checkNodeType(self):
         rank = os.environ.get("RANK")
-        print("rank returned is ", rank)
         if rank is None:
             return "interactive" # This is interactive scenario
         elif rank == '0':
             return "head"
         else:
             return "worker"
-        #check if the current node is headnode
+
+
+    #check if the current node is headnode
     def startRay(self,master_ip=None):
         ip = self.get_ip()
         print("- env: MASTER_ADDR: ", os.environ.get("MASTER_ADDR"))
@@ -116,12 +124,12 @@ class Ray_On_AML():
         )
         self.flush(worker_proc, worker_log)
 
-    def getRay(self, init_ray_in_worker=False):
+    def getRay(self, init_ray_in_worker=False, logging_level=logging.ERROR, ci_is_head=False):
         if self.checkNodeType()=="interactive" and self.ws is None:
             #Interactive scenario, workspace object is require
             raise Exception("For interactive use, please pass AML workspace to the init")
         if self.checkNodeType()=="interactive":
-            return self.getRayInteractive()
+            return self.getRayInteractive(logging_level,ci_is_head)
         elif self.checkNodeType() =='head':
             print("head node detected")
             self.startRayMaster()
@@ -135,25 +143,29 @@ class Ray_On_AML():
                 ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True)
                 return ray 
 
-    def getRayInteractive(self):
+
+    def getRayInteractive(self,logging_level,ci_is_head):        
         
-        master_ip = self.startRayMaster()
         # Verify that cluster does not exist already
+        self.shutdown(end_all_runs=True)
         ws_detail = self.ws.get_details()
         ws_rg = ws_detail['id'].split("/")[4]
+
         try:
             ray_cluster = ComputeTarget(workspace=self.ws, name=self.compute_cluster)
-            print('Found existing cluster, use it.')
+            print(f'Found existing cluster {self.compute_cluster}')
         except ComputeTargetException:
             if self.vnet_rg is None:
                 vnet_rg = ws_rg
             else:
                 vnet_rg = self.vnet_rg
+            
             compute_config = AmlCompute.provisioning_configuration(vm_size=self.vm_size,
                                                                 min_nodes=0, max_nodes=self.maxnode,
                                                                 vnet_resourcegroup_name=vnet_rg,
                                                                 vnet_name=self.vnet,
                                                                 subnet_name=self.subnet)
+                                                                
             ray_cluster = ComputeTarget.create(self.ws, self.compute_cluster, compute_config)
 
             ray_cluster.wait_for_completion(show_output=True)
@@ -161,34 +173,32 @@ class Ray_On_AML():
 
         python_version = ["python="+platform.python_version()]
 
-
-
         conda_packages = python_version+self.additional_conda_packages +self.base_conda_dep
         pip_packages = self.base_pip_dep +self.additional_pip_packages
 
         rayEnv = Environment(name="rayEnv")
-        dockerfile = r"""
-        FROM mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04
-        ARG HTTP_PROXY
-        ARG HTTPS_PROXY
+        # dockerfile = r"""
+        # FROM mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04
+        # ARG HTTP_PROXY
+        # ARG HTTPS_PROXY
 
-        # set http_proxy & https_proxy
-        ENV http_proxy=${HTTP_PROXY}
-        ENV https_proxy=${HTTPS_PROXY}
+        # # set http_proxy & https_proxy
+        # ENV http_proxy=${HTTP_PROXY}
+        # ENV https_proxy=${HTTPS_PROXY}
 
-        RUN http_proxy=${HTTP_PROXY} https_proxy=${HTTPS_PROXY} apt-get update -y \
-            && mkdir -p /usr/share/man/man1 \
-            && http_proxy=${HTTP_PROXY} https_proxy=${HTTPS_PROXY} apt-get install -y openjdk-8-jdk \
-            && mkdir /raydp \
-            && pip --no-cache-dir install raydp
+        # RUN http_proxy=${HTTP_PROXY} https_proxy=${HTTPS_PROXY} apt-get update -y \
+        #     && mkdir -p /usr/share/man/man1 \
+        #     && http_proxy=${HTTP_PROXY} https_proxy=${HTTPS_PROXY} apt-get install -y openjdk-8-jdk \
+        #     && mkdir /raydp \
+        #     && pip --no-cache-dir install raydp
 
-        WORKDIR /raydp
+        # WORKDIR /raydp
 
-        # unset http_proxy & https_proxy
-        ENV http_proxy=
-        ENV https_proxy=
+        # # unset http_proxy & https_proxy
+        # ENV http_proxy=
+        # ENV https_proxy=
 
-        """
+        # """
 #         dockerfile = r"""
 #         FROM mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:20210615.v1
 #         # Install OpenJDK-8
@@ -199,8 +209,8 @@ class Ray_On_AML():
 #         """
 
         # Set the base image to None, because the image is defined by Dockerfile.
-        rayEnv.docker.base_image = None
-        rayEnv.docker.base_dockerfile = dockerfile
+        # rayEnv.docker.base_image = None
+        # rayEnv.docker.base_dockerfile = dockerfile
 
         conda_dep = CondaDependencies()
 
@@ -215,6 +225,7 @@ class Ray_On_AML():
 
         ##Create the source file
         os.makedirs(".tmp", exist_ok=True)
+
         source_file_content = """
         import os
         import time
@@ -223,8 +234,9 @@ class Ray_On_AML():
         import socket
         import sys, uuid
         import platform
-        #import mlflow
+        from azureml.core import Run
         import ray
+        run = Run.get_context()
         def flush(proc, proc_log):
             while True:
                 proc_out = proc.stdout.readline()
@@ -235,6 +247,27 @@ class Ray_On_AML():
                     sys.stdout.write(proc_out)
                     proc_log.write(proc_out)
                     proc_log.flush()
+        def startRayMaster():
+        
+            cmd ='ray start --head --port=6379 --object-manager-port=8076'
+            subprocess.Popen(
+            cmd.split(),
+            universal_newlines=True
+            )
+            ip = socket.gethostbyname(socket.gethostname())
+            run.log("headnode", ip)
+            time.sleep(6000)
+
+
+        def checkNodeType():
+            rank = os.environ.get("RANK")
+            if rank is None:
+                return "interactive" # This is interactive scenario
+            elif rank == '0':
+                return "head"
+            else:
+                return "worker"
+
 
         def startRay(master_ip=None):
             ip = socket.gethostbyname(socket.gethostname())
@@ -254,7 +287,13 @@ class Ray_On_AML():
 
             print("free disk space on /tmp")
             os.system(f"df -P /tmp")
+            if master_ip is None:
+                master_ip =os.environ.get("MASTER_ADDR")
+
             cmd = f"ray start --address={master_ip}:6379 --object-manager-port=8076"
+
+            print(cmd)
+
             worker_log = open("logs/worker_{rank}_log.txt".format(rank=rank), "w")
 
             worker_proc = subprocess.Popen(
@@ -272,14 +311,26 @@ class Ray_On_AML():
             parser.add_argument("--master_ip")
             args, unparsed = parser.parse_known_args()
             master_ip = args.master_ip
-            startRay(master_ip)
+            #check if the user wants CI to be headnode
+            if master_ip !="None": 
+                startRay(master_ip)
+            else:
+                if checkNodeType() =="head":
+                    startRayMaster()
+                else:
+                    time.sleep(20)
+                    startRay()
+
 
         """
 
-
         source_file = open(".tmp/source_file.py", "w")
-        n = source_file.write(dedent(source_file_content))
+        source_file.write(dedent(source_file_content))
         source_file.close()
+        if ci_is_head:
+            master_ip = self.startRayMaster()
+        else:
+            master_ip= "None"
         src = ScriptRunConfig(source_directory='.tmp',
                            script='source_file.py',
                            environment=rayEnv,
@@ -288,33 +339,64 @@ class Ray_On_AML():
                               arguments = ["--master_ip",master_ip]
                            )
         run = Experiment(self.ws, self.exp).submit(src)
+        self.run=run
         time.sleep(10)
-        ray.shutdown()
-        ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True)
-        self.run = run
-        self.ray = ray
-        while True:
-            active_run = Run.get(self.ws,run.id)
-            if active_run.status != 'Running':
-                print("Waiting: Cluster status is in ", active_run.status)
-                time.sleep(10)
-            else:
-                return active_run, ray
+        if ci_is_head:
+            ray.shutdown()
+            ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True, logging_level=logging_level)
+            # self.run = run
+            # self.ray = ray
+            print("Waiting for cluster to start")
+            while True:
+                active_run = Run.get(self.ws,run.id)
+                if active_run.status != 'Running':
+                    print('.', end ="")
+                    time.sleep(5)
+                else:
+                    return ray
+
+        else:
+            # mlflow.set_tracking_uri(self.ws.get_mlflow_tracking_uri())
+            # mlflow.set_experiment(self.exp)
+            # mlflowrun = mlflow.get_run(run.id)
+
+            print("Waiting cluster to start and return head node ip")
+            while not 'headnode' in run.get_metrics("headnode"):
+                print('.', end ="")
+                time.sleep(5)
+                active_run = Run.get(self.ws,run.id)
+                if active_run.status == 'Failed':
+                    print("Cluster startup failed, check detail at run")
+                    return None, None
+            headnode_private_ip = run.get_metrics("headnode")['headnode']
+            print('Headnode has IP:', headnode_private_ip)
+            self.headnode_private_ip= headnode_private_ip
+            ray.init(f"ray://{headnode_private_ip}:10001",ignore_reinit_error=True, logging_level=logging_level)
+            return ray
+
+
+
         
-    def shutdown(self):
-        try:
-            self.run.cancel()
-        except:
-            print("Run does not exisit, finding active run to cancel")
+    def shutdown(self, end_all_runs=True):
+        def end_all_run():
             exp= Experiment(self.ws,self.exp)
             runs = exp.get_runs()
             for run in runs:
-                if run.status =='Running':
-                    print("Get active run ", run.id)
+                if (run.status =='Running') or (run.status =='Preparing'):
+                    print("Canceling active run ", run.id)
                     run.cancel()
+        if end_all_runs:
+            print("Cancel active AML runs if any")
+            end_all_run()
+        else:
+            self.run.cancel()
         try:
+            print("Shutting down ray if any")
+
             self.ray.shutdown()
+
         except:
-            print("Cannot shutdown ray")
+            # print("Cannot shutdown ray, ray was not there")
+            pass
     
         
