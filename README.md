@@ -31,7 +31,6 @@ Use ```azureml_py38``` from ```(Jupyter) Notebook``` in Azure Machine Learning S
 
 ### 3. Install library
 
-To install ray-on-aml 
 ```bash
 pip install --upgrade ray-on-aml
 ```
@@ -52,6 +51,22 @@ ws = Workspace.from_config()
 ray_on_aml =Ray_On_AML(ws=ws, compute_cluster ="Name_of_Compute_Cluster")
 ray = ray_on_aml.getRay() # may take around 7 or more mintues
 
+```
+Note that by default, one of the nodes in the remote AML compute cluster is used as head node and the remaining are worker nodes. 
+But if you want to use your current compute instance as head node and all nodes in the remote compute cluster as workers 
+Then simply specify ci_is_head=True).
+To install additional library, use additional_pip_packages and additional_conda_packages parameters.
+
+```python
+ray_on_aml =Ray_On_AML(ws=ws, compute_cluster ="d15-v2", additional_pip_packages=['torch==1.10.0', 'torchvision', 'sklearn'], maxnode=4)
+ray = ray_on_aml.getRay(ci_is_head=True)
+```
+Advanced usage:There are two arguments to Ray_On_AML() object initilization with to specify base configuration for the library with following default values.
+Although it's possible, you should not change the default values of base_conda_dep  and base_pip_dep as it may break the package. Only do so when you need to customize the
+cluster default configuration such as ray version.
+
+```python
+Ray_On_AML(ws=ws, compute_cluster ="Name_of_Compute_Cluster",base_conda_dep =['adlfs==2021.10.0','pip'],base_pip_dep = ['ray[tune]==1.9.1', 'xgboost_ray==0.1.5', 'dask==2021.12.0','pyarrow >= 5.0.0','fsspec==2021.10.1'])
 ```
 
 For use in an Azure ML job, include ray_on_aml as a pip dependency and inside your script, do this to get ray
