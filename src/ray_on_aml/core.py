@@ -22,7 +22,7 @@ class Ray_On_AML():
 # ray[default]==1.9.0
 # base_conda_dep =['gcsfs','fs-gcsfs','numpy','h5py','scipy','toolz','bokeh','dask','distributed','matplotlib','pandas','pandas-datareader','pytables','snakeviz','ujson','graphviz','fastparquet','dask-ml','adlfs','pytorch','torchvision','pip'], base_pip_dep = ['azureml-defaults','python-snappy', 'fastparquet', 'azureml-mlflow', 'ray[default]==1.8.0', 'xgboost_ray', 'raydp', 'xgboost', 'pyarrow==4.0.1']
     
-    def __init__(self, ws=None, base_conda_dep =['adlfs==2021.10.0','pip'], base_pip_dep = ['ray[tune]==1.9.1', 'xgboost_ray==0.1.5', 'dask==2021.12.0','pyarrow >= 5.0.0','fsspec==2021.10.1'], vnet_rg = None, compute_cluster = 'cpu-cluster', vm_size='STANDARD_DS3_V2',vnet='rayvnet', subnet='default', exp ='ray_on_aml', maxnode =5, additional_conda_packages=[],additional_pip_packages=[], job_timeout=60000):
+    def __init__(self, ws=None, base_conda_dep =['adlfs==2021.10.0','pip==21.3.1'], base_pip_dep = ['ray[tune]==1.9.1','ray[rllib]==1.9.1','ray[serve]==1.9.1', 'xgboost_ray==0.1.6', 'dask==2021.12.0','pyarrow >= 5.0.0','fsspec==2021.10.1','fastparquet==0.7.2'], vnet_rg = None, compute_cluster = 'cpu-cluster', vm_size='STANDARD_DS3_V2',vnet='rayvnet', subnet='default', exp ='ray_on_aml', maxnode =5, additional_conda_packages=[],additional_pip_packages=[], job_timeout=600000):
         self.ws = ws
         self.base_conda_dep=base_conda_dep
         self.base_pip_dep= base_pip_dep
@@ -257,7 +257,7 @@ class Ray_On_AML():
             )
             ip = socket.gethostbyname(socket.gethostname())
             run.log("headnode", ip)
-            time.sleep(6000)
+            time.sleep({0})
 
 
         def checkNodeType():
@@ -291,11 +291,11 @@ class Ray_On_AML():
             if master_ip is None:
                 master_ip =os.environ.get("MASTER_ADDR")
 
-            cmd = f"ray start --address={master_ip}:6379 --object-manager-port=8076"
+            cmd = "ray start --address="+master_ip+":6379 --object-manager-port=8076"
 
             print(cmd)
 
-            worker_log = open("logs/worker_{rank}_log.txt".format(rank=rank), "w")
+            worker_log = open("logs/worker_"+rank+"_log.txt", "w")
 
             worker_proc = subprocess.Popen(
             cmd.split(),
@@ -305,7 +305,7 @@ class Ray_On_AML():
             )
             flush(worker_proc, worker_log)
 
-            time.sleep(60000)
+            time.sleep({0})
 
         if __name__ == "__main__":
             parser = argparse.ArgumentParser()
@@ -323,7 +323,7 @@ class Ray_On_AML():
                     startRay()
 
 
-        """
+        """.format(self.job_timeout)
 
         source_file = open(".tmp/source_file.py", "w")
         source_file.write(dedent(source_file_content))
@@ -372,6 +372,11 @@ class Ray_On_AML():
             headnode_private_ip = run.get_metrics("headnode")['headnode']
             print('Headnode has IP:', headnode_private_ip)
             self.headnode_private_ip= headnode_private_ip
+            try:
+                #disconnect client first to make sure only one is active at a time
+                ray.disconnect()
+            except:
+                pass
             ray.init(f"ray://{headnode_private_ip}:10001",ignore_reinit_error=True, logging_level=logging_level)
             return ray
 
