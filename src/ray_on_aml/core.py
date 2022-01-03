@@ -22,7 +22,7 @@ class Ray_On_AML():
 # ray[default]==1.9.0
 # base_conda_dep =['gcsfs','fs-gcsfs','numpy','h5py','scipy','toolz','bokeh','dask','distributed','matplotlib','pandas','pandas-datareader','pytables','snakeviz','ujson','graphviz','fastparquet','dask-ml','adlfs','pytorch','torchvision','pip'], base_pip_dep = ['azureml-defaults','python-snappy', 'fastparquet', 'azureml-mlflow', 'ray[default]==1.8.0', 'xgboost_ray', 'raydp', 'xgboost', 'pyarrow==4.0.1']
     
-    def __init__(self, ws=None, base_conda_dep =['adlfs==2021.10.0','pip==21.3.1'], base_pip_dep = ['ray[tune]==1.9.1','ray[rllib]==1.9.1','ray[serve]==1.9.1', 'xgboost_ray==0.1.6', 'dask==2021.12.0','pyarrow >= 5.0.0','fsspec==2021.10.1','fastparquet==0.7.2'], vnet_rg = None, compute_cluster = 'cpu-cluster', vm_size='STANDARD_DS3_V2',vnet='rayvnet', subnet='default', exp ='ray_on_aml', maxnode =5, additional_conda_packages=[],additional_pip_packages=[], job_timeout=600000):
+    def __init__(self, ws=None, base_conda_dep =['adlfs==2021.10.0','pip==21.3.1'], base_pip_dep = ['ray[tune]==1.9.1','ray[rllib]==1.9.1','ray[serve]==1.9.1', 'xgboost_ray==0.1.6', 'dask==2021.12.0','pyarrow >= 5.0.0','fsspec==2021.10.1','fastparquet==0.7.2','tabulate==0.8.9'], vnet_rg = None, compute_cluster = 'cpu-cluster', vm_size='STANDARD_DS3_V2',vnet='rayvnet', subnet='default', exp ='ray_on_aml', maxnode =5, additional_conda_packages=[],additional_pip_packages=[], job_timeout=600000):
         self.ws = ws
         self.base_conda_dep=base_conda_dep
         self.base_pip_dep= base_pip_dep
@@ -125,7 +125,7 @@ class Ray_On_AML():
         )
         self.flush(worker_proc, worker_log)
 
-    def getRay(self, init_ray_in_worker=False, logging_level=logging.ERROR, ci_is_head=False):
+    def getRay(self, init_ray_in_worker=False, logging_level=logging.ERROR, ci_is_head=True):
         if self.checkNodeType()=="interactive" and self.ws is None:
             #Interactive scenario, workspace object is require
             raise Exception("For interactive use, please pass AML workspace to the init")
