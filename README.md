@@ -27,16 +27,14 @@ Check list
 ### 2. Select kernel 
 
 Use ```azureml_py38``` conda environment from ```(Jupyter) Notebook``` in Azure Machine Learning Studio. 
-> Note: Due to Conda env issue,VSCode is not supported yet when using the compute instance as head node when using with ci_is_head = True in getRay() method
+> Note: Due to Conda env issue, VSCode is only supported for remote Ray cluster mode (```getRay(ci_is_head = False```)
 
 ### 3. Install library
 
 ```bash
 pip install --upgrade ray-on-aml
 ```
-
-> Installing this library will also install ray[default]==1.9.1, pyarrow>= 5.0.0, dask[complete]==2021.12.0, adlfs==2021.10.0 and fsspec==2021.10.1
-
+> Installing this library will also install ```ray[tune]==1.9.1,  ray[serve]==1.9.1, pyarrow>= 5.0.0, dask[complete]==2021.12.0, adlfs==2021.10.0, fsspec==2021.10.1, xgboost_ray==0.1.6, fastparquet==0.7.2```
 
 ### 4. Run ray-on-aml
 Run in interactive mode in a Compute Instance notebook
@@ -45,13 +43,13 @@ Run in interactive mode in a Compute Instance notebook
 from ray_on_aml.core import Ray_On_AML
 ws = Workspace.from_config()
 ray_on_aml =Ray_On_AML(ws=ws, compute_cluster ="Name_of_Compute_Cluster")
-ray = ray_on_aml.getRay() # may take around 7 or more mintues
+ray = ray_on_aml.getRay() # may take around 7 mintues or longer 
 
 ```
 Note that by default,your current compute instance as head node and all nodes in the remote compute cluster as workers. 
 But if you want to use  one of the nodes in the remote AML compute cluster is used as head node and the remaining are worker nodes,
-simply pass ci_is_head=True to ray_on_aml.getRay().
-To install additional library, use additional_pip_packages and additional_conda_packages parameters.
+simply pass ```ci_is_head=False``` to ```ray_on_aml.getRay()```.
+To install additional library, use ```additional_pip_packages``` and ```additional_conda_packages``` parameters.
 
 ```python
 ray_on_aml =Ray_On_AML(ws=ws, compute_cluster ="Name_of_Compute_Cluster", additional_pip_packages=['torch==1.10.0', 'torchvision', 'sklearn'], maxnode=5)
