@@ -1,8 +1,8 @@
 # Ray on Azure ML
 
 This package simplifies setup of core Ray and Ray's components such as Dask on Ray, Ray tune,Ray rrlib, Ray serve in Azure ML.
-It also comes with supports for high performance data access to Azure data sources such as Azure Storage, Delta Lake (comming soon), Synapse SQL (comming soon).
-It support both interactive and job modes.
+It also comes with supports for high performance data access to Azure data sources such as Azure Storage, Delta Lake (coming soon), Synapse SQL (coming soon).
+It supports both interactive and job uses.
 
 ## Architecture
 
