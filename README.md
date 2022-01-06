@@ -26,7 +26,7 @@ Check list
 
 ### 2. Select kernel 
 
-Use ```azureml_py38``` conda environment from ```(Jupyter) Notebook``` in Azure Machine Learning Studio. 
+Use a python 3.8+ conda environment from ```(Jupyter) Notebook``` in Azure Machine Learning Studio. 
 > Note: Due to Conda env issue, VSCode is only supported for remote Ray cluster mode (```getRay(ci_is_head = False```)
 
 ### 3. Install library
@@ -47,14 +47,14 @@ ray = ray_on_aml.getRay() # may take around 7 mintues or longer
 
 ```
 Note that by default,your current compute instance as head node and all nodes in the remote compute cluster as workers. 
-But if you want to use  one of the nodes in the remote AML compute cluster is used as head node and the remaining are worker nodes,
+But if you want to use  one of the nodes in the remote AML compute cluster as head node and the remaining are worker nodes,
 simply pass ```ci_is_head=False``` to ```ray_on_aml.getRay()```.
 To install additional library, use ```additional_pip_packages``` and ```additional_conda_packages``` parameters.
 
 ```python
 ray_on_aml =Ray_On_AML(ws=ws, compute_cluster ="Name_of_Compute_Cluster", additional_pip_packages=['torch==1.10.0', 'torchvision', 'sklearn'], maxnode=5)
 ```
-Advanced usage:There are two arguments to Ray_On_AML() object initilization with to specify base configuration for the library with following default values.
+* Advanced usage:There are two arguments to Ray_On_AML() object initilization with to specify base configuration for the library with following default values.
 Although it's possible, you should not change the default values of base_conda_dep  and base_pip_dep as it may break the package. Only do so when you need to customize the
 cluster default configuration such as ray version.
 
@@ -76,10 +76,20 @@ if ray: #in the headnode
 else:
     print("in worker node")
 ```
-### 5. Shutdown ray cluster
+### 5. Ray Dashboard
+The easiest way to view Ray dashboard is using the connection from [VSCode for Azure ML](https://code.visualstudio.com/docs/datascience/azure-machine-learning). 
+Open VSCode to your Compute Instance then open a terminal, type http://127.0.0.1:8265/ then ctrl+click to open the Ray Dashboard.
+![VSCode terminal trick](./images/vs_terminal.jpg)
 
-To shutdown cluster you must run following.
-```ptyhon
+This trick tells VScode to forward port to your local machine without having to setup ssh port forwarding using VScode's extension on the CI.
+
+![Ray Dashboard](./images/ray_dashboard.jpg)
+
+
+### 6. Shutdown ray cluster
+
+To shutdown cluster,  run following.
+```python
 ray_on_aml.shutdown()
 ```
 
