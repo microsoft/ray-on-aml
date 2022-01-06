@@ -1,21 +1,21 @@
 # Ray on Azure ML
 
-This package simplifies setup of Ray and Ray's components such as DaskOnRay, SparkOnRay, Ray Machine Learning in Azure ML for your data science projects.
-This allows you to use AML compute as Ray/Dask cluster in both interactive and job modes.
+This package simplifies setup of core Ray and Ray's components such as Dask on Ray, Ray tune,Ray rrlib, Ray serve in Azure ML.
+It also comes with supports for high performance data access to Azure data sources such as Azure Storage, Delta Lake (comming soon), Synapse SQL (comming soon).
+It support both interactive and job modes.
 
 ## Architecture
 
 ![RayOnAML_Interactive_Arch](./images/RayOnAML_Interactive_Arch.png)
 
-## Prerequistes
+## Setup
 
-Before you run sample, please check followings.
 
-### 1. Configure Azure Environment
+### 1. Prepare Azure ML environment
 
-For Interactive use at your compute instance, create a compute cluster in the same vnet where your compute instance is, then run this to get handle to the ray cluster
+For interactive mode, setup a compute cluster and a compute instance in the same VNET.
 
-Check list
+Checklist 
 > [ ] Azure Machine Learning Workspace
 > 
 > [ ] Virtual network/Subnet
