@@ -44,7 +44,7 @@ from ray_on_aml.core import Ray_On_AML
 ws = Workspace.from_config()
 ray_on_aml =Ray_On_AML(ws=ws, compute_cluster ="Name_of_Compute_Cluster", maxnode=3) 
 ray = ray_on_aml.getRay() 
-# may take around 7 mintues or longer. Check the AML run under ray_on_aml experiment which represents cluster status.  
+# may take 7 mintues or longer.Check the AML run under ray_on_aml experiment for cluster status.  
 ```
 Note that by default,your current compute instance as head node and all nodes in the remote compute cluster as workers. 
 If you want to use  one of the nodes in the remote AML compute cluster as head node and the remaining are worker nodes,
@@ -52,14 +52,17 @@ simply pass ```ci_is_head=False``` to ```ray_on_aml.getRay()```.
 To install additional library, use ```additional_pip_packages``` and ```additional_conda_packages``` parameters.
 The ray cluster will request 5 nodes from AML if ``maxnode`` is not specified.
 ```python
-ray_on_aml =Ray_On_AML(ws=ws, compute_cluster ="Name_of_Compute_Cluster", additional_pip_packages=['torch==1.10.0', 'torchvision', 'sklearn'], maxnode=5)
+ray_on_aml =Ray_On_AML(ws=ws, compute_cluster ="Name_of_Compute_Cluster", additional_pip_packages= \
+['torch==1.10.0', 'torchvision', 'sklearn'])
 ```
 * Advanced usage:There are two arguments to Ray_On_AML() object initilization with to specify base configuration for the library with following default values.
 Although it's possible, you should not change the default values of base_conda_dep  and base_pip_dep as it may break the package. Only do so when you need to customize the
 cluster default configuration such as ray version.
 
 ```python
-Ray_On_AML(ws=ws, compute_cluster ="Name_of_Compute_Cluster",base_conda_dep =['adlfs==2021.10.0','pip==21.3.1'], base_pip_dep = ['ray[tune]==1.9.1','ray[rllib]==1.9.1','ray[serve]==1.9.1', 'xgboost_ray==0.1.6', 'dask==2021.12.0','pyarrow >= 5.0.0','fsspec==2021.10.1','fastparquet==0.7.2','tabulate==0.8.9'])
+Ray_On_AML(ws=ws, compute_cluster ="Name_of_Compute_Cluster",base_conda_dep =['adlfs==2021.10.0','pip==21.3.1'],\ 
+base_pip_dep = ['ray[tune]==1.9.1','ray[rllib]==1.9.1','ray[serve]==1.9.1', 'xgboost_ray==0.1.6', 'dask==2021.12.0',\
+'pyarrow >= 5.0.0','fsspec==2021.10.1','fastparquet==0.7.2','tabulate==0.8.9'])
 ```
 
 For use in an Azure ML job, include ray_on_aml as a pip dependency and inside your script, do this to get ray
