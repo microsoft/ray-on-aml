@@ -42,15 +42,15 @@ Run in interactive mode in a Compute Instance notebook
 ```python
 from ray_on_aml.core import Ray_On_AML
 ws = Workspace.from_config()
-ray_on_aml =Ray_On_AML(ws=ws, compute_cluster ="Name_of_Compute_Cluster")
+ray_on_aml =Ray_On_AML(ws=ws, compute_cluster ="Name_of_Compute_Cluster", maxnode=3) 
 ray = ray_on_aml.getRay() # may take around 7 mintues or longer 
 
 ```
 Note that by default,your current compute instance as head node and all nodes in the remote compute cluster as workers. 
-But if you want to use  one of the nodes in the remote AML compute cluster as head node and the remaining are worker nodes,
+If you want to use  one of the nodes in the remote AML compute cluster as head node and the remaining are worker nodes,
 simply pass ```ci_is_head=False``` to ```ray_on_aml.getRay()```.
 To install additional library, use ```additional_pip_packages``` and ```additional_conda_packages``` parameters.
-
+The ray cluster will request 5 nodes from AML if ``maxnode`` is not specified.
 ```python
 ray_on_aml =Ray_On_AML(ws=ws, compute_cluster ="Name_of_Compute_Cluster", additional_pip_packages=['torch==1.10.0', 'torchvision', 'sklearn'], maxnode=5)
 ```
