@@ -43,8 +43,8 @@ Run in interactive mode in a Compute Instance notebook
 from ray_on_aml.core import Ray_On_AML
 ws = Workspace.from_config()
 ray_on_aml =Ray_On_AML(ws=ws, compute_cluster ="Name_of_Compute_Cluster", maxnode=3) 
-ray = ray_on_aml.getRay() # may take around 7 mintues or longer 
-
+ray = ray_on_aml.getRay() 
+# may take around 7 mintues or longer. Check the AML run under ray_on_aml experiment which represents cluster status.  
 ```
 Note that by default,your current compute instance as head node and all nodes in the remote compute cluster as workers. 
 If you want to use  one of the nodes in the remote AML compute cluster as head node and the remaining are worker nodes,
