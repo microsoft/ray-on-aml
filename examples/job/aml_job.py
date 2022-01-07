@@ -1,23 +1,23 @@
-import ray
 import numpy as np
-from azureml.core import Run
 import torch
 import torch.optim as optim
 import torch.nn as nn
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 import torch.nn.functional as F
+import ray
 from ray import tune
+# from ray.tune import Callback
 from ray.tune.schedulers import ASHAScheduler
-from ray_on_aml.core import Ray_On_AML
-#dask
-
+from ray.tune.integration.mlflow import MLflowLoggerCallback
 from ray.util.dask import ray_dask_get
+from ray_on_aml.core import Ray_On_AML
+import dask
 import dask.array as da
 import dask.dataframe as dd
-import numpy as np
-import dask
 from adlfs import AzureBlobFileSystem
+import mlflow
+from azureml.core import Run
 
 dask.config.set(scheduler=ray_dask_get)
 
@@ -34,9 +34,24 @@ class ConvNet(nn.Module):
         x = x.view(-1, 192)
         x = self.fc(x)
         return F.log_softmax(x, dim=1)
+
+
+# class captureMetrics(Callback)  :
+#     def on_trial_result(self, iteration, trials, trial, result, **info):
+#         # accList.append(result['mean_accuracy'])
+#         print(f"Got result: {result['mean_accuracy']}")
+
+
 # Change these values if you want the training to run quicker or slower.
 EPOCH_SIZE = 512
 TEST_SIZE = 256
+run = Run.get_context()
+ws = run.experiment.workspace
+# set mlflow uri
+mlflow.set_tracking_uri(ws.get_mlflow_tracking_uri())
+mlflow.set_experiment(run.experiment.name)
+ray_on_aml =Ray_On_AML()
+ray = ray_on_aml.getRay()
 
 def train(model, optimizer, train_loader):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -70,6 +85,8 @@ def test(model, data_loader):
             correct += (predicted == target).sum().item()
 
     return correct / total
+
+
 def train_mnist(config):
     # Data Setup
     mnist_transforms = transforms.Compose(
@@ -92,6 +109,7 @@ def train_mnist(config):
 
     optimizer = optim.SGD(
         model.parameters(), lr=config["lr"], momentum=config["momentum"])
+    
     for i in range(10):
         train(model, optimizer, train_loader)
         acc = test(model, test_loader)
@@ -102,6 +120,8 @@ def train_mnist(config):
         if i % 5 == 0:
             # This saves the model to the trial directory
             torch.save(model.state_dict(), "./model.pth")
+
+
 search_space = {
     "lr": tune.sample_from(lambda spec: 10**(-10 * np.random.rand())),
     "momentum": tune.uniform(0.01, 0.09)
@@ -119,21 +139,18 @@ def get_data_count():
     return data.count(),ddf.count().compute()
 
 if __name__ == "__main__":
-    run = Run.get_context()
-    ws = run.experiment.workspace
-    ray_on_aml =Ray_On_AML()
-    ray = ray_on_aml.getRay()
-
     if ray: #in the headnode
         print("head node detected")
 
         datasets.MNIST("~/data", train=True, download=True)
         #demonstate parallel hyper param tuning
-        analysis = tune.run(train_mnist, config=search_space)
-        print(ray.cluster_resources())
-        #demonstrate parallel data processing
+        # Use captureMetrics callback
+        # analysis = tune.run(train_mnist, config=search_space, callbacks=[captureMetrics()])
+        # run.log_list('acc', accList)
+        analysis = tune.run(train_mnist, config=search_space, callbacks=[MLflowLoggerCallback(experiment_name=run.experiment.name, tags={"Framework":"Ray 1.9.1"}, save_artifact=True)])
 
-        print("data count result", get_data_count())
+        #demonstrate parallel data processing
+        # print("data count result", get_data_count())
 
     else:
         print("in worker node")

@@ -14,6 +14,11 @@ from azureml.core.compute_target import ComputeTargetException
 from azureml.core.environment import Environment
 from azureml.core.conda_dependencies import CondaDependencies
 import logging
+
+
+__version__='0.0.7'
+
+
 class Ray_On_AML():
 #     pyarrow >=6.0.1
 # dask >=2021.11.2
@@ -145,6 +150,32 @@ class Ray_On_AML():
                 return ray 
 
 
+    def getUserEnvironment(self):
+        envName = "rayEnv"+__version__
+        if Environment.get(self.ws, envName) != None:
+            return Environment.get(self.ws, envName)
+        else:
+            python_version = ["python="+platform.python_version()]
+            conda_packages = python_version+self.additional_conda_packages +self.base_conda_dep
+            pip_packages = self.base_pip_dep +self.additional_pip_packages
+
+            rayEnv = Environment(name="rayEnv")
+
+            conda_dep = CondaDependencies()
+
+            for conda_package in conda_packages:
+                conda_dep.add_conda_package(conda_package)
+
+            for pip_package in pip_packages:
+                conda_dep.add_pip_package(pip_package)
+
+            # Adds dependencies to PythonSection of myenv
+            rayEnv.python.conda_dependencies=conda_dep
+            rayEnv.register(self.ws)
+            
+            return rayEnv
+
+
     def getRayInteractive(self,logging_level,ci_is_head):        
         
         # Verify that cluster does not exist already
@@ -176,53 +207,54 @@ class Ray_On_AML():
 
         conda_packages = python_version+self.additional_conda_packages +self.base_conda_dep
         pip_packages = self.base_pip_dep +self.additional_pip_packages
+#         rayEnv = Environment(name="rayEnv")
+#         # dockerfile = r"""
+#         # FROM mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04
+#         # ARG HTTP_PROXY
+#         # ARG HTTPS_PROXY
 
-        rayEnv = Environment(name="rayEnv")
-        # dockerfile = r"""
-        # FROM mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04
-        # ARG HTTP_PROXY
-        # ARG HTTPS_PROXY
+#         # # set http_proxy & https_proxy
+#         # ENV http_proxy=${HTTP_PROXY}
+#         # ENV https_proxy=${HTTPS_PROXY}
 
-        # # set http_proxy & https_proxy
-        # ENV http_proxy=${HTTP_PROXY}
-        # ENV https_proxy=${HTTPS_PROXY}
+#         # RUN http_proxy=${HTTP_PROXY} https_proxy=${HTTPS_PROXY} apt-get update -y \
+#         #     && mkdir -p /usr/share/man/man1 \
+#         #     && http_proxy=${HTTP_PROXY} https_proxy=${HTTPS_PROXY} apt-get install -y openjdk-8-jdk \
+#         #     && mkdir /raydp \
+#         #     && pip --no-cache-dir install raydp
 
-        # RUN http_proxy=${HTTP_PROXY} https_proxy=${HTTPS_PROXY} apt-get update -y \
-        #     && mkdir -p /usr/share/man/man1 \
-        #     && http_proxy=${HTTP_PROXY} https_proxy=${HTTPS_PROXY} apt-get install -y openjdk-8-jdk \
-        #     && mkdir /raydp \
-        #     && pip --no-cache-dir install raydp
+#         # WORKDIR /raydp
 
-        # WORKDIR /raydp
+#         # # unset http_proxy & https_proxy
+#         # ENV http_proxy=
+#         # ENV https_proxy=
 
-        # # unset http_proxy & https_proxy
-        # ENV http_proxy=
-        # ENV https_proxy=
+#         # """
+# #         dockerfile = r"""
+# #         FROM mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:20210615.v1
+# #         # Install OpenJDK-8
+# #         RUN apt-get update -y \
+# #         && mkdir -p /usr/share/man/man1 \
+# #         && apt-get install -y openjdk-8-jdk 
 
-        # """
-#         dockerfile = r"""
-#         FROM mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:20210615.v1
-#         # Install OpenJDK-8
-#         RUN apt-get update -y \
-#         && mkdir -p /usr/share/man/man1 \
-#         && apt-get install -y openjdk-8-jdk 
+# #         """
 
-#         """
+#         # Set the base image to None, because the image is defined by Dockerfile.
+#         # rayEnv.docker.base_image = None
+#         # rayEnv.docker.base_dockerfile = dockerfile
 
-        # Set the base image to None, because the image is defined by Dockerfile.
-        # rayEnv.docker.base_image = None
-        # rayEnv.docker.base_dockerfile = dockerfile
+#         conda_dep = CondaDependencies()
 
-        conda_dep = CondaDependencies()
+#         for conda_package in conda_packages:
+#             conda_dep.add_conda_package(conda_package)
 
-        for conda_package in conda_packages:
-            conda_dep.add_conda_package(conda_package)
+#         for pip_package in pip_packages:
+#             conda_dep.add_pip_package(pip_package)
 
-        for pip_package in pip_packages:
-            conda_dep.add_pip_package(pip_package)
+#         # Adds dependencies to PythonSection of myenv
+#         rayEnv.python.conda_dependencies=conda_dep
 
-        # Adds dependencies to PythonSection of myenv
-        rayEnv.python.conda_dependencies=conda_dep
+        rayEnv = getUserEnvironment()
 
         ##Create the source file
         os.makedirs(".tmp", exist_ok=True)
