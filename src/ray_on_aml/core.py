@@ -14,15 +14,85 @@ from azureml.core.compute_target import ComputeTargetException
 from azureml.core.environment import Environment
 from azureml.core.conda_dependencies import CondaDependencies
 import logging
+
+
+__version__='0.0.7'
+
+
 class Ray_On_AML():
-#     pyarrow >=6.0.1
-# dask >=2021.11.2
-# adlfs >=2021.10.0
-# fsspec==2021.10.1
-# ray[default]==1.9.0
-# base_conda_dep =['gcsfs','fs-gcsfs','numpy','h5py','scipy','toolz','bokeh','dask','distributed','matplotlib','pandas','pandas-datareader','pytables','snakeviz','ujson','graphviz','fastparquet','dask-ml','adlfs','pytorch','torchvision','pip'], base_pip_dep = ['azureml-defaults','python-snappy', 'fastparquet', 'azureml-mlflow', 'ray[default]==1.8.0', 'xgboost_ray', 'raydp', 'xgboost', 'pyarrow==4.0.1']
-    
-    def __init__(self, ws=None, base_conda_dep =['adlfs==2021.10.0','pip==21.3.1'], base_pip_dep = ['ray[tune]==1.9.1','ray[rllib]==1.9.1','ray[serve]==1.9.1', 'xgboost_ray==0.1.6', 'dask==2021.12.0','pyarrow >= 5.0.0','fsspec==2021.10.1','fastparquet==0.7.2','tabulate==0.8.9'], vnet_rg = None, compute_cluster = 'cpu-cluster', vm_size='STANDARD_DS3_V2',vnet='rayvnet', subnet='default', exp ='ray_on_aml', maxnode =5, additional_conda_packages=[],additional_pip_packages=[], job_timeout=600000):
+    def __init__(self, ws=None, base_conda_dep =['adlfs==2021.10.0','pip==21.3.1'], 
+    base_pip_dep = ['ray[tune]==1.9.1','ray[rllib]==1.9.1','ray[serve]==1.9.1', 'xgboost_ray==0.1.6', 'dask==2021.12.0','pyarrow >= 5.0.0','fsspec==2021.10.1','fastparquet==0.7.2','tabulate==0.8.9'], 
+    vnet_rg = None, compute_cluster = 'cpu-cluster', vm_size='STANDARD_DS3_V2', vnet='rayvnet', subnet='default',
+    exp_name ='ray_on_aml', maxnode =5, additional_conda_packages=[],additional_pip_packages=[], job_timeout=600000):
+        """ Class for Ray_On_AML
+        Ray_On_AML can help you to minimize your effort for configuring Ray Environment to execute data processing and science tasks on Azure Machine Learning Services.
+
+        Example (AML Compute Instance) : 
+        >>> from ray_on_aml.core import Ray_On_AML
+        >>> ws = Workspace.from_config()
+        >>> ray_on_aml =Ray_On_AML(ws=ws,
+        >>>                     exp_name='ray_on_aml',
+        >>>                     compute_cluster ="cpu-ray-cluster",
+        >>>                     additional_pip_packages=['torch==1.10.0', 'torchvision', 'sklearn'],
+        >>>                     maxnode=2)
+
+        Currently this moudle will install following packages for Ray on AML.
+            Conda
+            *    'adlfs==2021.10.0'
+            *    'pip==21.3.1'
+            
+            Pip
+            *    'ray[tune]==1.9.1'
+            *    'ray[rllib]==1.9.1'
+            *    'ray[serve]==1.9.1'
+            *    'xgboost_ray==0.1.6'
+            *    'dask==2021.12.0'
+            *    'pyarrow >= 5.0.0'
+            *    'fsspec==2021.10.1'
+            *    'fastparquet==0.7.2'
+            *    'tabulate==0.8.9'
+
+        This module is compatable with Python 3.8.
+
+        Parameters
+        ----------
+        ws : Workspace
+            The Azure Machine Learning Workspace object.
+
+        base_conda_dep : list, default=['adlfs==2021.10.0','pip==21.3.1']
+
+        base_pip_dep : list, default=['ray[tune]==1.9.1','ray[rllib]==1.9.1','ray[serve]==1.9.1', 'xgboost_ray==0.1.6', 'dask==2021.12.0','pyarrow >= 5.0.0','fsspec==2021.10.1','fastparquet==0.7.2','tabulate==0.8.9']
+
+        vnet_rg : string, (optional)
+            The default name for Virtual Network will be same as the Resource Group where Azure Machine Leanring workspace is.
+
+        computer_cluster : string, (optional), default='cpu-cluster'
+            The default name for the Compute Cluster is 'cpu-cluster'
+
+        vm_size : string, (optional), default='STANDARD_DS3_V2'        
+            The default size for the Compute Cluster is 'STANDARD_DS3_V2'
+
+        vnet : string, (optional)
+            The default name of Virtual Network is 'rayvnet'
+
+        subnet : string, (optional)
+            The default name of Subnet is 'default'
+
+        exp_name : string, (optional), default='ray_on_aml'
+            The name experiment that will be shown in Azure Machine Learning Workspace. 
+
+        maxnode : int, (optional), default=5
+            You can't change the max number of nodes with this parameter once you created Compute Cluter before.
+
+        additional_conda_packages : list, (optional)
+            You can add more package by providing name of packages in a list.         
+
+        additional_pip_packages : list, (optional)
+            You can add more package by providing name of packages in a list.
+
+        job_timeout : int, (optional), default=600000
+
+        """
         self.ws = ws
         self.base_conda_dep=base_conda_dep
         self.base_pip_dep= base_pip_dep
@@ -31,11 +101,14 @@ class Ray_On_AML():
         self.vm_size=vm_size
         self.vnet=vnet
         self.subnet =subnet
-        self.exp= exp
+        self.exp_name= exp_name
         self.maxnode=maxnode
         self.additional_conda_packages=additional_conda_packages
         self.additional_pip_packages=additional_pip_packages
         self.job_timeout = job_timeout
+        # mlflow.set_tracking_uri(self.ws.get_mlflow_tracking_uri())
+        # mlflow.set_experiment(self.exp_name)
+        # mlflowrun = mlflow.get_run(run.id)
 
 
     def flush(self,proc, proc_log):
@@ -70,11 +143,10 @@ class Ray_On_AML():
 
         cmd =f'. /anaconda/etc/profile.d/conda.sh && conda activate {conda_env_name} && ray stop && ray start --head --port=6379 --object-manager-port=8076'
         try:
-            #if this is not the default environment, it will run
+            # if this is not the default environment, it will run
             subprocess.check_output(cmd, shell=True)
         except:
-    #         User runs this in default environment, just goahead without activating
-    
+            # User runs this in default environment, just goahead without activating    
             cmd ='ray stop && ray start --head --port=6379 --object-manager-port=8076'
             subprocess.check_output(cmd, shell=True)
         ip = self.get_ip()
@@ -91,7 +163,7 @@ class Ray_On_AML():
             return "worker"
 
 
-    #check if the current node is headnode
+    # Check if the current node is headnode
     def startRay(self,master_ip=None):
         ip = self.get_ip()
         print("- env: MASTER_ADDR: ", os.environ.get("MASTER_ADDR"))
@@ -126,9 +198,41 @@ class Ray_On_AML():
         self.flush(worker_proc, worker_log)
 
     def getRay(self, init_ray_in_worker=False, logging_level=logging.ERROR, ci_is_head=True):
+        """This method automatically creates Azure Machine Learning Compute Cluster with Ray, Dask on Ray, Ray Tune, Ray rrlib, and Ray serve.
+        This class takes care of all from infrastructure to runtime preperation, it may take 10 mintues for the first time execution of the module.
+        Before you run this method, make sure you have existing Virtual Network and subnet in the same Resource Group where Azure Machine Learning Service is.
+        If the Virtual Network is not in the same Resource Group then specify the name of Virtual Network, Subnet name.
+        
+        Example (AML Compute Instance) : 
+        >>> from ray_on_aml.core import Ray_On_AML
+        >>> ws = Workspace.from_config()
+        >>> ray_on_aml =Ray_On_AML(ws=ws,
+        >>>                     exp_name='ray_on_aml',
+        >>>                     compute_cluster ="cpu-ray-cluster",
+        >>>                     additional_pip_packages=['torch==1.10.0', 'torchvision', 'sklearn'],
+        >>>                     maxnode=2)
+        >>> ray = ray_on_aml.getRay()
+
+        Parameters
+        ----------
+        init_ray_in_worker : bool, default=False
+            Restart Ray in workers
+
+        logging_level : any
+            Not implemented yet
+
+        ci_is_head : bool, default=True
+            Interactive mode which is using Compute Instant as head is default.
+
+        Return
+        ----------
+            Returns an object of Ray.        
+
+        """
         if self.checkNodeType()=="interactive" and self.ws is None:
             #Interactive scenario, workspace object is require
             raise Exception("For interactive use, please pass AML workspace to the init")
+
         if self.checkNodeType()=="interactive":
             return self.getRayInteractive(logging_level,ci_is_head)
         elif self.checkNodeType() =='head':
@@ -145,8 +249,60 @@ class Ray_On_AML():
                 return ray 
 
 
-    def getRayInteractive(self,logging_level,ci_is_head):        
-        
+    def getRayEnvironment(self):
+        """Manager Azure Machine Learning Environement 
+        If 'rayEnv__version__' exists in Azure Machine Learning Environment, use the existing one.
+        If not, create new one and register it in AML workspace.
+
+        Return
+        ----------
+            Returns an object of Azure Machine Learning Environment.
+
+        """
+        python_version = ["python="+platform.python_version()]
+        conda_packages = python_version+self.additional_conda_packages +self.base_conda_dep
+        pip_packages = self.base_pip_dep +self.additional_pip_packages
+        envPkgs = python_version + conda_packages + pip_packages
+        shEnvPkgs = abs(hash(str(envPkgs)))
+        envName = f"ray-{__version__}-{shEnvPkgs}"
+
+        if Environment.list(self.ws).get(envName) != None:
+            return Environment.get(self.ws, envName)
+        else:
+            python_version = ["python="+platform.python_version()]
+            conda_packages = python_version+self.additional_conda_packages +self.base_conda_dep
+            pip_packages = self.base_pip_dep +self.additional_pip_packages
+            
+            print(f"Creating new Environment {envName}")
+            rayEnv = Environment(name=envName)
+
+            conda_dep = CondaDependencies()
+
+            for conda_package in conda_packages:
+                conda_dep.add_conda_package(conda_package)
+
+            for pip_package in pip_packages:
+                conda_dep.add_pip_package(pip_package)
+
+            # Adds dependencies to PythonSection of myenv
+            rayEnv.python.conda_dependencies=conda_dep
+            rayEnv.register(self.ws)
+            
+            return rayEnv
+
+
+    def getRayInteractive(self, logging_level, ci_is_head):
+        """Create Compute Cluster, an entry script and Environment
+
+        Create Compute Cluster if given name of Compute Cluster doesn't exist in Azure Machine Learning Workspace
+
+        Get Azure Environement for Ray runtime
+
+        Generate entry script to run Ray in Compute Cluster
+
+        If the script run on Compute Cluster successfully, Ray object will be returned.
+
+        """
         # Verify that cluster does not exist already
         self.shutdown(end_all_runs=True)
         ws_detail = self.ws.get_details()
@@ -171,58 +327,7 @@ class Ray_On_AML():
 
             ray_cluster.wait_for_completion(show_output=True)
 
-
-        python_version = ["python="+platform.python_version()]
-
-        conda_packages = python_version+self.additional_conda_packages +self.base_conda_dep
-        pip_packages = self.base_pip_dep +self.additional_pip_packages
-
-        rayEnv = Environment(name="rayEnv")
-        # dockerfile = r"""
-        # FROM mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04
-        # ARG HTTP_PROXY
-        # ARG HTTPS_PROXY
-
-        # # set http_proxy & https_proxy
-        # ENV http_proxy=${HTTP_PROXY}
-        # ENV https_proxy=${HTTPS_PROXY}
-
-        # RUN http_proxy=${HTTP_PROXY} https_proxy=${HTTPS_PROXY} apt-get update -y \
-        #     && mkdir -p /usr/share/man/man1 \
-        #     && http_proxy=${HTTP_PROXY} https_proxy=${HTTPS_PROXY} apt-get install -y openjdk-8-jdk \
-        #     && mkdir /raydp \
-        #     && pip --no-cache-dir install raydp
-
-        # WORKDIR /raydp
-
-        # # unset http_proxy & https_proxy
-        # ENV http_proxy=
-        # ENV https_proxy=
-
-        # """
-#         dockerfile = r"""
-#         FROM mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:20210615.v1
-#         # Install OpenJDK-8
-#         RUN apt-get update -y \
-#         && mkdir -p /usr/share/man/man1 \
-#         && apt-get install -y openjdk-8-jdk 
-
-#         """
-
-        # Set the base image to None, because the image is defined by Dockerfile.
-        # rayEnv.docker.base_image = None
-        # rayEnv.docker.base_dockerfile = dockerfile
-
-        conda_dep = CondaDependencies()
-
-        for conda_package in conda_packages:
-            conda_dep.add_conda_package(conda_package)
-
-        for pip_package in pip_packages:
-            conda_dep.add_pip_package(pip_package)
-
-        # Adds dependencies to PythonSection of myenv
-        rayEnv.python.conda_dependencies=conda_dep
+        rayEnv = self.getRayEnvironment()
 
         ##Create the source file
         os.makedirs(".tmp", exist_ok=True)
@@ -328,20 +433,25 @@ class Ray_On_AML():
         source_file = open(".tmp/source_file.py", "w")
         source_file.write(dedent(source_file_content))
         source_file.close()
+
         if ci_is_head:
             master_ip = self.startRayMaster()
         else:
             master_ip= "None"
+
         src = ScriptRunConfig(source_directory='.tmp',
-                           script='source_file.py',
-                           environment=rayEnv,
-                           compute_target=ray_cluster,
-                           distributed_job_config=PyTorchConfiguration(node_count=self.maxnode),
-                              arguments = ["--master_ip",master_ip]
+                            script='source_file.py',
+                            environment=rayEnv,
+                            compute_target=ray_cluster,
+                            distributed_job_config=PyTorchConfiguration(node_count=self.maxnode),
+                            arguments = ["--master_ip",master_ip]
                            )
-        run = Experiment(self.ws, self.exp).submit(src)
+
+        run = Experiment(self.ws, self.exp_name).submit(src)
         self.run=run
+
         time.sleep(10)
+
         if ci_is_head:
             ray.shutdown()
             ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True, logging_level=logging_level)
@@ -355,12 +465,7 @@ class Ray_On_AML():
                     time.sleep(5)
                 else:
                     return ray
-
         else:
-            # mlflow.set_tracking_uri(self.ws.get_mlflow_tracking_uri())
-            # mlflow.set_experiment(self.exp)
-            # mlflowrun = mlflow.get_run(run.id)
-
             print("Waiting cluster to start and return head node ip")
             while not 'headnode' in run.get_metrics("headnode"):
                 print('.', end ="")
@@ -380,27 +485,44 @@ class Ray_On_AML():
             ray.init(f"ray://{headnode_private_ip}:10001",ignore_reinit_error=True, logging_level=logging_level)
             return ray
 
-
+    def getRun(self):
+        """Return run that associated with
+        """
+        if Run.get(self.ws, self.run.id) != None:
+            self.run = Run.get(self.ws, self.run.id)
+            return self.run
+        else:
+            return None
 
         
     def shutdown(self, end_all_runs=True):
+        """Stop Ray and Compute Cluster
+
+        Parameters
+        ----------
+        end_all_runs : bool, default=True
+            Stop all your compute cluster by default.
+            If you want to stop your own Compute Cluster, you can your following
+                ray_on_aml.shutdown(end_all_runs=False)
+        """
         def end_all_run():
-            exp= Experiment(self.ws,self.exp)
+            exp= Experiment(self.ws, self.exp_name)
             runs = exp.get_runs()
             for run in runs:
                 if (run.status =='Running') or (run.status =='Preparing'):
-                    print("Canceling active run ", run.id)
+                    print("Canceling active run ", run.id, "in", self.exp_name)
                     run.cancel()
+
         if end_all_runs:
             print("Cancel active AML runs if any")
             end_all_run()
         else:
+            print("Cancel your run")
             self.run.cancel()
+
         try:
             print("Shutting down ray if any")
-
             self.ray.shutdown()
-
         except:
             # print("Cannot shutdown ray, ray was not there")
             pass

@@ -6,7 +6,7 @@ It supports both interactive and job uses.
 
 ## Architecture
 
-![RayOnAML_Interactive_Arch](./images/RayOnAML_Interactive_Arch.png)
+![RayOnAML_Interactive_Arch](https://github.com/james-tn/ray-on-aml/raw/master/images/RayOnAML_Interactive_Arch.png)
 
 ## Setup
 

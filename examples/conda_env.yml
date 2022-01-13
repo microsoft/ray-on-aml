@@ -5,6 +5,8 @@ dependencies:
   - python=3.8.1
   - pip:
       - azureml-defaults
+      - mlflow
+      - azureml-mlflow
       - ray-on-aml
       - torch
       - torchvision==0.8.1

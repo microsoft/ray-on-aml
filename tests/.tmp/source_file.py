@@ -28,7 +28,7 @@ def startRayMaster():
     )
     ip = socket.gethostbyname(socket.gethostname())
     run.log("headnode", ip)
-    time.sleep(6000)
+    time.sleep(600000)
 
 
 def checkNodeType():
@@ -62,11 +62,11 @@ def startRay(master_ip=None):
     if master_ip is None:
         master_ip =os.environ.get("MASTER_ADDR")
 
-    cmd = f"ray start --address={master_ip}:6379 --object-manager-port=8076"
+    cmd = "ray start --address="+master_ip+":6379 --object-manager-port=8076"
 
     print(cmd)
 
-    worker_log = open("logs/worker_{rank}_log.txt".format(rank=rank), "w")
+    worker_log = open("logs/worker_"+rank+"_log.txt", "w")
 
     worker_proc = subprocess.Popen(
     cmd.split(),
@@ -76,7 +76,7 @@ def startRay(master_ip=None):
     )
     flush(worker_proc, worker_log)
 
-    time.sleep(60000)
+    time.sleep(600000)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
