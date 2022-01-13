@@ -66,6 +66,8 @@ base_pip_dep = ['ray[tune]==1.9.1','ray[rllib]==1.9.1','ray[serve]==1.9.1', 'xgb
 ```
 
 For use in an Azure ML job, include ray_on_aml as a pip dependency and inside your script, do this to get ray
+Remember to specify distributed_job_config=PyTorchConfiguration(node_count=maxnode) in your AML job's ScriptRunConfig so that ray-on-aml can work correctly.
+
 ```python
 
 from ray_on_aml.core import Ray_On_AML
