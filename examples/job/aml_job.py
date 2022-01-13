@@ -21,6 +21,17 @@ from azureml.core import Run
 
 dask.config.set(scheduler=ray_dask_get)
 
+# Change these values if you want the training to run quicker or slower.
+EPOCH_SIZE = 512
+TEST_SIZE = 256
+run = Run.get_context()
+ws = run.experiment.workspace
+# set mlflow uri
+mlflow.set_tracking_uri(ws.get_mlflow_tracking_uri())
+mlflow.set_experiment(run.experiment.name)
+ray_on_aml =Ray_On_AML()
+ray = ray_on_aml.getRay()
+
 class ConvNet(nn.Module):
     def __init__(self):
         super(ConvNet, self).__init__()
@@ -41,17 +52,6 @@ class ConvNet(nn.Module):
 #         # accList.append(result['mean_accuracy'])
 #         print(f"Got result: {result['mean_accuracy']}")
 
-
-# Change these values if you want the training to run quicker or slower.
-EPOCH_SIZE = 512
-TEST_SIZE = 256
-run = Run.get_context()
-ws = run.experiment.workspace
-# set mlflow uri
-mlflow.set_tracking_uri(ws.get_mlflow_tracking_uri())
-mlflow.set_experiment(run.experiment.name)
-ray_on_aml =Ray_On_AML()
-ray = ray_on_aml.getRay()
 
 def train(model, optimizer, train_loader):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
