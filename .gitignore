@@ -1,0 +1,4 @@
+*.amlignore
+*.amlignore.amltmp
+hs2-test-Env.ipynb
+hs2-test-env.py
