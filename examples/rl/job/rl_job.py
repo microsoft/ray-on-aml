@@ -56,7 +56,7 @@ def train():
 
     # Evaluate the trained Trainer (and render each timestep to the shell's
     # output).
-    trainer.evaluate()
+#     trainer.evaluate()
 
 
 

@@ -55,15 +55,6 @@ The ray cluster will request 5 nodes from AML if ``maxnode`` is not specified.
 ray_on_aml =Ray_On_AML(ws=ws, compute_cluster ="Name_of_Compute_Cluster", additional_pip_packages= \
 ['torch==1.10.0', 'torchvision', 'sklearn'])
 ```
-Advanced usage:There are two arguments to Ray_On_AML() object initilization with to specify base configuration for the library with following default values.
-Although it's possible, you should not change the default values of base_conda_dep  and base_pip_dep as it may break the package. Only do so when you need to customize the
-cluster default configuration such as ray version.
-
-```python
-Ray_On_AML(ws=ws, compute_cluster ="Name_of_Compute_Cluster",base_conda_dep =['adlfs==2021.10.0','pip==21.3.1'],\ 
-base_pip_dep = ['ray[tune]==1.9.1','ray[rllib]==1.9.1','ray[serve]==1.9.1', 'xgboost_ray==0.1.6', 'dask==2021.12.0',\
-'pyarrow >= 5.0.0','fsspec==2021.10.1','fastparquet==0.7.2','tabulate==0.8.9'])
-```
 
 For use in an Azure ML job, include ray_on_aml as a pip dependency and inside your script, do this to get ray
 Remember to use RunConfiguration(communicator='OpenMpi') in your AML job's ScriptRunConfig so that ray-on-aml can work correctly.
@@ -98,4 +89,22 @@ To shutdown cluster,  run following.
 ray_on_aml.shutdown()
 ```
 
+### 7. Customize Ray Version
+
+Interactive cluster:There are two arguments to Ray_On_AML() object initilization with to specify base configuration for the library with following default values.
+Although it's possible, you should not change the default values of base_conda_dep  and base_pip_dep as it may break the package. Only do so when you need to customize the
+cluster default configuration such as ray version.
+```python
+Ray_On_AML(ws=ws, compute_cluster ="Name_of_Compute_Cluster",base_conda_dep =['adlfs==2021.10.0','pip==21.3.1'],\ 
+base_pip_dep = ['ray[tune]==1.9.1','ray[rllib]==1.9.1','ray[serve]==1.9.1', 'xgboost_ray==0.1.6', 'dask==2021.12.0',\
+'pyarrow >= 5.0.0','fsspec==2021.10.1','fastparquet==0.7.2','tabulate==0.8.9'])
+```
+Job cluster: If you need to customize your ray version, you can do so by adding ray depdencies after ray-on-aml. For example like this order in your env.yml file
+```python
+      - ray-on-aml==0.0.7
+      - ray[rllib,tune,serve]==0.8.7
+```
+Check out [RLlib example with customized ray version at ](./examples/rl/rl_main.ipynb) to learn more 
+## 8. Quick start examples
 Check out [quick start examples](./examples/quick_use_cases.ipynb) to learn more 
+
