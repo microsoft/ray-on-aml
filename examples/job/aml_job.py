@@ -150,7 +150,7 @@ if __name__ == "__main__":
         analysis = tune.run(train_mnist, config=search_space, callbacks=[MLflowLoggerCallback(experiment_name=run.experiment.name, tags={"Framework":"Ray 1.9.1"}, save_artifact=True)])
 
         #demonstrate parallel data processing
-        # print("data count result", get_data_count())
+        print("data count result", get_data_count())
 
     else:
         print("in worker node")
