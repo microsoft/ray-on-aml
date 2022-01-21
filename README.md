@@ -89,7 +89,7 @@ To shutdown cluster,  run following.
 ray_on_aml.shutdown()
 ```
 
-### 7. Customize Ray Version and library's base configuration
+### 7. Customize Ray version and the library's base configurations
 
 Interactive cluster: There are two arguments to Ray_On_AML() object initilization with to specify base configuration for the library with following default values.
 Although it's possible, you should not change the default values of base_conda_dep  and base_pip_dep as it may break the package. Only do so when you need to customize the
