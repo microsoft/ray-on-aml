@@ -2,12 +2,13 @@ channels:
   - anaconda
   - conda-forge
 dependencies:
-  - python=3.8.1
+  - python=3.7.10
   - pip:
       - azureml-defaults
       - gym
       - dm-tree
       - ray-on-aml==0.0.9
+      - ray[rllib,tune,serve]==0.8.7
       - torch==1.10.0
       - torchvision==0.8.1
       - tensorflow
