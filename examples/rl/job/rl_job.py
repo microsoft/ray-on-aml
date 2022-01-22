@@ -1,7 +1,6 @@
 # Import the RL algorithm (Trainer) we would like to use.
 from ray.rllib.agents.ppo import PPOTrainer
-# from ray_on_aml.core import Ray_On_AML
-from src.ray_on_aml.core import Ray_On_AML
+from ray_on_aml.core import Ray_On_AML
 import time
 from azureml.core import Run
 
