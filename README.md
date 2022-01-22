@@ -91,14 +91,14 @@ ray_on_aml.shutdown()
 
 ### 7. Customize Ray version and the library's base configurations
 
-Interactive cluster: There are two arguments to Ray_On_AML() object initilization with to specify base configuration for the library with following default values.
-Although it's possible, you should not change the default values of base_conda_dep  and base_pip_dep as it may break the package. Only do so when you need to customize the
-cluster default configuration such as ray version.
+Interactive cluster: There are two arguments in Ray_On_AML() class initilization to specify base configuration for the library with following default values.
 ```python
 Ray_On_AML(ws=ws, compute_cluster ="Name_of_Compute_Cluster",base_conda_dep =['adlfs==2021.10.0','pip==21.3.1'],\ 
 base_pip_dep = ['ray[tune]==1.9.1','ray[rllib]==1.9.1','ray[serve]==1.9.1', 'xgboost_ray==0.1.6', 'dask==2021.12.0',\
 'pyarrow >= 5.0.0','fsspec==2021.10.1','fastparquet==0.7.2','tabulate==0.8.9'])
 ```
+You can change ray and other libraries versions. Do this with extreme care as it may result in conflicts impacting intended features of the package. 
+If you change ray version here, you will need to manually re-install the ray library at the compute instance to match with the custom version of the cluster in case the compute instance is the head node.
 AML Job cluster: If you need to customize your ray version, you can do so by adding ray dependency after ray-on-aml. The reason is ray-on-aml comes with some recent ray version. It needs to be overidden. For example if you need ray 0.8.7, you can do like following in your job's env.yml file
 ```python
       - ray-on-aml==0.0.7
