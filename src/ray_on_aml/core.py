@@ -21,7 +21,7 @@ __version__='0.0.7'
 
 class Ray_On_AML():
     def __init__(self,compute_cluster=None, ws=None, base_conda_dep =['adlfs==2021.10.0','pip==21.3.1'], 
-    base_pip_dep = ['ray[tune]==1.9.2','ray[rllib]==1.9.2','ray[serve]==1.9.2', 'xgboost_ray==0.1.6', 'dask==2021.12.0','pyarrow >= 5.0.0','fsspec==2021.10.1','fastparquet==0.7.2','tabulate==0.8.9'], 
+    base_pip_dep = ['ray[rllib,tune,serve]==1.9.2', 'xgboost_ray==0.1.6', 'dask==2021.12.0','pyarrow >= 5.0.0','fsspec==2021.10.1','fastparquet==0.7.2','tabulate==0.8.9'], 
     vnet_rg = None, vm_size=None, vnet=None, subnet=None,
     exp_name ='ray_on_aml', maxnode =5, additional_conda_packages=[],additional_pip_packages=[], job_timeout=600000):
         """ Class for Ray_On_AML
@@ -104,10 +104,6 @@ class Ray_On_AML():
         self.additional_conda_packages=additional_conda_packages
         self.additional_pip_packages=additional_pip_packages
         self.job_timeout = job_timeout
-        if ray.__version__<'1.0.0':
-            self.head_port_cmd = '--head --redis-port=6379'
-        else:
-            self.head_port_cmd = '--head --port=6379'
 
     def flush(self,proc, proc_log):
         while True:
@@ -139,13 +135,13 @@ class Ray_On_AML():
         logging.info(f"Using {conda_env_name} for the master node")
         #set the the python to this conda env
 
-        cmd =f'. /anaconda/etc/profile.d/conda.sh && conda activate {conda_env_name} && ray stop && ray start {self.head_port_cmd}'
+        cmd =f'. /anaconda/etc/profile.d/conda.sh && conda activate {conda_env_name} && ray stop && ray start --head --port=6379'
         try:
             # if this is not the default environment, it will run
             subprocess.check_output(cmd, shell=True)
         except:
             # User runs this in default environment, just go ahead without activating    
-            cmd =f'ray stop && ray start {self.head_port_cmd}'
+            cmd =f'ray stop && ray start --head --port=6379'
             subprocess.check_output(cmd, shell=True)
         ip = self.get_ip()
         return ip
@@ -179,19 +175,39 @@ class Ray_On_AML():
 
         logging.info("free disk space on /tmp")
         os.system(f"df -P /tmp")
-
+        
         cmd = f"ray start --address={master_ip}:6379"
 
         logging.info(cmd)
 
         worker_log = open("logs/worker_{rank}_log.txt".format(rank=rank), "w")
+        return_code=-1
+        max_tries =20
+        counter =0
+        while return_code!=0:
+            worker_proc = subprocess.Popen(
+            cmd.split(),
+            universal_newlines=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            )
+            while worker_proc.poll() is None:
+                # Process hasn't exited yet, let's wait some
+                time.sleep(1)
 
-        worker_proc = subprocess.Popen(
-        cmd.split(),
-        universal_newlines=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        )
+            # Get return code from process
+            return_code = worker_proc.returncode
+            
+            if return_code!=0:
+                logging.warn("Get non zero return code "+str(return_code)+ " retrying after 5s")
+                time.sleep(5)
+                counter += 1
+            else:
+                logging.info("Start ray successfully")
+            if counter>=max_tries:
+                logging.warn("Cannot start ray worker, abort...")
+                break
+
         self.flush(worker_proc, worker_log)
 
     def getRay(self, logging_level=logging.ERROR, ci_is_head=True, shm_size='48gb'):
@@ -362,7 +378,7 @@ class Ray_On_AML():
                     proc_log.flush()
         def startRayMaster():
         
-            cmd ='ray start {1}'
+            cmd ='ray start --head --port=6379'
             subprocess.Popen(
             cmd.split(),
             universal_newlines=True
@@ -407,14 +423,32 @@ class Ray_On_AML():
             print(cmd)
 
             worker_log = open("logs/worker_"+rank+"_log.txt", "w")
+            return_code=-1
+            max_tries =20
+            counter =0
+            while return_code!=0:
+                worker_proc = subprocess.Popen(
+                cmd.split(),
+                universal_newlines=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                )
+                while worker_proc.poll() is None:
+                    # Process hasn't exited yet, let's wait some
+                    time.sleep(1)
 
-            worker_proc = subprocess.Popen(
-            cmd.split(),
-            universal_newlines=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            )
-            flush(worker_proc, worker_log)
+                # Get return code from process
+                return_code = worker_proc.returncode
+                
+                if return_code!=0:
+                    logging.warn("Get non zero return code "+str(return_code)+ " retrying after 5s")
+                    time.sleep(5)
+                    counter += 1
+                else:
+                    logging.info("Start ray successfully")
+                if counter>=max_tries:
+                    logging.warn("Cannot start ray worker, abort...")
+                    break
 
             time.sleep({0})
 
@@ -434,7 +468,7 @@ class Ray_On_AML():
                     startRay()
 
 
-        """.format(self.job_timeout, self.head_port_cmd)
+        """.format(self.job_timeout)
 
         source_file = open(".tmp/source_file.py", "w")
         source_file.write(dedent(source_file_content))
