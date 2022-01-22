@@ -139,13 +139,13 @@ class Ray_On_AML():
         logging.info(f"Using {conda_env_name} for the master node")
         #set the the python to this conda env
 
-        cmd =f'. /anaconda/etc/profile.d/conda.sh && conda activate {conda_env_name} && ray stop && ray start --head --port=6379 --object-manager-port=8076'
+        cmd =f'. /anaconda/etc/profile.d/conda.sh && conda activate {conda_env_name} && ray stop && ray start --head --port=6379'
         try:
             # if this is not the default environment, it will run
             subprocess.check_output(cmd, shell=True)
         except:
-            # User runs this in default environment, just goahead without activating    
-            cmd ='ray stop && ray start --head --port=6379 --object-manager-port=8076'
+            # User runs this in default environment, just go ahead without activating    
+            cmd ='ray stop && ray start --head --port=6379'
             subprocess.check_output(cmd, shell=True)
         ip = self.get_ip()
         return ip
@@ -180,7 +180,7 @@ class Ray_On_AML():
         logging.info("free disk space on /tmp")
         os.system(f"df -P /tmp")
 
-        cmd = f"ray start --address={master_ip}:6379 --object-manager-port=8076"
+        cmd = f"ray start --address={master_ip}:6379"
 
         logging.info(cmd)
 
@@ -362,7 +362,7 @@ class Ray_On_AML():
                     proc_log.flush()
         def startRayMaster():
         
-            cmd ='ray start --head --port=6379 --object-manager-port=8076'
+            cmd ='ray start --head --port=6379'
             subprocess.Popen(
             cmd.split(),
             universal_newlines=True
@@ -402,7 +402,7 @@ class Ray_On_AML():
             if master_ip is None:
                 master_ip =os.environ.get("MASTER_ADDR")
 
-            cmd = "ray start --address="+master_ip+":6379 --object-manager-port=8076"
+            cmd = "ray start --address="+master_ip+":6379"
 
             print(cmd)
 
