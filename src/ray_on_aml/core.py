@@ -105,7 +105,7 @@ class Ray_On_AML():
         self.additional_pip_packages=additional_pip_packages
         self.job_timeout = job_timeout
         if ray.__version__<'1.0.0':
-            self.head_port_cmd = '--redis-port=6379'
+            self.head_port_cmd = '--head --redis-port=6379'
         else:
             self.head_port_cmd = '--head --port=6379'
 
@@ -362,7 +362,7 @@ class Ray_On_AML():
                     proc_log.flush()
         def startRayMaster():
         
-            cmd ='ray start --head --port=6379'
+            cmd ='ray start {1}'
             subprocess.Popen(
             cmd.split(),
             universal_newlines=True
@@ -434,7 +434,7 @@ class Ray_On_AML():
                     startRay()
 
 
-        """.format(self.job_timeout)
+        """.format(self.job_timeout, self.head_port_cmd)
 
         source_file = open(".tmp/source_file.py", "w")
         source_file.write(dedent(source_file_content))
