@@ -104,10 +104,10 @@ class Ray_On_AML():
         self.additional_conda_packages=additional_conda_packages
         self.additional_pip_packages=additional_pip_packages
         self.job_timeout = job_timeout
-        # mlflow.set_tracking_uri(self.ws.get_mlflow_tracking_uri())
-        # mlflow.set_experiment(self.exp_name)
-        # mlflowrun = mlflow.get_run(run.id)
-
+        if ray.__version__<'1.0.0':
+            self.head_port_cmd = '--redis-port=6379'
+        else:
+            self.head_port_cmd = '--head --port=6379'
 
     def flush(self,proc, proc_log):
         while True:
@@ -139,13 +139,13 @@ class Ray_On_AML():
         logging.info(f"Using {conda_env_name} for the master node")
         #set the the python to this conda env
 
-        cmd =f'. /anaconda/etc/profile.d/conda.sh && conda activate {conda_env_name} && ray stop && ray start --head --port=6379'
+        cmd =f'. /anaconda/etc/profile.d/conda.sh && conda activate {conda_env_name} && ray stop && ray start {self.head_port_cmd}'
         try:
             # if this is not the default environment, it will run
             subprocess.check_output(cmd, shell=True)
         except:
             # User runs this in default environment, just go ahead without activating    
-            cmd ='ray stop && ray start --head --port=6379'
+            cmd =f'ray stop && ray start {self.head_port_cmd}'
             subprocess.check_output(cmd, shell=True)
         ip = self.get_ip()
         return ip
