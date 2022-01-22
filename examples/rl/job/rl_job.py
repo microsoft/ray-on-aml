@@ -1,6 +1,8 @@
 # Import the RL algorithm (Trainer) we would like to use.
 from ray.rllib.agents.ppo import PPOTrainer
-from ray_on_aml.core import Ray_On_AML
+# from ray_on_aml.core import Ray_On_AML
+from src.ray_on_aml.core import Ray_On_AML
+import time
 from azureml.core import Run
 
 
@@ -65,6 +67,8 @@ if __name__ == "__main__":
     ray = ray_on_aml.getRay()
     if ray: #in the headnode
         print("head node detected")
+        time.sleep(15)
+        print(ray.cluster_resources())
         train()
 
 

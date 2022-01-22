@@ -389,7 +389,7 @@ class Ray_On_AML():
 
 
         def checkNodeType():
-            rank = os.environ.get("RANK")
+            rank = os.environ.get("OMPI_COMM_WORLD_RANK")
             if rank is None:
                 return "interactive" # This is interactive scenario
             elif rank == '0':
@@ -416,7 +416,7 @@ class Ray_On_AML():
             print("free disk space on /tmp")
             os.system(f"df -P /tmp")
             if master_ip is None:
-                master_ip =os.environ.get("MASTER_ADDR")
+                master_ip =master
 
             cmd = "ray start --address="+master_ip+":6379"
 
