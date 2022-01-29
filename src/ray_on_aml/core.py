@@ -14,14 +14,16 @@ from azureml.core.compute_target import ComputeTargetException
 from azureml.core.environment import Environment
 from azureml.core.conda_dependencies import CondaDependencies
 import logging
-
+import raydp
+import urllib.request 
+import shutil
 
 __version__='0.0.7'
 
 
 class Ray_On_AML():
     def __init__(self,compute_cluster=None, ws=None, base_conda_dep =['adlfs==2021.10.0','pip==21.3.1'], 
-    base_pip_dep = ['ray[rllib,tune,serve]==1.9.2', 'xgboost_ray==0.1.6', 'dask==2021.12.0','pyarrow >= 5.0.0','fsspec==2021.10.1','fastparquet==0.7.2','tabulate==0.8.9'], 
+    base_pip_dep = ['ray[tune]==1.9.2', 'ray[rllib]==1.9.2','ray[serve]==1.9.2', 'xgboost_ray==0.1.6', 'dask==2021.12.0','pyarrow >= 5.0.0','fsspec==2021.10.1','fastparquet==0.7.2','tabulate==0.8.9','raydp'], 
     vnet_rg = None, vm_size=None, vnet=None, subnet=None,
     exp_name ='ray_on_aml', maxnode =5, additional_conda_packages=[],additional_pip_packages=[], job_timeout=600000):
         """ Class for Ray_On_AML
@@ -296,6 +298,33 @@ class Ray_On_AML():
             
             print(f"Creating new Environment {envName}")
             rayEnv = Environment(name=envName)
+            dockerfile = r"""
+            FROM mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:20210615.v1
+            ARG HTTP_PROXY
+            ARG HTTPS_PROXY
+            # set http_proxy & https_proxy
+            ENV http_proxy=${HTTP_PROXY}
+            ENV https_proxy=${HTTPS_PROXY}
+            RUN http_proxy=${HTTP_PROXY} https_proxy=${HTTPS_PROXY} apt-get update -y \
+                && mkdir -p /usr/share/man/man1 \
+                && http_proxy=${HTTP_PROXY} https_proxy=${HTTPS_PROXY} apt-get install -y openjdk-11-jdk \
+                && mkdir /raydp \
+                && pip --no-cache-dir install raydp
+            WORKDIR /raydp
+            # unset http_proxy & https_proxy
+            ENV http_proxy=
+            ENV https_proxy=
+            """
+            # dockerfile = r"""
+            # FROM mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:20210615.v1
+            # # Install OpenJDK-8
+            # RUN apt-get update -y \
+            # && mkdir -p /usr/share/man/man1 \
+            # && apt-get install -y openjdk-8-jdk 
+            # """
+            # Set the base image to None, because the image is defined by Dockerfile.
+            rayEnv.docker.base_image = None
+            rayEnv.docker.base_dockerfile = dockerfile
 
             conda_dep = CondaDependencies()
 
@@ -352,8 +381,8 @@ class Ray_On_AML():
 
         ##Create the source file
         os.makedirs(".tmp", exist_ok=True)
-
-
+        conda_lib_path = sys.executable.split('/')[-3]+"/lib/python"+sys.version[:3]
+        # azureml_py38_PT_TF/lib/python3.8
 
         source_file_content = """
         import os
@@ -365,6 +394,8 @@ class Ray_On_AML():
         import platform
         from azureml.core import Run
         import ray
+        import shutil
+        from distutils.dir_util import copy_tree
         run = Run.get_context()
         def flush(proc, proc_log):
             while True:
@@ -453,6 +484,12 @@ class Ray_On_AML():
             time.sleep({0})
 
         if __name__ == "__main__":
+            sub_folder = os.listdir("/azureml-envs/")[0]
+
+            copy_tree("/azureml-envs/"+sub_folder+"/lib/python3.8/site-packages/ray/jars","/anaconda/envs/{1}/site-packages/ray/jars/")
+            copy_tree("/azureml-envs/"+sub_folder+"/lib/python3.8/site-packages/raydp/jars","/anaconda/envs/{1}/site-packages/raydp/jars/")
+            copy_tree("/azureml-envs/"+sub_folder+"/lib/python3.8/site-packages/pyspark/jars/","/anaconda/envs/{1}/site-packages/pyspark/jars/")
+
             parser = argparse.ArgumentParser()
             parser.add_argument("--master_ip")
             args, unparsed = parser.parse_known_args()
@@ -467,8 +504,7 @@ class Ray_On_AML():
                     time.sleep(20)
                     startRay()
 
-
-        """.format(self.job_timeout)
+        """.format(self.job_timeout,conda_lib_path)
 
         source_file = open(".tmp/source_file.py", "w")
         source_file.write(dedent(source_file_content))
@@ -570,4 +606,52 @@ class Ray_On_AML():
             # print("Cannot shutdown ray, ray was not there")
             pass
     
+    def getSpark(self, num_executors,executor_cores,executor_memory,base_jar_configs = 
+    {"spark.jars":['com.microsoft.azure:azure-storage:8.6.6',
+    'org.apache.hadoop:hadoop-azure:3.3.1','org.eclipse.jetty:jetty-util-ajax:11.0.7',
+    'org.eclipse.jetty:jetty-util:9.3.24.v20180605','io.delta:delta-core_2.12:1.1.0',
+    'com.microsoft.sqlserver:mssql-jdbc:9.4.1.jre8']}, additional_jar_configs={}, 
+    additional_spark_configs={},app_name = "spark", other_configs=None, placement_group_strategy="SPREAD"):
+        os.makedirs(".tmp", exist_ok=True)
         
+        def download_jars(jar_configs):
+            maven_address='https://repo1.maven.org/maven2'
+            local_jar_configs={}
+            for k,v in jar_configs.items():
+                local_items=[]
+                for item in v:
+                    org, package, version = item.split(":")
+                    org = "/".join(org.split("."))
+                    filename = package+"-"+version+".jar"
+                    url = maven_address+"/"+org+"/"+package+"/"+version+"/"+filename
+                    local_file=".tmp/"+filename
+                    urllib.request.urlretrieve(url, local_file)
+                    local_items.append(local_file)
+                local_items= ",".join(local_items)
+                local_jar_configs[k]=local_items
+            return local_jar_configs
+        local_base_jar_configs = download_jars(base_jar_configs)
+        if len(additional_jar_configs)>0:
+            local_additional_jar_configs = download_jars(additional_jar_configs)
+            for k,v in local_additional_jar_configs.items():
+                if k in local_base_jar_configs.keys():
+                    base_jars = local_base_jar_configs[k]
+                    local_base_jar_configs[k] = base_jars+","+v
+                else:
+                    local_base_jar_configs[k] = v
+        
+        local_base_jar_configs.update(additional_spark_configs)
+        if other_configs is not None:
+            local_base_jar_configs.update(other_configs)
+
+
+        spark = raydp.init_spark(
+        app_name=app_name,
+        num_executors = num_executors,
+        executor_cores = executor_cores,
+        executor_memory = executor_memory,
+            configs = local_base_jar_configs,
+            placement_group_strategy=placement_group_strategy
+        )
+
+        return spark
