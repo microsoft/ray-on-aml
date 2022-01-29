@@ -1,7 +1,9 @@
 # Ray on Azure ML
 
-This package simplifies setup of core Ray and Ray's components such as Dask on Ray, Ray tune,Ray rrlib, Ray serve in Azure ML.
-It also comes with supports for high performance data access to Azure data sources such as Azure Storage, Delta Lake (coming soon), Synapse SQL (coming soon).
+NEW!: ray-on-aml now supports Spark with Delta Lake, Synapse JDBC and latest pyspark 3.2.1. Checkout [spark examples](./examples/spark/spark_examples.ipynb)
+
+This package simplifies setup of core Ray and Ray's components such as Dask on Ray, Ray tune,Ray rrlib, Ray serve and Spark in Azure ML.
+It also comes with supports for high performance data access to Azure data sources such as Azure Storage, Delta Lake , Synapse SQL.
 It supports both interactive and job uses.
 
 ## Architecture
