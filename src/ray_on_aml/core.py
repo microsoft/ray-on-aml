@@ -212,7 +212,7 @@ class Ray_On_AML():
 
         self.flush(worker_proc, worker_log)
 
-    def getRay(self, logging_level=logging.ERROR, ci_is_head=True, shm_size='48gb'):
+    def getRay(self, logging_level=logging.ERROR, ci_is_head=True, shm_size='48gb',base_image =None,gpu_support=False):
         """This method automatically creates Azure Machine Learning Compute Cluster with Ray, Dask on Ray, Ray Tune, Ray rrlib, and Ray serve.
         This class takes care of all from infrastructure to runtime preperation, it may take 10 mintues for the first time execution of the module.
         Before you run this method, make sure you have existing Virtual Network and subnet in the same Resource Group where Azure Machine Learning Service is.
@@ -259,7 +259,7 @@ class Ray_On_AML():
             raise Exception("For interactive use, please pass AML workspace and compute cluster name to the init")
 
         if self.checkNodeType()=="interactive":
-            return self.getRayInteractive(logging_level,ci_is_head, shm_size)
+            return self.getRayInteractive(logging_level,ci_is_head, shm_size,base_image,gpu_support)
         elif self.checkNodeType() =='head':
             logging.info("head node detected")
             self.startRayMaster()
@@ -272,7 +272,7 @@ class Ray_On_AML():
 
 
 
-    def getRayEnvironment(self):
+    def getRayEnvironment(self,base_image,gpu_support):
         """Manager Azure Machine Learning Environement 
         If 'rayEnv__version__' exists in Azure Machine Learning Environment, use the existing one.
         If not, create new one and register it in AML workspace.
@@ -298,31 +298,30 @@ class Ray_On_AML():
             
             print(f"Creating new Environment {envName}")
             rayEnv = Environment(name=envName)
+            if base_image is None:
+                if gpu_support:
+                    base_image="FROM mcr.microsoft.com/azureml/openmpi4.1.0-cuda11.1-cudnn8-ubuntu18.04:20211221.v1"
+                else:
+                    base_image="FROM mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:20210615.v1"
+            else:
+                base_image= "FROM "+ base_image
             dockerfile = r"""
-            FROM mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:20210615.v1
+            {0}
             ARG HTTP_PROXY
             ARG HTTPS_PROXY
             # set http_proxy & https_proxy
-            ENV http_proxy=${HTTP_PROXY}
-            ENV https_proxy=${HTTPS_PROXY}
-            RUN http_proxy=${HTTP_PROXY} https_proxy=${HTTPS_PROXY} apt-get update -y \
+            ENV http_proxy=${{HTTPS_PROXY}}
+            ENV https_proxy=${{HTTPS_PROXY}}
+            RUN http_proxy=${{HTTPS_PROXY}} https_proxy=${{HTTPS_PROXY}} apt-get update -y \
                 && mkdir -p /usr/share/man/man1 \
-                && http_proxy=${HTTP_PROXY} https_proxy=${HTTPS_PROXY} apt-get install -y openjdk-11-jdk \
+                && http_proxy=${{HTTPS_PROXY}} https_proxy=${{HTTPS_PROXY}} apt-get install -y openjdk-11-jdk \
                 && mkdir /raydp \
                 && pip --no-cache-dir install raydp
             WORKDIR /raydp
             # unset http_proxy & https_proxy
             ENV http_proxy=
             ENV https_proxy=
-            """
-            # dockerfile = r"""
-            # FROM mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:20210615.v1
-            # # Install OpenJDK-8
-            # RUN apt-get update -y \
-            # && mkdir -p /usr/share/man/man1 \
-            # && apt-get install -y openjdk-8-jdk 
-            # """
-            # Set the base image to None, because the image is defined by Dockerfile.
+            """.format(base_image)
             rayEnv.docker.base_image = None
             rayEnv.docker.base_dockerfile = dockerfile
 
@@ -341,7 +340,7 @@ class Ray_On_AML():
             return rayEnv
 
 
-    def getRayInteractive(self, logging_level, ci_is_head, shm_size):
+    def getRayInteractive(self, logging_level, ci_is_head, shm_size,base_image, gpu_support):
         """Create Compute Cluster, an entry script and Environment
 
         Create Compute Cluster if given name of Compute Cluster doesn't exist in Azure Machine Learning Workspace
@@ -377,7 +376,7 @@ class Ray_On_AML():
 
             ray_cluster.wait_for_completion(show_output=True)
 
-        rayEnv = self.getRayEnvironment()
+        rayEnv = self.getRayEnvironment(base_image,gpu_support)
 
         ##Create the source file
         os.makedirs(".tmp", exist_ok=True)
