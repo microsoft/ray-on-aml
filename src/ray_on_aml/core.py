@@ -650,7 +650,7 @@ class Ray_On_AML():
         executor_cores = executor_cores,
         executor_memory = executor_memory,
             configs = local_base_jar_configs,
-            placement_group_strategy=placement_group_strategy
+            # placement_group_strategy=placement_group_strategy
         )
 
         return spark
