@@ -7,6 +7,10 @@ environment:
   image: mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04
   conda_file: conda.yml
 compute: azureml:d15-v2
+resources:
+  instance_count: 2
+distribution: 
+  type: mpi
 display_name: ray_ci_test_ray_data
 experiment_name: ray_ci_test_ray_data
 description: Integration testing for ray_data_usecase

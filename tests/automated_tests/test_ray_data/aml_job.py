@@ -1,7 +1,13 @@
 import ray
 import numpy as np
 from azureml.core import Run
+import os
+print("curretn directory ", os.listdir())
+import sys
+sys.path.append("../../") # go to parent dir
+
 from src.ray_on_aml.core import Ray_On_AML
+
 import raydp
 
 #dask
