@@ -2,7 +2,7 @@ $schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
 code: 
   local_path: ../../../
 command: >-
-  python tests/automated_tests/test_ray_data/test_ray_spark.py 
+  python tests/automated_tests/test_rl/test_ray_rl.py 
 environment: 
   image: mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04
   conda_file: conda.yml
@@ -11,6 +11,6 @@ resources:
   instance_count: 2
 distribution: 
   type: mpi
-display_name: ray_ci_test_ray_data
-experiment_name: ray_ci_test_ray_data
-description: Integration testing for ray_data_usecase
+display_name: ray_ci_test_ray_rl
+experiment_name: ray_ci_test_ray_rl
+description: Integration testing for ray_rl_usecase
