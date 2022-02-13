@@ -4,7 +4,8 @@ from azureml.core import Run
 import os
 print("curretn directory ", os.listdir())
 import sys
-sys.path.append("../../") # go to parent dir
+# sys.path.append("../../") # go to parent dir
+sys.path.insert(0, './') # location of src 
 
 from src.ray_on_aml.core import Ray_On_AML
 
