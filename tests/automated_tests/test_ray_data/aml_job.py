@@ -5,7 +5,8 @@ import os
 print("curretn directory ", os.listdir())
 import sys
 # sys.path.append("../../") # go to parent dir
-sys.path.insert(0, './') # location of src 
+# sys.path.insert(0, './') # location of src 
+sys.path.append(os.path.join(os.path.dirname(__file__),'../../../'))
 
 from src.ray_on_aml.core import Ray_On_AML
 
