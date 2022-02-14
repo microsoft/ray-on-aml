@@ -4,7 +4,8 @@ code:
 command: >-
   python tests/automated_tests/test_spark/test_ray_spark.py 
 environment: 
-  image: mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04
+  build:
+    dockerfile_path: tests/automated_tests/test_spark/dockerFile
   conda_file: conda.yml
 compute: azureml:d15-v2
 resources:
