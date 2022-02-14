@@ -4,7 +4,7 @@ on:
     branches: 
       - master
     paths:
-      - .github/workflows/ci_post_release.yml
+      - .github/workflows/ci_post_release_test.yml
       # - src/**
       # - tests/automated_tests/**
 jobs:
