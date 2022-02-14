@@ -58,7 +58,6 @@ if __name__ == "__main__":
     account_key = ws.get_default_keyvault().get_secret("adls7-account-key")
     ray_on_aml =Ray_On_AML()
     ray = ray_on_aml.getRay()
-    print("resources for ray cluster ", ray.cluster_resources())
 
     if ray: #in the headnode
         print("head node detected")
