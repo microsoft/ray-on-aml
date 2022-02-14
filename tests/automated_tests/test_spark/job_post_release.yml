@@ -2,7 +2,7 @@ $schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
 code: 
   local_path: ../../../
 command: >-
-  python tests/automated_tests/test_spark/test_ray_spark.py 
+  python tests/automated_tests/test_spark/test_ray_spark_post_release.py 
 environment: 
   build:
     local_path: ./
