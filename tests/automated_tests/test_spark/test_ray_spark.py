@@ -1,4 +1,3 @@
-
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__),'../../../'))
@@ -6,12 +5,12 @@ import raydp
 from src.ray_on_aml.core import Ray_On_AML
 import ray
 import numpy as np
-from azureml.core import Run
+# from azureml.core import Run
 
 #dask
 if __name__ == "__main__":
-    run = Run.get_context()
-    ws = run.experiment.workspace
+    # run = Run.get_context()
+    # ws = run.experiment.workspace
     account_key = ws.get_default_keyvault().get_secret("adls7-account-key")
     ray_on_aml =Ray_On_AML()
     ray = ray_on_aml.getRay()
