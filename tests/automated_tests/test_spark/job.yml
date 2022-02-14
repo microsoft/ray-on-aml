@@ -5,7 +5,7 @@ command: >-
   python tests/automated_tests/test_spark/test_ray_spark.py 
 environment: 
   build:
-    dockerfile_path: tests/automated_tests/test_spark/dockerFile
+    local_path: tests/automated_tests/test_spark
   conda_file: conda.yml
 compute: azureml:d15-v2
 resources:
