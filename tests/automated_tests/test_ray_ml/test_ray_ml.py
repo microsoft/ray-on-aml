@@ -61,6 +61,8 @@ if __name__ == "__main__":
     if ray: #in the headnode
         print("head node detected")
         print("resources for ray cluster ", ray.cluster_resources())
+        print("torch.cuda.is_available: ", torch.cuda.is_available())
+
 
         trainer = Trainer(backend="torch", num_workers=2)
         trainer.start()
