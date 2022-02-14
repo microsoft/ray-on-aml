@@ -4,7 +4,7 @@ code:
 command: >-
   python tests/automated_tests/test_ray_ml/test_ray_ml.py 
 environment: 
-  image: FROM mcr.microsoft.com/azureml/openmpi4.1.0-cuda11.1-cudnn8-ubuntu18.04
+  image: mcr.microsoft.com/azureml/openmpi4.1.0-cuda11.1-cudnn8-ubuntu18.04:20220208.v1
   conda_file: conda.yml
 compute: azureml:gpunc6
 resources:
