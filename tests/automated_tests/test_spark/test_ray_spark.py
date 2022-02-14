@@ -21,5 +21,5 @@ if __name__ == "__main__":
         storage_account_key=ws.get_default_keyvault().get_secret("adlsdatalakegen6")
         additional_spark_configs ={f"fs.azure.account.key.{storage_account_name}.dfs.core.windows.net":f"{storage_account_key}"}
         spark = ray_on_aml.getSpark(executor_cores =3,num_executors =2 ,executor_memory='10GB', additional_spark_configs=additional_spark_configs)
-        adls_data = spark.read.format("delta").load("wasbs://mltraining@adlsdatalakegen6.blob.core.windows.net/ISDWeatherDelta")
+        adls_data = spark.read.format("delta").load("abfss://mltraining@adlsdatalakegen6.dfs.core.windows.net/ISDWeatherDelta")
         adls_data.groupby("stationName").count().head(100)
