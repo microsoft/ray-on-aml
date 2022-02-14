@@ -1,32 +1,12 @@
-
-import sys
-import os
 from ray_on_aml.core import Ray_On_AML
 
-#dask
-
-import numpy as np
-import torch
-import torch.optim as optim
-import torch.nn as nn
-from torchvision import datasets, transforms
-from torch.utils.data import DataLoader
-import torch.nn.functional as F
 import ray
-from ray import tune
-# from ray.tune import Callback
-from ray.tune.schedulers import ASHAScheduler
-from ray.tune.integration.mlflow import MLflowLoggerCallback
 from ray.util.dask import ray_dask_get
 import dask
-import dask.array as da
 import dask.dataframe as dd
 from adlfs import AzureBlobFileSystem
-import mlflow
 from azureml.core import Run
-
-dask.config.set(scheduler=ray_dask_get)
-
+from ray.util.dask import ray_dask_get,enable_dask_on_ray
 
 def get_data_count():
 
@@ -39,6 +19,9 @@ def get_data_count():
     return data.count(),ddf.count().compute()
 
 if __name__ == "__main__":
+    ray_on_aml =Ray_On_AML()
+    ray = ray_on_aml.getRay()
+    enable_dask_on_ray()
     if ray: #in the headnode
         print("head node detected")
         print("data count result", get_data_count())

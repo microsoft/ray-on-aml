@@ -8,8 +8,6 @@ dependencies:
       - mlflow
       - azureml-mlflow
       - raydp
-      - torch
-      - torchvision==0.8.1
       - ray[tune]
       - ray[serve]
       - ray[rllib]

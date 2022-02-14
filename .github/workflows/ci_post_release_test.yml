@@ -109,6 +109,32 @@ jobs:
             echo "Test case failed"
             exit 3
           fi
+      - name: run ray xgboost-ray test
+        run: |
+          run_id=$(az ml job create -f tests/automated_tests/test_xgboost_ray/job_post_release.yml --query name -o tsv)
+          if [[ -z "$run_id" ]]
+          then
+            echo "Job creation failed"
+            exit 3
+          fi
+          status=$(az ml job show -n $run_id --query status -o tsv)
+          if [[ -z "$status" ]]
+          then
+            echo "Status query failed"
+            exit 4
+          fi
+          running=("Queued" "Starting" "Preparing" "Running" "Finalizing")
+          while [[ ${running[*]} =~ $status ]]
+          do
+            sleep 8 
+            status=$(az ml job show -n $run_id --query status -o tsv)
+            echo $status
+          done
+          if [[ "$status" = "Failed" ]]  
+          then
+            echo "Test case failed"
+            exit 3
+          fi
       - name: run ray rl test
         run: |
           run_id=$(az ml job create -f tests/automated_tests/test_rl/job_post_release.yml --query name -o tsv)
