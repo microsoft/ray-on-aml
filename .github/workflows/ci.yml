@@ -31,6 +31,32 @@ jobs:
         run: |
           az extension add -n ml -y
           az configure --defaults group=azureml workspace=ws01ent location=westus2
+      - name: run ray spark test
+        run: |
+          run_id=$(az ml job create -f tests/automated_tests/test_spark/job.yml --query name -o tsv)
+          if [[ -z "$run_id" ]]
+          then
+            echo "Job creation failed"
+            exit 3
+          fi
+          status=$(az ml job show -n $run_id --query status -o tsv)
+          if [[ -z "$status" ]]
+          then
+            echo "Status query failed"
+            exit 4
+          fi
+          running=("Queued" "Starting" "Preparing" "Running" "Finalizing")
+          while [[ ${running[*]} =~ $status ]]
+          do
+            sleep 8 
+            status=$(az ml job show -n $run_id --query status -o tsv)
+            echo $status
+          done
+          if [[ "$status" = "Failed" ]]  
+          then
+            echo "Test case failed"
+            exit 3
+          fi
       - name: run ray ml test
         run: |
           run_id=$(az ml job create -f tests/automated_tests/test_ray_ml/job.yml --query name -o tsv)
@@ -86,32 +112,6 @@ jobs:
       - name: run ray rl test
         run: |
           run_id=$(az ml job create -f tests/automated_tests/test_rl/job.yml --query name -o tsv)
-          if [[ -z "$run_id" ]]
-          then
-            echo "Job creation failed"
-            exit 3
-          fi
-          status=$(az ml job show -n $run_id --query status -o tsv)
-          if [[ -z "$status" ]]
-          then
-            echo "Status query failed"
-            exit 4
-          fi
-          running=("Queued" "Starting" "Preparing" "Running" "Finalizing")
-          while [[ ${running[*]} =~ $status ]]
-          do
-            sleep 8 
-            status=$(az ml job show -n $run_id --query status -o tsv)
-            echo $status
-          done
-          if [[ "$status" = "Failed" ]]  
-          then
-            echo "Test case failed"
-            exit 3
-          fi
-      - name: run ray spark test
-        run: |
-          run_id=$(az ml job create -f tests/automated_tests/test_spark/job.yml --query name -o tsv)
           if [[ -z "$run_id" ]]
           then
             echo "Job creation failed"
