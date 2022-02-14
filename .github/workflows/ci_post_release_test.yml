@@ -1,4 +1,4 @@
-name: Post release verification
+name: Post release verification 
 on:
   push:
     branches: 
