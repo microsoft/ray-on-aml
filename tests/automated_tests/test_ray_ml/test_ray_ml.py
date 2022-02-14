@@ -50,7 +50,7 @@ class ConvNet(nn.Module):
 #         print(f"Got result: {result['mean_accuracy']}")
 
 
-def train(model, optimizer, train_loader):
+def train_model(model, optimizer, train_loader):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
@@ -108,7 +108,7 @@ def train_mnist(config):
         model.parameters(), lr=config["lr"], momentum=config["momentum"])
     
     for i in range(10):
-        train(model, optimizer, train_loader)
+        train_model(model, optimizer, train_loader)
         acc = test(model, test_loader)
 
         # Send the current training result back to Tune
