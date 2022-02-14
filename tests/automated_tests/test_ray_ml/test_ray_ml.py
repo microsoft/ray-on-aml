@@ -55,13 +55,12 @@ def train_func(config):
 if __name__ == "__main__":
     run = Run.get_context()
     ws = run.experiment.workspace
-    account_key = ws.get_default_keyvault().get_secret("adls7-account-key")
     ray_on_aml =Ray_On_AML()
     ray = ray_on_aml.getRay()
-    print("resources for ray cluster ", ray.cluster_resources())
 
     if ray: #in the headnode
         print("head node detected")
+        print("resources for ray cluster ", ray.cluster_resources())
 
         trainer = Trainer(backend="torch", num_workers=2)
         trainer.start()
