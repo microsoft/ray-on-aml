@@ -1,0 +1,16 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
+code: 
+  local_path: ../../../
+command: >-
+  python tests/automated_tests/test_ray_ml/test_ray_ml.py 
+environment: 
+  image: mcr.microsoft.com/azureml/openmpi4.1.0-cuda11.1-cudnn8-ubuntu18.04:20220208.v1
+  conda_file: conda_post_release.yml
+compute: azureml:gpunc6
+resources:
+  instance_count: 2
+distribution: 
+  type: mpi
+display_name: ray_ci_test_ray_ml
+experiment_name: ray_ci_test_ray_ml
+description: Integration testing for ray_data_ml

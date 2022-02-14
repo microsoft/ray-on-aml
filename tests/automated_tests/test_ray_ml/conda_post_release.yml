@@ -1,0 +1,15 @@
+channels:
+  - anaconda
+  - conda-forge
+dependencies:
+  - python=3.8.1
+  - pip:
+      - azureml-defaults
+      - mlflow
+      - azureml-mlflow
+      - raydp
+      - torch
+      - torchvision==0.8.1
+      - ray-on-aml==0.1.5
+  - pip
+name: azureml_cfc9e96c7b0b43301a0ba4c6bd3548e5
