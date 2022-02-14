@@ -5,8 +5,7 @@ command: >-
   python tests/automated_tests/test_spark/test_ray_spark.py 
 environment: 
   build:
-    local_path: ../../../
-    dockerfile_path: tests/automated_tests/test_spark/Dockerfile
+    local_path: ./
 compute: azureml:d15-v2
 resources:
   instance_count: 2
