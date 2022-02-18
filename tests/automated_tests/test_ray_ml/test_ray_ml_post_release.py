@@ -164,7 +164,7 @@ if __name__ == "__main__":
         print("torch.cuda.is_available: ", torch.cuda.is_available())
 
 
-        trainer = Trainer(backend="torch", num_workers=2)
+        trainer = Trainer(backend="torch", num_workers=2,use_gpu =True)
         trainer.start()
         trainer.run(train_func, config={"num_epochs": 5})
         trainer.shutdown()
