@@ -38,9 +38,9 @@ def get_data_count():
 if __name__ == "__main__":
     ray_on_aml =Ray_On_AML()
     ray = ray_on_aml.getRay()
+    enable_dask_on_ray()
     if ray: #in the headnode
         print("head node detected")
-        enable_dask_on_ray()
 
         #demonstrate parallel data processing
         print("data count result", get_data_count())
