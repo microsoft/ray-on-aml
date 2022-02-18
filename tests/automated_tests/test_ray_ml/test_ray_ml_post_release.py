@@ -117,7 +117,6 @@ search_space = {
     "lr": tune.sample_from(lambda spec: 10**(-10 * np.random.rand())),
     "momentum": tune.uniform(0.01, 0.09)
 }
-
 def train_func(config):
     n = 100
     # create a toy dataset
