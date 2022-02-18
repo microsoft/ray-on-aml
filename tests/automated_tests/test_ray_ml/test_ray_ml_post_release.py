@@ -119,12 +119,13 @@ search_space = {
 }
 
 def train_func(config):
+    cuda = torch.device('cuda')
     n = 100
     # create a toy dataset
     # data   : X - dim = (n, 4)
     # target : Y - dim = (n, 1)
-    X = torch.Tensor(np.random.normal(0, 1, size=(n, 4)))
-    Y = torch.Tensor(np.random.uniform(0, 1, size=(n, 1)))
+    X = torch.Tensor(np.random.normal(0, 1, size=(n, 4)),device=cuda)
+    Y = torch.Tensor(np.random.uniform(0, 1, size=(n, 1)),device=cuda)
     # toy neural network : 1-layer
     # wrap the model in DDP
     model = ray.train.torch.prepare_model(nn.Linear(4, 1))
