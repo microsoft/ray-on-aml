@@ -1,4 +1,3 @@
-
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__),'../../../'))
@@ -14,14 +13,6 @@ import dask.dataframe as dd
 from adlfs import AzureBlobFileSystem
 import mlflow
 from azureml.core import Run
-
-run = Run.get_context()
-ws = run.experiment.workspace
-# set mlflow uri
-mlflow.set_tracking_uri(ws.get_mlflow_tracking_uri())
-mlflow.set_experiment(run.experiment.name)
-ray_on_aml =Ray_On_AML()
-ray = ray_on_aml.getRay()
 
 
 #demonstrate parallel data processing
@@ -41,7 +32,6 @@ if __name__ == "__main__":
     enable_dask_on_ray()
     if ray: #in the headnode
         print("head node detected")
-
         #demonstrate parallel data processing
         print("data count result", get_data_count())
 
