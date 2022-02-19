@@ -8,7 +8,7 @@ on:
       - src/**
       - tests/automated_tests/**
 jobs:
-  Packaging-python-package:
+  CI_And_Integration_Test:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
