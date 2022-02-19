@@ -6,6 +6,7 @@ dependencies:
   - pip:
       - azureml-defaults
       - mlflow
+      - sklearn
       - azureml-mlflow
       - raydp
       - torch
