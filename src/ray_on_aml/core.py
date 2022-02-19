@@ -14,7 +14,6 @@ from azureml.core.compute_target import ComputeTargetException
 from azureml.core.environment import Environment
 from azureml.core.conda_dependencies import CondaDependencies
 import logging
-import raydp
 import urllib.request 
 import shutil
 
@@ -611,6 +610,7 @@ class Ray_On_AML():
     'org.eclipse.jetty:jetty-util:9.3.24.v20180605','io.delta:delta-core_2.12:1.1.0',
     'com.microsoft.sqlserver:mssql-jdbc:9.4.1.jre8']}, additional_jar_configs={}, 
     additional_spark_configs={},app_name = "spark", other_configs=None, placement_group_strategy="SPREAD"):
+        import raydp
         os.makedirs(".tmp", exist_ok=True)
         
         def download_jars(jar_configs):
