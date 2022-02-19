@@ -5,7 +5,7 @@ dependencies:
   - python=3.7.10
   - pip:
       - azureml-defaults
-      - gym
+      - gym==0.21.0
       - dm-tree
       - ray-on-aml
       - ray[rllib,tune,serve]==0.8.7

@@ -5,9 +5,8 @@ dependencies:
   - python=3.7.10
   - pip:
       - azureml-defaults
-      - gym
+      - gym==0.21.0
       - dm-tree
-      - pygame
       - ray[tune]
       - ray[serve]
       - ray[rllib]
