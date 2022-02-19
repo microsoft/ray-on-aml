@@ -17,7 +17,7 @@ dependencies:
       - fsspec==2021.10.1
       - xgboost_ray==0.1.6
       - fastparquet==0.7.2
-      - ray[rllib,tune,serve]==0.8.7
+      - ray[rllib,tune,serve]==1.0.0
       - torch==1.10.0
       - torchvision==0.8.1
       - tensorflow
