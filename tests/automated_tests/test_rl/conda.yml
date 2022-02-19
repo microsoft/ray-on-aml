@@ -7,9 +7,10 @@ dependencies:
       - azureml-defaults
       - gym
       - dm-tree
-      - ray[tune]==1.9.2
-      - ray[serve]==1.9.2
-      - ray[rllib]==1.9.2
+      - pygame
+      - ray[tune]
+      - ray[serve]
+      - ray[rllib]
       - raydp
       - pyarrow>= 5.0.0
       - dask[complete]==2021.12.0
