@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Ray on Azure ML
 
 NEW!
@@ -113,3 +114,8 @@ Check out [RLlib example with customized ray version](./examples/rl/rl_main.ipyn
 ## 8. Quick start examples
 Check out [quick start examples](./examples/quick_use_cases.ipynb) to learn more 
 
+=======
+# Repository setup required :wave:
+      
+Please visit the website URL :point_right: for this repository to complete the setup of this repository and configure access controls.
+>>>>>>> microsoft/main
