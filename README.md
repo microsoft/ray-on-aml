@@ -112,12 +112,3 @@ AML Job cluster: If you need to customize your ray version, you can do so by add
 Check out [RLlib example with customized ray version](./examples/rl/rl_main.ipynb) to learn more 
 ## 8. Quick start examples
 Check out [quick start examples](./examples/quick_use_cases.ipynb) to learn more 
-
-<<<<<<< HEAD
-=======
-# Repository setup required :wave:
-      
-Please visit the website URL :point_right: for this repository to complete the setup of this repository and configure access controls.
->>>>>>> microsoft/main
-=======
->>>>>>> 9a4416297a9115746a668b9ddfcc24ed059164c9
