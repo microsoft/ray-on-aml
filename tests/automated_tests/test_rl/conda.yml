@@ -1,0 +1,27 @@
+channels:
+  - anaconda
+  - conda-forge
+dependencies:
+  - python=3.7.10
+  - pip:
+      - azureml-defaults
+      - gym==0.21.0
+      - dm-tree
+      - ray[tune]
+      - ray[serve]
+      - ray[rllib]
+      - raydp
+      - pyarrow>= 5.0.0
+      - dask[complete]==2021.12.0
+      - adlfs==2021.10.0
+      - fsspec==2021.10.1
+      - xgboost_ray==0.1.6
+      - fastparquet==0.7.2
+      - ray[rllib,tune,serve]==0.8.7
+      - torch==1.10.0
+      - torchvision==0.8.1
+      - tensorflow
+      - scikit-image
+  - matplotlib
+  - pip
+name: azureml_cfc9e96c7b0b43301a0ba4c6bd3548e5

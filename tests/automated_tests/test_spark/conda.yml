@@ -1,0 +1,24 @@
+channels:
+  - anaconda
+  - conda-forge
+dependencies:
+  - python=3.8.1
+  - pip:
+      - azureml-defaults
+      - mlflow
+      - azureml-mlflow
+      - raydp
+      - torch
+      - torchvision==0.8.1
+      - ray[tune]
+      - ray[serve]
+      - ray[rllib]
+      - pyarrow>= 5.0.0
+      - dask[complete]==2021.12.0
+      - adlfs==2021.10.0
+      - fsspec==2021.10.1
+      - xgboost_ray==0.1.6
+      - fastparquet==0.7.2
+      - pyspark
+  - pip
+name: azureml_cfc9e96c7b0b43301a0ba4c6bd3548e5

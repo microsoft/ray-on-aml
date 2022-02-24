@@ -1,0 +1,16 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
+code: 
+  local_path: ../../../
+command: >-
+  python tests/automated_tests/test_spark/test_ray_spark.py 
+environment: 
+  build:
+    local_path: ./
+compute: azureml:d15-v2
+resources:
+  instance_count: 2
+distribution: 
+  type: mpi
+display_name: ray_ci_test_ray_spark
+experiment_name: ray_ci_test_ray_spark
+description: Integration testing for ray_s[arl_usecase
