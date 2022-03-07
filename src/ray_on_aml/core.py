@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+#  Licensed under the MIT license.
+
 import os
 import time
 import subprocess
@@ -17,7 +20,7 @@ import logging
 import urllib.request 
 import shutil
 
-__version__='0.0.7'
+__version__='0.1.6'
 
 
 class Ray_On_AML():
