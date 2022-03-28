@@ -1,0 +1,16 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
+code: 
+  local_path: ./
+command: >-
+  python distributed_ml.py 
+environment: 
+  image: mcr.microsoft.com/azureml/openmpi4.1.0-cuda11.1-cudnn8-ubuntu18.04:20211221.v1
+  conda_file: conda.yml
+compute: azureml:gpunc6
+resources:
+  instance_count: 2
+distribution: 
+  type: mpi
+display_name: distributed_ray_dl
+experiment_name: distributed_ray_dl
+description: distributed_ray_dl
