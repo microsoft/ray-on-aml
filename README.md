@@ -39,7 +39,7 @@ Use a python 3.7+ conda environment from ```(Jupyter) Notebook``` in Azure Machi
 ```bash
 pip install --upgrade ray-on-aml
 ```
-> Installing this library will also install ```ray[tune]==1.9.2,  ray[serve]==1.9.2, pyarrow>= 5.0.0, dask[complete]==2021.12.0, adlfs==2021.10.0, fsspec==2021.10.1, xgboost_ray==0.1.6, fastparquet==0.7.2```
+> Installing this library will also install ```ray[tune]==1.12.0,  ray[serve]==1.12.0, pyarrow>= 5.0.0, dask[complete]==2021.12.0, adlfs==2021.10.0, fsspec==2021.10.1, xgboost_ray==0.1.8, fastparquet==0.7.2```
 
 ### 4. Run ray-on-aml
 Run in interactive mode in a Compute Instance notebook
@@ -99,7 +99,7 @@ ray_on_aml.shutdown()
 Interactive cluster: There are two arguments in Ray_On_AML() class initilization to specify base configuration for the library with following default values.
 ```python
 Ray_On_AML(ws=ws, compute_cluster ="Name_of_Compute_Cluster",base_conda_dep =['adlfs==2021.10.0','pip==21.3.1'],\ 
-base_pip_dep = ['ray[tune]==1.9.2','ray[rllib]==1.9.2','ray[serve]==1.9.2', 'xgboost_ray==0.1.6', 'dask==2021.12.0',\
+base_pip_dep = ['ray[tune]==1.12.0','ray[rllib]==1.12.0','ray[serve]==1.12.0', 'xgboost_ray==0.1.6', 'dask==2021.12.0',\
 'pyarrow >= 5.0.0','fsspec==2021.10.1','fastparquet==0.7.2','tabulate==0.8.9'])
 ```
 You can change ray and other libraries versions. Do this with extreme care as it may result in conflicts impacting intended features of the package. 
