@@ -1,4 +1,5 @@
 # Ray on Azure ML
+### Ray-On-AML now moved to a new home at https://github.com/microsoft/ray-on-aml. This repo is now in archived mode 
 
 NEW!
 
