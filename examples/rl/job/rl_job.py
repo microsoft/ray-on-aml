@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # Import the RL algorithm (Trainer) we would like to use.
 from ray.rllib.agents.ppo import PPOTrainer
 from ray_on_aml.core import Ray_On_AML
