@@ -1,6 +1,3 @@
-# Copyright (c) Microsoft Corporation.
-#  Licensed under the MIT license.
-
 import os
 import time
 import subprocess
@@ -20,7 +17,7 @@ import logging
 import urllib.request 
 import shutil
 
-__version__='0.1.7'
+__version__='0.0.7'
 
 
 class Ray_On_AML():
@@ -30,7 +27,6 @@ class Ray_On_AML():
     exp_name ='ray_on_aml', maxnode =5, additional_conda_packages=[],additional_pip_packages=[], job_timeout=600000):
         """ Class for Ray_On_AML
         Ray_On_AML can help you to minimize your effort for configuring Ray Environment to execute data processing and science tasks on Azure Machine Learning Services.
-
         Example (AML Compute Instance) : 
         >>> from ray_on_aml.core import Ray_On_AML
         >>> ws = Workspace.from_config()
@@ -39,61 +35,46 @@ class Ray_On_AML():
         >>>                     compute_cluster ="cpu-ray-cluster",
         >>>                     additional_pip_packages=['torch==1.10.0', 'torchvision', 'sklearn'],
         >>>                     maxnode=2)
-
         Currently this moudle will install following packages for Ray on AML.
             Conda
             *    'adlfs==2021.10.0'
             *    'pip==21.3.1'
             
             Pip
-            *    'ray[tune]==1.12.0'
-            *    'ray[rllib]==1.12.0'
-            *    'ray[serve]==1.12.0'
-            *    'xgboost_ray==0.1.8'
+            *    'ray[tune]==1.9.2'
+            *    'ray[rllib]==1.9.2'
+            *    'ray[serve]==1.9.2'
+            *    'xgboost_ray==0.1.6'
             *    'dask==2021.12.0'
             *    'pyarrow >= 5.0.0'
             *    'fsspec==2021.10.1'
             *    'fastparquet==0.7.2'
             *    'tabulate==0.8.9'
-
         This module is compatable with Python 3.8.
-
         Parameters
         ----------
         ws : Workspace
             The Azure Machine Learning Workspace object.
         computer_cluster : string, (optional), default=None
         base_conda_dep : list, default=['adlfs==2021.10.0','pip==21.3.1']
-
-        base_pip_dep : list, default=['ray[tune]==1.12.0','ray[rllib]==1.12.0','ray[serve]==1.12.0', 'xgboost_ray==0.1.6', 'dask==2021.12.0','pyarrow >= 5.0.0','fsspec==2021.10.1','fastparquet==0.7.2','tabulate==0.8.9']
-
+        base_pip_dep : list, default=['ray[tune]==1.9.2','ray[rllib]==1.9.2','ray[serve]==1.9.2', 'xgboost_ray==0.1.6', 'dask==2021.12.0','pyarrow >= 5.0.0','fsspec==2021.10.1','fastparquet==0.7.2','tabulate==0.8.9']
         vnet_rg : string, (optional)
             The default name for Virtual Network will be same as the Resource Group where Azure Machine Leanring workspace is.
-
-
         vm_size : string, (optional), default='STANDARD_DS3_V2'        
             The default size for the Compute Cluster is 'STANDARD_DS3_V2'
-
         vnet : string, (optional)
             The default name of Virtual Network is 'rayvnet'
-
         subnet : string, (optional)
             The default name of Subnet is 'default'
-
         exp_name : string, (optional), default='ray_on_aml'
             The name experiment that will be shown in Azure Machine Learning Workspace. 
-
         maxnode : int, (optional), default=5
             You can't change the max number of nodes with this parameter once you created Compute Cluter before.
-
         additional_conda_packages : list, (optional)
             You can add more package by providing name of packages in a list.         
-
         additional_pip_packages : list, (optional)
             You can add more package by providing name of packages in a list.
-
         job_timeout : int, (optional), default=600000
-
         """
         self.ws = ws
         self.base_conda_dep=base_conda_dep
@@ -143,6 +124,7 @@ class Ray_On_AML():
         ip = self.get_ip()
         return ip
 
+
     def checkNodeType(self):
         rank = os.environ.get("OMPI_COMM_WORLD_RANK")
         if rank is None:
@@ -186,7 +168,6 @@ class Ray_On_AML():
             universal_newlines=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
-            shell=True
             )
             while worker_proc.poll() is None:
                 # Process hasn't exited yet, let's wait some
@@ -207,7 +188,7 @@ class Ray_On_AML():
 
         self.flush(worker_proc, worker_log)
 
-    def getRay(self, logging_level=logging.ERROR, ci_is_head=True, shm_size='24gb',base_image =None,gpu_support=False):
+    def getRay(self, logging_level=logging.ERROR, ci_is_head=True, shm_size='48gb',base_image =None,gpu_support=False):
         """This method automatically creates Azure Machine Learning Compute Cluster with Ray, Dask on Ray, Ray Tune, Ray rrlib, and Ray serve.
         This class takes care of all from infrastructure to runtime preperation, it may take 10 mintues for the first time execution of the module.
         Before you run this method, make sure you have existing Virtual Network and subnet in the same Resource Group where Azure Machine Learning Service is.
@@ -220,10 +201,9 @@ class Ray_On_AML():
         >>> ray_on_aml =Ray_On_AML(ws=ws,
         >>>                     exp_name='ray_on_aml',
         >>>                     compute_cluster ="cpu-ray-cluster",
-        >>>                     additional_pip_packages=['torch==1.11.0', 'torchvision', 'sklearn'],
+        >>>                     additional_pip_packages=['torch==1.10.0', 'torchvision', 'sklearn'],
         >>>                     maxnode=2)
         >>> ray = ray_on_aml.getRay()
-
         Example (Interactive use with AML Compute Instance) : 
         >>> from ray_on_aml.core import Ray_On_AML
         >>> ray_on_aml =Ray_On_AML()
@@ -232,22 +212,17 @@ class Ray_On_AML():
         >>>     #logic to use Ray for distributed ML training, tunning or distributed data transformation with Dask
         >>> else:
         >>>     print("in worker node")
-
-
         Parameters
         ----------
         logging_level : any
             Not implemented yet
-
         ci_is_head : bool, default=True
             Interactive mode which is using Compute Instant as head is default.
         shm_size : str, default='48gb'
             Allow the docker container Ray runs in to make full use of the shared memory available from the host OS. Only applicable for interactive use case
-
         Return
         ----------
             Returns an object of Ray.        
-
         """
         if self.checkNodeType()=="interactive" and (self.ws is None or self.compute_cluster is None):
             #Interactive scenario, workspace object is require
@@ -271,11 +246,9 @@ class Ray_On_AML():
         """Manager Azure Machine Learning Environement 
         If 'rayEnv__version__' exists in Azure Machine Learning Environment, use the existing one.
         If not, create new one and register it in AML workspace.
-
         Return
         ----------
             Returns an object of Azure Machine Learning Environment.
-
         """
         python_version = ["python="+platform.python_version()]
         conda_packages = python_version+self.additional_conda_packages +self.base_conda_dep
@@ -337,15 +310,10 @@ class Ray_On_AML():
 
     def getRayInteractive(self, logging_level, ci_is_head, shm_size,base_image, gpu_support):
         """Create Compute Cluster, an entry script and Environment
-
         Create Compute Cluster if given name of Compute Cluster doesn't exist in Azure Machine Learning Workspace
-
         Get Azure Environement for Ray runtime
-
         Generate entry script to run Ray in Compute Cluster
-
         If the script run on Compute Cluster successfully, Ray object will be returned.
-
         """
         # Verify that cluster does not exist already
         self.shutdown(end_all_runs=True)
@@ -411,8 +379,6 @@ class Ray_On_AML():
             ip = socket.gethostbyname(socket.gethostname())
             run.log("headnode", ip)
             time.sleep({0})
-
-
         def checkNodeType():
             rank = os.environ.get("OMPI_COMM_WORLD_RANK")
             if rank is None:
@@ -421,8 +387,6 @@ class Ray_On_AML():
                 return "head"
             else:
                 return "worker"
-
-
         def startRay(master_ip=None):
             ip = socket.gethostbyname(socket.gethostname())
             print("- env: MASTER_ADDR: ", os.environ.get("AZ_BATCHAI_MPI_MASTER_NODE"))
@@ -430,36 +394,50 @@ class Ray_On_AML():
             print("- env: LOCAL_RANK: ", os.environ.get("OMPI_COMM_WORLD_LOCAL_RANK"))
             print("- env: NODE_RANK: ", os.environ.get("OMPI_COMM_WORLD_NODE_RANK"))
             rank = os.environ.get("OMPI_COMM_WORLD_RANK")
-
             master = os.environ.get("AZ_BATCHAI_MPI_MASTER_NODE")
             print("- my rank is ", rank)
             print("- my ip is ", ip)
             print("- master is ", master)
             if not os.path.exists("logs"):
                 os.makedirs("logs")
-
             print("free disk space on /tmp")
             os.system(f"df -P /tmp")
             if master_ip is None:
                 master_ip =master
-
             cmd = "ray start --address="+master_ip+":6379"
-
             print(cmd)
-
             worker_log = open("logs/worker_"+rank+"_log.txt", "w")
-
-            subprocess.check_output(cmd, shell=True)
-
+            return_code=-1
+            max_tries =20
+            counter =0
+            while return_code!=0:
+                worker_proc = subprocess.Popen(
+                cmd.split(),
+                universal_newlines=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                )
+                while worker_proc.poll() is None:
+                    # Process hasn't exited yet, let's wait some
+                    time.sleep(1)
+                # Get return code from process
+                return_code = worker_proc.returncode
+                
+                if return_code!=0:
+                    logging.warn("Get non zero return code "+str(return_code)+ " retrying after 5s")
+                    time.sleep(5)
+                    counter += 1
+                else:
+                    logging.info("Start ray successfully")
+                if counter>=max_tries:
+                    logging.warn("Cannot start ray worker, abort...")
+                    break
             time.sleep({0})
-
         if __name__ == "__main__":
             sub_folder = os.listdir("/azureml-envs/")[0]
-
             copy_tree("/azureml-envs/"+sub_folder+"/lib/python3.8/site-packages/ray/jars","/anaconda/envs/{1}/site-packages/ray/jars/")
             copy_tree("/azureml-envs/"+sub_folder+"/lib/python3.8/site-packages/raydp/jars","/anaconda/envs/{1}/site-packages/raydp/jars/")
             copy_tree("/azureml-envs/"+sub_folder+"/lib/python3.8/site-packages/pyspark/jars/","/anaconda/envs/{1}/site-packages/pyspark/jars/")
-
             parser = argparse.ArgumentParser()
             parser.add_argument("--master_ip")
             args, unparsed = parser.parse_known_args()
@@ -473,7 +451,6 @@ class Ray_On_AML():
                 else:
                     time.sleep(20)
                     startRay()
-
         """.format(self.job_timeout,conda_lib_path)
 
         source_file = open(".tmp/source_file.py", "w")
@@ -503,7 +480,7 @@ class Ray_On_AML():
 
         if ci_is_head:
             ray.shutdown()
-            ray.init(ignore_reinit_error=True, logging_level=logging_level)
+            ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True, logging_level=logging_level)
             # self.run = run
             # self.ray = ray
             print("Waiting for cluster to start")
@@ -546,7 +523,6 @@ class Ray_On_AML():
         
     def shutdown(self, end_all_runs=True):
         """Stop Ray and Compute Cluster
-
         Parameters
         ----------
         end_all_runs : bool, default=True
