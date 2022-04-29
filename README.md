@@ -1,10 +1,10 @@
 # Ray on Azure ML
-### Ray-On-AML now moved to a new home at https://github.com/microsoft/ray-on-aml. This repo is now in archived mode 
 
 NEW!
 
 1. ray-on-aml now supports Spark from [raydp](https://github.com/oap-project/raydp) with Delta Lake, Synapse JDBC and latest pyspark 3.2.1. Checkout [spark examples](./examples/spark/spark_examples.ipynb)
 2. GPU & custom base image for interactive use: if you have GPU compute cluster, then either use ray_on_aml.getRay(gpu_support=True) which internally uses mcr.microsoft.com/azureml/openmpi4.1.0-cuda11.1-cudnn8-ubuntu18.04:20211221.v1 as base image. You can supply your own base image with ray_on_aml.getRay(base_image="YOUR_OWN_BASE_IMAGE")
+3. VSCode is now supported. You can run interactive notebook with VSCode.
 
 This package simplifies setup of core Ray and Ray's components such as Dask on Ray, Ray tune,Ray rrlib, Ray serve and Spark in Azure ML.
 It also comes with supports for high performance data access to Azure data sources such as Azure Storage, Delta Lake , Synapse SQL.
@@ -33,7 +33,6 @@ Checklist
 ### 2. Select kernel 
 
 Use a python 3.7+ conda environment from ```(Jupyter) Notebook``` in Azure Machine Learning Studio. 
-> Note: Due to Conda env issue, VSCode is only supported for remote Ray cluster mode (```getRay(ci_is_head = False```)
 
 ### 3. Install library
 
@@ -107,12 +106,12 @@ You can change ray and other libraries versions. Do this with extreme care as it
 If you change ray version here, you will need to manually re-install the ray library at the compute instance to match with the custom version of the cluster in case the compute instance is the head node.
 AML Job cluster: If you need to customize your ray version, you can do so by adding ray dependency after ray-on-aml. The reason is ray-on-aml comes with some recent ray version. It needs to be overidden. For example if you need ray 0.8.7, you can do like following in your job's env.yml file
 ```python
-      - ray-on-aml==0.0.7
+      - ray-on-aml==0.1.8
       - ray[rllib,tune,serve]==0.8.7
 ```
 Check out [RLlib example with customized ray version](./examples/rl/rl_main.ipynb) to learn more 
 ### 8. Quick start examples
-Check out [quick start examples](./examples/quick_use_cases.ipynb) to learn more 
+Check out [quick start examples](./examples/quick_start_examples.ipynb) to learn more 
 
 ## Contributing
 
