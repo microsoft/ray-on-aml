@@ -17,7 +17,7 @@ import logging
 import urllib.request 
 import shutil
 
-__version__='0.0.7'
+__version__='0.1.9'
 
 
 class Ray_On_AML():
@@ -41,9 +41,9 @@ class Ray_On_AML():
             *    'pip==21.3.1'
             
             Pip
-            *    'ray[tune]==1.9.2'
-            *    'ray[rllib]==1.9.2'
-            *    'ray[serve]==1.9.2'
+            *    'ray[tune]==1.12.0'
+            *    'ray[rllib]==1.12.0'
+            *    'ray[serve]==1.12.0'
             *    'xgboost_ray==0.1.6'
             *    'dask==2021.12.0'
             *    'pyarrow >= 5.0.0'
@@ -57,7 +57,7 @@ class Ray_On_AML():
             The Azure Machine Learning Workspace object.
         computer_cluster : string, (optional), default=None
         base_conda_dep : list, default=['adlfs==2021.10.0','pip==21.3.1']
-        base_pip_dep : list, default=['ray[tune]==1.9.2','ray[rllib]==1.9.2','ray[serve]==1.9.2', 'xgboost_ray==0.1.6', 'dask==2021.12.0','pyarrow >= 5.0.0','fsspec==2021.10.1','fastparquet==0.7.2','tabulate==0.8.9']
+        base_pip_dep : list, default=['ray[tune]==1.12.0','ray[rllib]==1.12.0','ray[serve]==1.12.0', 'xgboost_ray==0.1.8', 'dask==2021.12.0','pyarrow >= 5.0.0','fsspec==2021.10.1','fastparquet==0.7.2','tabulate==0.8.9']
         vnet_rg : string, (optional)
             The default name for Virtual Network will be same as the Resource Group where Azure Machine Leanring workspace is.
         vm_size : string, (optional), default='STANDARD_DS3_V2'        
@@ -118,9 +118,14 @@ class Ray_On_AML():
     def startRayMaster(self):
         conda_env_name = sys.executable.split('/')[-3]
         logging.info(f"Using {conda_env_name} for the master node")
-        ray_path = f"/anaconda/envs/{conda_env_name}/bin/ray"
-        cmd =f"{ray_path} stop && {ray_path} start --head --port=6379"
-        subprocess.check_output(cmd, shell=True)
+        cmd ='ray start --head --port=6379'
+        try:
+            subprocess.check_output(cmd, shell=True)
+        except:
+            ray_path = f"/anaconda/envs/{conda_env_name}/bin/ray"
+            logging.info(f"default ray location is not in PATH, use an alternative path of {ray_path}")
+            cmd =f"{ray_path} stop && {ray_path} start --head --port=6379"
+            subprocess.check_output(cmd, shell=True)
         ip = self.get_ip()
         return ip
 
@@ -204,7 +209,7 @@ class Ray_On_AML():
         >>>                     additional_pip_packages=['torch==1.10.0', 'torchvision', 'sklearn'],
         >>>                     maxnode=2)
         >>> ray = ray_on_aml.getRay()
-        Example (Interactive use with AML Compute Instance) : 
+        Example (use Inside AML Compute Cluster) : 
         >>> from ray_on_aml.core import Ray_On_AML
         >>> ray_on_aml =Ray_On_AML()
         >>> ray = ray_on_aml.getRay()
@@ -266,33 +271,33 @@ class Ray_On_AML():
             
             print(f"Creating new Environment {envName}")
             rayEnv = Environment(name=envName)
-            if base_image is None:
-                if gpu_support:
-                    base_image="FROM mcr.microsoft.com/azureml/openmpi4.1.0-cuda11.1-cudnn8-ubuntu18.04:20211221.v1"
-                else:
-                    base_image="FROM mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:20210615.v1"
-            else:
-                base_image= "FROM "+ base_image
-            dockerfile = r"""
-            {0}
-            ARG HTTP_PROXY
-            ARG HTTPS_PROXY
-            # set http_proxy & https_proxy
-            ENV http_proxy=${{HTTPS_PROXY}}
-            ENV https_proxy=${{HTTPS_PROXY}}
-            RUN http_proxy=${{HTTPS_PROXY}} https_proxy=${{HTTPS_PROXY}} apt-get update -y \
-                && mkdir -p /usr/share/man/man1 \
-                && http_proxy=${{HTTPS_PROXY}} https_proxy=${{HTTPS_PROXY}} apt-get install -y openjdk-11-jdk \
-                && mkdir /raydp \
-                && pip --no-cache-dir install raydp
-            WORKDIR /raydp
-            # unset http_proxy & https_proxy
-            ENV http_proxy=
-            ENV https_proxy=
-            """.format(base_image)
-            rayEnv.docker.base_image = None
-            rayEnv.docker.base_dockerfile = dockerfile
+            if not gpu_support:
+                if base_image is None:
 
+                    base_image="FROM mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:20210615.v1"
+                else:
+                    base_image= "FROM "+ base_image
+                dockerfile = r"""
+                {0}
+                ARG HTTP_PROXY
+                ARG HTTPS_PROXY
+                # set http_proxy & https_proxy
+                ENV http_proxy=${{HTTPS_PROXY}}
+                ENV https_proxy=${{HTTPS_PROXY}}
+                RUN http_proxy=${{HTTPS_PROXY}} https_proxy=${{HTTPS_PROXY}} apt-get update -y \
+                    && mkdir -p /usr/share/man/man1 \
+                    && http_proxy=${{HTTPS_PROXY}} https_proxy=${{HTTPS_PROXY}} apt-get install -y openjdk-11-jdk \
+                    && mkdir /raydp \
+                    && pip --no-cache-dir install raydp
+                WORKDIR /raydp
+                # unset http_proxy & https_proxy
+                ENV http_proxy=
+                ENV https_proxy=
+                """.format(base_image)
+                rayEnv.docker.base_image = None
+                rayEnv.docker.base_dockerfile = dockerfile
+            else:
+                rayEnv.docker.base_image = 'mcr.microsoft.com/azureml/openmpi4.1.0-cuda11.1-cudnn8-ubuntu18.04'
             conda_dep = CondaDependencies()
 
             for conda_package in conda_packages:
