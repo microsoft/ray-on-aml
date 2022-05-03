@@ -22,7 +22,7 @@ __version__='0.1.9'
 
 class Ray_On_AML():
     def __init__(self,compute_cluster=None, ws=None, base_conda_dep =['adlfs==2021.10.0','pip==21.3.1'], 
-    base_pip_dep = ['ray[tune]==1.12.0', 'ray[rllib]==1.12.0','ray[serve]==1.12.0', 'xgboost_ray==0.1.8', 'dask==2021.12.0','pyarrow >= 5.0.0','fsspec==2021.10.1','fastparquet==0.7.2','tabulate==0.8.9','raydp==0.4.2'], 
+    base_pip_dep = ['ray[tune]==1.12.0', 'ray[rllib]==1.12.0', 'dask==2021.12.0','pyarrow >= 5.0.0','fsspec==2021.10.1','fastparquet==0.7.2','tabulate==0.8.9'], 
     vnet_rg = None, vm_size=None, vnet=None, subnet=None,
     exp_name ='ray_on_aml', maxnode =5, additional_conda_packages=[],additional_pip_packages=[], job_timeout=600000):
         """ Class for Ray_On_AML
@@ -43,14 +43,12 @@ class Ray_On_AML():
             Pip
             *    'ray[tune]==1.12.0'
             *    'ray[rllib]==1.12.0'
-            *    'ray[serve]==1.12.0'
-            *    'xgboost_ray==0.1.6'
             *    'dask==2021.12.0'
             *    'pyarrow >= 5.0.0'
             *    'fsspec==2021.10.1'
             *    'fastparquet==0.7.2'
             *    'tabulate==0.8.9'
-        This module is compatable with Python 3.8.
+        This module is compatable with Python 3.7 or higher
         Parameters
         ----------
         ws : Workspace
@@ -440,9 +438,12 @@ class Ray_On_AML():
             time.sleep({0})
         if __name__ == "__main__":
             sub_folder = os.listdir("/azureml-envs/")[0]
-            copy_tree("/azureml-envs/"+sub_folder+"/lib/python3.8/site-packages/ray/jars","/anaconda/envs/{1}/site-packages/ray/jars/")
-            copy_tree("/azureml-envs/"+sub_folder+"/lib/python3.8/site-packages/raydp/jars","/anaconda/envs/{1}/site-packages/raydp/jars/")
-            copy_tree("/azureml-envs/"+sub_folder+"/lib/python3.8/site-packages/pyspark/jars/","/anaconda/envs/{1}/site-packages/pyspark/jars/")
+            try:
+                copy_tree("/azureml-envs/"+sub_folder+"/lib/python3.8/site-packages/ray/jars","/anaconda/envs/{1}/site-packages/ray/jars/")
+                copy_tree("/azureml-envs/"+sub_folder+"/lib/python3.8/site-packages/raydp/jars","/anaconda/envs/{1}/site-packages/raydp/jars/")
+                copy_tree("/azureml-envs/"+sub_folder+"/lib/python3.8/site-packages/pyspark/jars/","/anaconda/envs/{1}/site-packages/pyspark/jars/")
+            except:
+                print("jars files are not copied, probably due to packages such as raydp is not installed")
             parser = argparse.ArgumentParser()
             parser.add_argument("--master_ip")
             args, unparsed = parser.parse_known_args()
