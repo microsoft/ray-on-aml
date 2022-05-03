@@ -17,7 +17,7 @@ import logging
 import urllib.request 
 import shutil
 
-__version__='0.1.9'
+__version__='0.2.0'
 
 
 class Ray_On_AML():
