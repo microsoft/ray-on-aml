@@ -3,11 +3,12 @@ channels:
   - conda-forge
 dependencies:
   - python=3.8.1
-  - pip
   - pip:
-      - azureml-defaults
-      - azureml-mlflow
-      - ray-on-aml
+      - azureml-mlflow==1.41.0
+      - ray-on-aml==0.2.0
       - torch
-      - torchvision
+      - torchvision==0.8.1
+      - azureml-defaults==1.41.0
+  - matplotlib
+  - pip < 20.3
 name: azureml_cfc9e96c7b0b43301a0ba4c6bd3548e5
