@@ -17,14 +17,14 @@ import logging
 import urllib.request 
 import shutil
 
-__version__='0.2.0'
+__version__='0.2.1'
 
 
 class Ray_On_AML():
     def __init__(self,compute_cluster=None, ws=None, base_conda_dep =['adlfs==2021.10.0','pip==21.3.1'], 
     base_pip_dep = ['ray[tune]==1.12.0', 'ray[rllib]==1.12.0', 'dask==2021.12.0','pyarrow >= 5.0.0','fsspec==2021.10.1','fastparquet==0.7.2','tabulate==0.8.9'], 
     vnet_rg = None, vm_size=None, vnet=None, subnet=None,
-    exp_name ='ray_on_aml', maxnode =5, additional_conda_packages=[],additional_pip_packages=[], job_timeout=600000):
+    exp_name ='ray_on_aml', maxnode =5, additional_conda_packages=[],additional_pip_packages=[], job_timeout=600000, master_ip_env_name="AZ_BATCHAI_MPI_MASTER_NODE", world_rank_env_name="OMPI_COMM_WORLD_RANK"):
         """ Class for Ray_On_AML
         Ray_On_AML can help you to minimize your effort for configuring Ray Environment to execute data processing and science tasks on Azure Machine Learning Services.
         Example (AML Compute Instance) : 
@@ -87,6 +87,9 @@ class Ray_On_AML():
         self.additional_conda_packages=additional_conda_packages
         self.additional_pip_packages=additional_pip_packages
         self.job_timeout = job_timeout
+        self.master_ip_env_name=master_ip_env_name
+        self.world_rank_env_name= world_rank_env_name
+
 
     def flush(self,proc, proc_log):
         while True:
@@ -129,7 +132,7 @@ class Ray_On_AML():
 
 
     def checkNodeType(self):
-        rank = os.environ.get("OMPI_COMM_WORLD_RANK")
+        rank = os.environ.get(self.world_rank_env_name)
         if rank is None:
             return "interactive" # This is interactive scenario
         elif rank == '0':
@@ -141,16 +144,13 @@ class Ray_On_AML():
     #check if the current node is headnode
     def startRay(self,master_ip=None):
         ip = self.get_ip()
-        logging.info("- env: MASTER_ADDR: ", os.environ.get("AZ_BATCHAI_MPI_MASTER_NODE"))
-        logging.info("- env: RANK: ", os.environ.get("OMPI_COMM_WORLD_RANK"))
-        logging.info("- env: LOCAL_RANK: ", os.environ.get("OMPI_COMM_WORLD_LOCAL_RANK"))
-        logging.info("- env: NODE_RANK: ", os.environ.get("OMPI_COMM_WORLD_NODE_RANK"))
-        rank = os.environ.get("OMPI_COMM_WORLD_RANK")
+        logging.info(f"- env: MASTER_ADDR: {os.environ.get(self.master_ip_env_name)}")
+        rank = os.environ.get(self.world_rank_env_name)
         if master_ip is None:
-            master_ip = os.environ.get("AZ_BATCHAI_MPI_MASTER_NODE")
-        logging.info("- my rank is ", rank)
-        logging.info("- my ip is ", ip)
-        logging.info("- master is ", master_ip)
+            master_ip = os.environ.get(self.master_ip_env_name)
+        logging.info(f"- my rank is {rank}")
+        logging.info(f"- my ip is {ip}")
+        logging.info(f"- master is {master_ip}")
         if not os.path.exists("logs"):
             os.makedirs("logs")
 
@@ -383,7 +383,7 @@ class Ray_On_AML():
             run.log("headnode", ip)
             time.sleep({0})
         def checkNodeType():
-            rank = os.environ.get("OMPI_COMM_WORLD_RANK")
+            rank = os.environ.get("{3}")
             if rank is None:
                 return "interactive" # This is interactive scenario
             elif rank == '0':
@@ -392,12 +392,10 @@ class Ray_On_AML():
                 return "worker"
         def startRay(master_ip=None):
             ip = socket.gethostbyname(socket.gethostname())
-            print("- env: MASTER_ADDR: ", os.environ.get("AZ_BATCHAI_MPI_MASTER_NODE"))
-            print("- env: RANK: ", os.environ.get("OMPI_COMM_WORLD_RANK"))
-            print("- env: LOCAL_RANK: ", os.environ.get("OMPI_COMM_WORLD_LOCAL_RANK"))
-            print("- env: NODE_RANK: ", os.environ.get("OMPI_COMM_WORLD_NODE_RANK"))
-            rank = os.environ.get("OMPI_COMM_WORLD_RANK")
-            master = os.environ.get("AZ_BATCHAI_MPI_MASTER_NODE")
+            print("- env: MASTER_ADDR: ", os.environ.get("{2}"))
+            print("- env: RANK: ", os.environ.get("{3}"))
+            rank = os.environ.get("{3}")
+            master = os.environ.get("{2}")
             print("- my rank is ", rank)
             print("- my ip is ", ip)
             print("- master is ", master)
@@ -457,7 +455,7 @@ class Ray_On_AML():
                 else:
                     time.sleep(20)
                     startRay()
-        """.format(self.job_timeout,conda_lib_path)
+        """.format(self.job_timeout,conda_lib_path, self.master_ip_env_name, self.world_rank_env_name)
 
         source_file = open(".tmp/source_file.py", "w")
         source_file.write(dedent(source_file_content))

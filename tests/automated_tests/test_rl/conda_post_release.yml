@@ -7,7 +7,7 @@ dependencies:
       - azureml-defaults
       - gym==0.21.0
       - dm-tree
-      - ray-on-aml==0.1.6
+      - ray-on-aml==0.2.0
       - ray[rllib,tune,serve]==0.8.7
       - torch==1.10.0
       - torchvision==0.8.1
