@@ -160,7 +160,7 @@ if __name__ == "__main__":
     run = Run.get_context()
     ws = run.experiment.workspace
     ray_on_aml =Ray_On_AML()
-    ray = ray_on_aml.getRay()
+    ray = ray_on_aml.getRay(additional_ray_start_head_args="--temp-dir=outputs",additional_ray_start_worker_args="--temp-dir=outputs")
 
     if ray: #in the headnode
         print("head node detected")

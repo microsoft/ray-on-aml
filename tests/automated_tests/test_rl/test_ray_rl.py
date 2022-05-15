@@ -66,7 +66,7 @@ def train():
 
 if __name__ == "__main__":
     ray_on_aml =Ray_On_AML()
-    ray = ray_on_aml.getRay()
+    ray = ray_on_aml.getRay(additional_ray_start_head_args="--temp-dir=outputs",additional_ray_start_worker_args="--temp-dir=outputs")
 
     for item, value in os.environ.items():
         print('{}: {}'.format(item, value))
