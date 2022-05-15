@@ -29,10 +29,11 @@ jobs:
 
       - name: Install az ml & set default values for AML
         run: |
-          az extension add -n ml -y
+          az extension add -n ml -y --version 2.3.1
           az configure --defaults group=azureml workspace=ws01ent location=westus2
       - name: run ray rl test
         run: |
+          az ml environment create -g azureml -w ws01ent -f tests/automated_tests/test_rl/env.yml
           run_id=$(az ml job create -f tests/automated_tests/test_rl/job.yml --query name -o tsv)
           if [[ -z "$run_id" ]]
           then
@@ -59,6 +60,7 @@ jobs:
           fi
       - name: run ray ml test
         run: |
+          az ml environment create -g azureml -w ws01ent -f tests/automated_tests/test_ray_ml/env.yml
           run_id=$(az ml job create -f tests/automated_tests/test_ray_ml/job.yml --query name -o tsv)
           if [[ -z "$run_id" ]]
           then
@@ -85,6 +87,7 @@ jobs:
           fi
       - name: run ray spark test
         run: |
+          az ml environment create -g azureml -w ws01ent -f tests/automated_tests/test_spark/env.yml
           run_id=$(az ml job create -f tests/automated_tests/test_spark/job.yml --query name -o tsv)
           if [[ -z "$run_id" ]]
           then
@@ -111,6 +114,7 @@ jobs:
           fi
       - name: run ray data test
         run: |
+          az ml environment create -g azureml -w ws01ent -f tests/automated_tests/test_ray_data/env.yml
           run_id=$(az ml job create -f tests/automated_tests/test_ray_data/job.yml --query name -o tsv)
           if [[ -z "$run_id" ]]
           then
@@ -137,6 +141,7 @@ jobs:
           fi
       - name: run ray xgboost-ray test
         run: |
+          az ml environment create -g azureml -w ws01ent -f tests/automated_tests/test_xgboost_ray/env.yml
           run_id=$(az ml job create -f tests/automated_tests/test_xgboost_ray/job.yml --query name -o tsv)
           if [[ -z "$run_id" ]]
           then
