@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:20210615.v1
+FROM mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04
 ARG HTTP_PROXY
 ARG HTTPS_PROXY
 # set http_proxy & https_proxy

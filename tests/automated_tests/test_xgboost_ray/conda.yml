@@ -6,7 +6,6 @@ dependencies:
   - pip:
       - azureml-mlflow==1.41.0
       - git+https://github.com/microsoft/ray-on-aml.git@james-dev
-      - raydp
       - xgboost_ray
       - torch
       - torchvision==0.8.1
