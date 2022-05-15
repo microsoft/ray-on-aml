@@ -116,16 +116,16 @@ class Ray_On_AML():
         return IP
 
 
-    def startRayMaster(self):
+    def startRayMaster(self,additional_ray_start_head_args):
         conda_env_name = sys.executable.split('/')[-3]
         logging.info(f"Using {conda_env_name} for the master node")
-        cmd ='ray start --head --port=6379'
+        cmd =f'ray start --head --port=6379 {additional_ray_start_head_args}'
         try:
             subprocess.check_output(cmd, shell=True)
         except:
             ray_path = f"/anaconda/envs/{conda_env_name}/bin/ray"
             logging.info(f"default ray location is not in PATH, use an alternative path of {ray_path}")
-            cmd =f"{ray_path} stop && {ray_path} start --head --port=6379"
+            cmd =f"{ray_path} stop && {ray_path} start --head --port=6379 {additional_ray_start_head_args}"
             subprocess.check_output(cmd, shell=True)
         ip = self.get_ip()
         return ip
@@ -142,7 +142,7 @@ class Ray_On_AML():
 
 
     #check if the current node is headnode
-    def startRay(self,master_ip=None):
+    def startRay(self,additional_ray_start_worker_args, master_ip=None):
         ip = self.get_ip()
         logging.info(f"- env: MASTER_ADDR: {os.environ.get(self.master_ip_env_name)}")
         rank = os.environ.get(self.world_rank_env_name)
@@ -157,7 +157,7 @@ class Ray_On_AML():
         logging.info("free disk space on /tmp")
         os.system(f"df -P /tmp")
         
-        cmd = f"ray start --address={master_ip}:6379"
+        cmd = f"ray start --address={master_ip}:6379 {additional_ray_start_worker_args}"
 
         logging.info(cmd)
 
@@ -191,7 +191,7 @@ class Ray_On_AML():
 
         self.flush(worker_proc, worker_log)
 
-    def getRay(self, logging_level=logging.ERROR, ci_is_head=True, shm_size='48gb',base_image =None,gpu_support=False):
+    def getRay(self, logging_level=logging.ERROR, ci_is_head=True, shm_size='48gb',base_image =None,gpu_support=False,additional_ray_start_head_args="",additional_ray_start_worker_args=""):
         """This method automatically creates Azure Machine Learning Compute Cluster with Ray, Dask on Ray, Ray Tune, Ray rrlib, and Ray serve.
         This class takes care of all from infrastructure to runtime preperation, it may take 10 mintues for the first time execution of the module.
         Before you run this method, make sure you have existing Virtual Network and subnet in the same Resource Group where Azure Machine Learning Service is.
@@ -234,14 +234,14 @@ class Ray_On_AML():
         if self.checkNodeType()=="interactive":
             return self.getRayInteractive(logging_level,ci_is_head, shm_size,base_image,gpu_support)
         elif self.checkNodeType() =='head':
-            logging.info("head node detected")
-            self.startRayMaster()
+            logging.info(f"head node detected, starting ray with additional args {additional_ray_start_head_args}")
+            self.startRayMaster(additional_ray_start_head_args)
             time.sleep(10) # wait for the worker nodes to start first
             ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True)
             return ray
         else:
-            logging.info("workder node detected")
-            self.startRay()
+            logging.info(f"workder node detected , starting ray with additional args {additional_ray_start_worker_args}")
+            self.startRay(additional_ray_start_worker_args)
 
 
 
@@ -311,7 +311,7 @@ class Ray_On_AML():
             return rayEnv
 
 
-    def getRayInteractive(self, logging_level, ci_is_head, shm_size,base_image, gpu_support):
+    def getRayInteractive(self, logging_level, ci_is_head, shm_size,base_image, gpu_support,additional_ray_start_head_args,additional_ray_start_worker_args):
         """Create Compute Cluster, an entry script and Environment
         Create Compute Cluster if given name of Compute Cluster doesn't exist in Azure Machine Learning Workspace
         Get Azure Environement for Ray runtime
@@ -374,7 +374,7 @@ class Ray_On_AML():
                     proc_log.flush()
         def startRayMaster():
         
-            cmd ='ray start --head --port=6379'
+            cmd ='ray start --head --port=6379 {4}'
             subprocess.Popen(
             cmd.split(),
             universal_newlines=True
@@ -405,7 +405,7 @@ class Ray_On_AML():
             os.system(f"df -P /tmp")
             if master_ip is None:
                 master_ip =master
-            cmd = "ray start --address="+master_ip+":6379"
+            cmd = "ray start --address="+master_ip+":6379 {5}"
             print(cmd)
             worker_log = open("logs/worker_"+rank+"_log.txt", "w")
             return_code=-1
@@ -455,14 +455,14 @@ class Ray_On_AML():
                 else:
                     time.sleep(20)
                     startRay()
-        """.format(self.job_timeout,conda_lib_path, self.master_ip_env_name, self.world_rank_env_name)
+        """.format(self.job_timeout,conda_lib_path, self.master_ip_env_name, self.world_rank_env_name,additional_ray_start_head_args,additional_ray_start_worker_args)
 
         source_file = open(".tmp/source_file.py", "w")
         source_file.write(dedent(source_file_content))
         source_file.close()
 
         if ci_is_head:
-            master_ip = self.startRayMaster()
+            master_ip = self.startRayMaster(additional_ray_start_head_args)
         else:
             master_ip= "None"
         docker_config = DockerConfiguration(use_docker=True, shm_size=shm_size)
