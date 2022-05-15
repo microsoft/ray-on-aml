@@ -1,6 +1,5 @@
 $schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
-code: 
-  local_path: ../../../
+code : ../../../
 command: >-
   python tests/automated_tests/test_ray_ml/test_ray_ml.py 
 environment: 

@@ -8,7 +8,7 @@ RUN http_proxy=${HTTPS_PROXY} https_proxy=${HTTPS_PROXY} apt-get update -y \
     && mkdir -p /usr/share/man/man1 \
     && http_proxy=${HTTPS_PROXY} https_proxy=${HTTPS_PROXY} apt-get install -y openjdk-11-jdk \
     && mkdir /raydp \
-    && pip --no-cache-dir install raydp azureml-defaults ray[tune] ray[serve] ray[rllib] pyarrow==6.0.1 dask[complete]==2021.12.0 adlfs==2021.10.0 fsspec==2021.10.1 xgboost_ray==0.1.6 fastparquet==0.7.2 
+    && pip --no-cache-dir install raydp git+https://github.com/microsoft/ray-on-aml.git@james-dev azureml-defaults==1.41.0
 WORKDIR /raydp
 # unset http_proxy & https_proxy
 ENV http_proxy=
