@@ -4,15 +4,13 @@ channels:
 dependencies:
   - python=3.8.1
   - pip:
-      - azureml-defaults
-      - mlflow
-      - sklearn
-      - azureml-mlflow
+      - azureml-mlflow==1.41.0
+      - git+https://github.com/microsoft/ray-on-aml.git@james-dev
       - raydp
+      - xgboost_ray
       - torch
       - torchvision==0.8.1
-      - ray-on-aml==0.1.6
-  - pip
+      - azureml-defaults==1.41.0
+  - matplotlib
+  - pip < 20.3
 name: azureml_cfc9e96c7b0b43301a0ba4c6bd3548e5
-
-

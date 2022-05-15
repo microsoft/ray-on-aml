@@ -7,12 +7,12 @@ dependencies:
       - azureml-defaults
       - gym==0.21.0
       - dm-tree
-      - ray-on-aml==0.2.0
-      - ray[rllib,tune,serve]==0.8.7
-      - torch==1.10.0
+      - git+https://github.com/microsoft/ray-on-aml.git@james-dev
+      - ray[rllib,tune]==0.8.7
+      - torch
       - torchvision==0.8.1
       - tensorflow
       - scikit-image
   - matplotlib
-  - pip
+  - pip < 20.3
 name: azureml_cfc9e96c7b0b43301a0ba4c6bd3548e5

@@ -1,11 +1,10 @@
 $schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
-code: 
-  local_path: ../../../
+code: ../../../
 command: >-
   python tests/automated_tests/test_spark/test_ray_spark_post_release.py 
 environment: 
   build:
-    local_path: ./
+    path: ./
     dockerfile_path: Dockerfile_post_release
 compute: azureml:d15-v2
 resources:

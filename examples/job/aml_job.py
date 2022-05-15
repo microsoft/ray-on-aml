@@ -31,7 +31,7 @@ ws = run.experiment.workspace
 # set mlflow uri
 mlflow.set_tracking_uri(ws.get_mlflow_tracking_uri())
 mlflow.set_experiment(run.experiment.name)
-ray_on_aml =Ray_On_AML()
+ray_on_aml =Ray_On_AML( master_ip_env_name="AZ_BATCHAI_MPI_MASTER_NODE", world_rank_env_name="OMPI_COMM_WORLD_RANK")
 ray = ray_on_aml.getRay()
 
 class ConvNet(nn.Module):
@@ -105,6 +105,7 @@ def train_mnist(config):
         shuffle=True)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print("detected device", device)
 
     model = ConvNet()
     model.to(device)
@@ -143,13 +144,14 @@ def get_data_count():
 if __name__ == "__main__":
     if ray: #in the headnode
         print("head node detected")
+        print(ray.cluster_resources)
 
         datasets.MNIST("~/data", train=True, download=True)
         #demonstate parallel hyper param tuning
         # Use captureMetrics callback
         # analysis = tune.run(train_mnist, config=search_space, callbacks=[captureMetrics()])
         # run.log_list('acc', accList)
-        analysis = tune.run(train_mnist, config=search_space, callbacks=[MLflowLoggerCallback(experiment_name=run.experiment.name, tags={"Framework":"Ray 1.9.1"}, save_artifact=True)])
+        analysis = tune.run(train_mnist,local_dir ='./outputs',raise_on_failed_trial=False, sync_config=tune.SyncConfig(syncer=None),resources_per_trial={"cpu": 1, "gpu": 1}, config=search_space,num_samples=10, callbacks=[MLflowLoggerCallback(experiment_name=run.experiment.name, tags={"Framework":"Ray 1.12.0"}, save_artifact=True)])
 
         #demonstrate parallel data processing
         print("data count result", get_data_count())
