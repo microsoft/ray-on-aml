@@ -54,6 +54,9 @@ if __name__ == "__main__":
     ray_on_aml =Ray_On_AML()
     ray = ray_on_aml.getRay()
 
+    for item, value in os.environ.items():
+        print('{}: {}'.format(item, value))
+
     if ray: #in the headnode
         print("head node detected")
 
