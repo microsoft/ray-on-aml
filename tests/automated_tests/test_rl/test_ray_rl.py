@@ -6,8 +6,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__),'../../../'))
 from src.ray_on_aml.core import Ray_On_AML
 import time
 from azureml.core import Run
-
-
+import logging
 
 def on_train_result(info):
     '''Callback on train result to record metrics returned by trainer.
@@ -66,7 +65,7 @@ def train():
 
 if __name__ == "__main__":
     ray_on_aml =Ray_On_AML()
-    ray = ray_on_aml.getRay(additional_ray_start_head_args="--temp-dir=outputs",additional_ray_start_worker_args="--temp-dir=outputs")
+    ray = ray_on_aml.getRay(logging_level = logging.info, additional_ray_start_head_args="",additional_ray_start_worker_args="--temp-dir='./outputs'")
 
     for item, value in os.environ.items():
         print('{}: {}'.format(item, value))

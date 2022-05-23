@@ -4,7 +4,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__),'../../../'))
 
 from src.ray_on_aml.core import Ray_On_AML
-
+import logging
 #dask
 from azureml.core import Run
 import numpy as np
@@ -160,7 +160,7 @@ if __name__ == "__main__":
     run = Run.get_context()
     ws = run.experiment.workspace
     ray_on_aml =Ray_On_AML()
-    ray = ray_on_aml.getRay(additional_ray_start_head_args="--temp-dir=outputs",additional_ray_start_worker_args="--temp-dir=outputs")
+    ray = ray_on_aml.getRay(additional_ray_start_head_args="--temp-dir ./outputs",additional_ray_start_worker_args="--temp-dir ./outputs")
 
     if ray: #in the headnode
         print("head node detected")

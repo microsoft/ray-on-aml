@@ -17,7 +17,7 @@ import logging
 import urllib.request 
 import shutil
 
-__version__='0.2.1'
+__version__='0.2.2'
 
 
 class Ray_On_AML():
@@ -119,14 +119,17 @@ class Ray_On_AML():
     def startRayMaster(self,additional_ray_start_head_args):
         conda_env_name = sys.executable.split('/')[-3]
         logging.info(f"Using {conda_env_name} for the master node")
-        cmd =f'ray start --head --port=6379 {additional_ray_start_head_args}'
+        cmd =f"ray start --head --port=6379 {additional_ray_start_head_args}"
         try:
             subprocess.check_output(cmd, shell=True)
         except:
             ray_path = f"/anaconda/envs/{conda_env_name}/bin/ray"
             logging.info(f"default ray location is not in PATH, use an alternative path of {ray_path}")
             cmd =f"{ray_path} stop && {ray_path} start --head --port=6379 {additional_ray_start_head_args}"
-            subprocess.check_output(cmd, shell=True)
+            try:
+                subprocess.check_output(cmd, shell=True)
+            except:
+                print("ray start still fails, continue anyway")
         ip = self.get_ip()
         return ip
 
@@ -232,12 +235,12 @@ class Ray_On_AML():
             raise Exception("For interactive use, please pass AML workspace and compute cluster name to the init")
 
         if self.checkNodeType()=="interactive":
-            return self.getRayInteractive(logging_level,ci_is_head, shm_size,base_image,gpu_support)
+            return self.getRayInteractive(logging_level,ci_is_head, shm_size,base_image,gpu_support,additional_ray_start_head_args,additional_ray_start_worker_args)
         elif self.checkNodeType() =='head':
             logging.info(f"head node detected, starting ray with additional args {additional_ray_start_head_args}")
             self.startRayMaster(additional_ray_start_head_args)
             time.sleep(10) # wait for the worker nodes to start first
-            ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True)
+            ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True )
             return ray
         else:
             logging.info(f"workder node detected , starting ray with additional args {additional_ray_start_worker_args}")

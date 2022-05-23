@@ -13,7 +13,10 @@ import dask.dataframe as dd
 from adlfs import AzureBlobFileSystem
 import mlflow
 from azureml.core import Run
+print("current directory ", os.getcwd())
+# print("home directory ", os.listdir("~"))
 
+print("directory ", os.listdir())
 
 #demonstrate parallel data processing
 def get_data_count():
@@ -28,7 +31,7 @@ def get_data_count():
 
 if __name__ == "__main__":
     ray_on_aml =Ray_On_AML()
-    ray = ray_on_aml.getRay(additional_ray_start_head_args="--temp-dir=outputs",additional_ray_start_worker_args="--temp-dir=outputs")
+    ray = ray_on_aml.getRay(additional_ray_start_head_args="--temp-dir=./outputs",additional_ray_start_worker_args="--temp-dir=./outputs")
     enable_dask_on_ray()
     if ray: #in the headnode
         print("head node detected")
