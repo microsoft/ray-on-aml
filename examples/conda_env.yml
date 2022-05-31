@@ -6,6 +6,7 @@ dependencies:
   - pip:
       - azureml-mlflow==1.41.0
       - ray-on-aml==0.2.1
+      - protobuf==3.20.1
       - torch
       - torchvision==0.8.1
       - azureml-defaults==1.41.0
