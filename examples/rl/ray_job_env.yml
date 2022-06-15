@@ -8,11 +8,12 @@ dependencies:
       - gym==0.21.0
       - dm-tree
       - ray-on-aml==0.2.0
-      - ray[rllib,tune]==0.8.7
+      - ray[rllib,tune]==0.8.7 #this is to change the ray version 
       - torch
       - torchvision==0.8.1
       - tensorflow
       - scikit-image
+      - protobuf==3.20.1 #fix the problem with recent release from Google that break the job
   - matplotlib
   - pip < 20.3
 name: azureml_cfc9e96c7b0b43301a0ba4c6bd3548e5
