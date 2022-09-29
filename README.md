@@ -1,8 +1,6 @@
 # Ray on Azure ML
 
-NEW!
-
-1. ray-on-aml now supports Spark from [raydp](https://github.com/oap-project/raydp) with Delta Lake, Synapse JDBC and latest pyspark 3.2.1. Checkout [spark examples](./examples/spark/spark_examples.ipynb)
+1. ray-on-aml version 1.1.8 or lower supports Spark from [raydp](https://github.com/oap-project/raydp) with Delta Lake, Synapse JDBC and latest pyspark 3.2.1. Checkout [spark examples](./examples/spark/spark_examples.ipynb)
 2. GPU & custom base image for interactive use: if you have GPU compute cluster, then either use ray_on_aml.getRay(gpu_support=True) which internally uses mcr.microsoft.com/azureml/openmpi4.1.0-cuda11.1-cudnn8-ubuntu18.04:20211221.v1 as base image. You can supply your own base image with ray_on_aml.getRay(base_image="YOUR_OWN_BASE_IMAGE")
 3. VSCode is now supported. You can run interactive notebook with VSCode.
 
