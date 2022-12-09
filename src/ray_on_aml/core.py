@@ -12,7 +12,7 @@ from azure.ai.ml.entities import Environment
 import mlflow
 from azureml.core.conda_dependencies import CondaDependencies
 import logging
-import urllib.request 
+import zlib
 
 __version__='0.2.3'
 
@@ -191,7 +191,7 @@ class Ray_On_AML():
 
         self.flush(worker_proc, worker_log)
 
-    def getRay(self, logging_level=logging.ERROR, ci_is_head=True, shm_size="8g",base_image =None,gpu_support=False,additional_ray_start_head_args="",additional_ray_start_worker_args=""):
+    def getRay(self, logging_level=logging.ERROR, ci_is_head=True, shm_size="8g",base_image =None,gpu_support=False,additional_ray_start_head_args="",additional_ray_start_worker_args="", input_data=None):
         """This method automatically creates Azure Machine Learning Compute Cluster with Ray, Dask on Ray, Ray Tune, Ray rrlib, and Ray serve.
         This class takes care of all from infrastructure to runtime preperation, it may take 10 mintues for the first time execution of the module.
         Before you run this method, make sure you have existing Virtual Network and subnet in the same Resource Group where Azure Machine Learning Service is.
@@ -232,7 +232,7 @@ class Ray_On_AML():
             raise Exception("For interactive use, please pass ML Client and compute cluster name to the init")
 
         if self.checkNodeType()=="interactive":
-            return self.getRayInteractive(logging_level, shm_size,base_image,gpu_support,additional_ray_start_head_args,additional_ray_start_worker_args)
+            return self.getRayInteractive(logging_level, shm_size,base_image,gpu_support,additional_ray_start_head_args,additional_ray_start_worker_args,input_data)
         elif self.checkNodeType() =='head':
             logging.info(f"head node detected, starting ray with additional args {additional_ray_start_head_args}")
             self.startRayMaster(additional_ray_start_head_args)
@@ -256,13 +256,15 @@ class Ray_On_AML():
         python_version = ["python="+platform.python_version()]
         conda_packages = python_version+self.additional_conda_packages +self.base_conda_dep
         pip_packages = self.base_pip_dep +self.additional_pip_packages
-        envPkgs = python_version + conda_packages + pip_packages
-        shEnvPkgs = abs(hash(str(envPkgs)))
-        envName = f"ray-{__version__}-{shEnvPkgs}"
+        envPkgs = conda_packages + pip_packages + list(str(gpu_support))
+        shEnvPkgs= zlib.adler32(bytes(str(envPkgs),"utf8"))
+        envName = f"ray-on-aml-{shEnvPkgs}"
+        try:
+            # If the environment is found return, if not found, create and register
 
-        # if Environment.list(self.ml_client).get(envName) != None:
-        #     return Environment.get(self.ml_client, envName)
-        # else:
+            return self.ml_client.environments._get_latest_version(envName)
+        except:
+            pass
         python_version = ["python="+platform.python_version()]
         conda_packages = python_version+self.additional_conda_packages +self.base_conda_dep
         pip_packages = self.base_pip_dep +self.additional_pip_packages
@@ -285,15 +287,15 @@ class Ray_On_AML():
         rayEnv = Environment(
             image=base_image,
             conda_file=".tmp/conda.yml",
-            name="RayEnv",
+            name=envName,
             description="Environment for ray cluster.",
         )
-        # self.ml_client.environments.create_or_update(rayEnv)
+        self.ml_client.environments.create_or_update(rayEnv)
         
         return rayEnv
 
 
-    def getRayInteractive(self, logging_level, shm_size,base_image, gpu_support,additional_ray_start_head_args,additional_ray_start_worker_args):
+    def getRayInteractive(self,logging_level, shm_size,base_image, gpu_support,additional_ray_start_head_args,additional_ray_start_worker_args, input_data=None):
         """Create Compute Cluster, an entry script and Environment
         Create Compute Cluster if given name of Compute Cluster doesn't exist in Azure Machine Learning Workspace
         Get Azure Environement for Ray runtime
@@ -423,26 +425,45 @@ class Ray_On_AML():
 
 
 
+        if input_data:
+            job = command(
+                code=".tmp",
+                command="python source_file.py --master_ip ${{inputs.master_ip}}",
+                environment=rayEnv,
+                inputs={
 
-        job = command(
-            code=".tmp",
-            command="python source_file.py --master_ip ${{inputs.master_ip}}",
-            environment=rayEnv,
-            inputs={
-                "iris_csv": Input(
-                    type="uri_file",
-                    path="https://azuremlexamples.blob.core.windows.net/datasets/iris.csv",
-                ),
-                "master_ip": master_ip,
-            },
-            compute=self.compute_cluster,
-            shm_size = shm_size,
-            distribution={
-                "type": "mpi",
-                "process_count_per_instance": 1,},
-            instance_count=self.num_node,  
+                    "input_data":input_data,
+                    "master_ip": master_ip,
+                },
+                compute=self.compute_cluster,
+                shm_size = shm_size,
+                distribution={
+                    "type": "mpi",
+                    "process_count_per_instance": 1,},
+                experiment_name = self.exp_name,
+                instance_count=self.num_node
 
-        )
+            )
+
+        else:
+
+            job = command(
+                code=".tmp",
+                command="python source_file.py --master_ip ${{inputs.master_ip}}",
+                environment=rayEnv,
+                inputs={
+
+                    "master_ip": master_ip,
+                },
+                compute=self.compute_cluster,
+                shm_size = shm_size,
+                distribution={
+                    "type": "mpi",
+                    "process_count_per_instance": 1,},
+                instance_count=self.num_node,  
+                experiment_name = self.exp_name
+
+            )
 
         
 
@@ -450,25 +471,20 @@ class Ray_On_AML():
 
 
         print("Waiting cluster to start and return head node ip")
-        returned_job = self.ml_client.jobs.create_or_update(job)
+        self.cluster_job = self.ml_client.jobs.create_or_update(job)
         headnode_private_ip= None 
         while headnode_private_ip is None:
-            headnode_private_ip= mlflow.get_run(run_id=returned_job.id.split("/")[-1]).data.params.get('headnode') 
+            headnode_private_ip= mlflow.get_run(run_id=self.cluster_job.id.split("/")[-1]).data.params.get('headnode') 
             print('.', end ="")
             time.sleep(5)
-            if mlflow.get_run(run_id=returned_job.id.split("/")[-1])._info.status== 'FAILED':
+            if mlflow.get_run(run_id=self.cluster_job.id.split("/")[-1])._info.status== 'FAILED':
                 print("Cluster startup failed, check detail at run")
                 return None, None
-        headnode_private_ip = mlflow.get_run(run_id=returned_job.id.split("/")[-1]).data.params.get('headnode')
-        print('Headnode has IP:', headnode_private_ip)
+        headnode_private_ip = mlflow.get_run(run_id=self.cluster_job.id.split("/")[-1]).data.params.get('headnode')
         self.headnode_private_ip= headnode_private_ip
-        try:
-            #disconnect client first to make sure only one is active at a time
-            ray.disconnect()
-        except:
-            pass
-        ray.init(f"ray://{headnode_private_ip}:10001",ignore_reinit_error=True, logging_level=logging_level)
-        return ray
+        print("\n cluster is ready, head node ip ",headnode_private_ip)
+
+        return headnode_private_ip
 
         
     def shutdown(self, end_all_runs=True):
@@ -494,7 +510,7 @@ class Ray_On_AML():
         # else:
         #     print("Cancel your run")
         #     self.run.cancel()
-
+        self.ml_client.jobs.begin_cancel(self.cluster_job.name)
         try:
             print("Shutting down ray if any")
             self.ray.shutdown()
