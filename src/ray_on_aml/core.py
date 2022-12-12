@@ -17,15 +17,45 @@ __version__='0.2.3'
 #planning
 #new feature only supported in v2 SDK
 #adding environment object as string
-#Adding ability to mount folder
-#Adding ability to 
 #Set ci_is_head with False default value
 # Remove GPU support, instead provide environment as an object. Default is mpi 4.0 as base image
 #['adlfs==2021.10.0','pip==21.3.1']
 #['ray[default]', 'ray[air]','azureml-mlflow', 'dask==2021.12.0','pyarrow == 6.0.1','fsspec==2021.10.1','fastparquet==0.7.2','tabulate==0.8.9']
 class Ray_On_AML():
-    def __init__(self,compute_cluster=None, ws=None, ml_client=None, exp_name ='ray_on_aml',base_pip_dep=None,maxnode=2,
-                master_ip_env_name="AZ_BATCHAI_MPI_MASTER_NODE", world_rank_env_name="OMPI_COMM_WORLD_RANK"):
+    """
+    Ray_On_AML let you create ray cluster on top of azure ml compute cluster. It handles head node and worker nodes creation
+    based on the size you set. It supports 1. Interactive mode where an azure ml compute instance can be used as ray client 
+    or a direct head node 2. Job mode where the compute environment of azure ml job is turned into a ray cluster.
+    Ray_On_AML relies on Azure ML SDK for interactive mode. You can use either SDK v1 with workspace object or SDK v2 with ml 
+    client object. 
+    For ray version, in interactive mode, the library requires you to install a ray library at your local machine and it will 
+    automatically uses the same ray and python version for the remote cluster creation.
+    For job mode, you're responsible to provide ray and other dependencies to the job.
+    """
+
+    def __init__(self,compute_cluster=None, ws=None, ml_client=None, exp_name ='ray_on_aml',
+                master_ip_env_name="AZ_BATCHAI_MPI_MASTER_NODE", world_rank_env_name="OMPI_COMM_WORLD_RANK",job_timeout=600000, maxnode=2, logging_level=logging.ERROR):
+
+        """
+        Init initializes Ray_On_Aml instances to manage life cycle of ray cluster.
+        :param compute_cluster: Name of Azure ML cluster created with your Azure ML workspace. In case of interactive use, 
+        it must be in the same vnet with your compute instance. vnet is not required for job use.
+        :type compute_cluster: str
+        :param ws: Azure workspace object in case Azure ML SDK v1 is used. Either ws or ml_client has to be provided for interactive use
+        :type ws: ~azureml.core.workspace.Workspace 
+        :param ml_client: ML client in case Azure ML SDK v2 is used. Either ws or ml_client has to be provided for interactive use
+        :type ml_client: ~azure.ai.ml.MLClient
+        :param exp_name: Name of the experiment under which the azure ml job runs for interactive mode
+        :type exp_name: str
+        :param master_ip_env_name: name of environment variable that contains master node's ip, defaults to AZ_BATCHAI_MPI_MASTER_NODE.
+        :type master_ip_env_name: str
+        :param world_rank_env_name: name of environment variable that contains world rank of nodes defaults to OMPI_COMM_WORLD_RANK.
+        :type world_rank_env_name: str
+        :param job_timeout: max duration of the cluster life (azure ml job duration), defaults to 600k seconds.
+        :type job_timeout: int
+        :param logging_level: logging level, defaults to logging.ERROR
+        :type logging_level: str
+        """
 
         self.ml_client = ml_client #for sdk v2
         self.ws=ws #for sdk v1
@@ -34,22 +64,8 @@ class Ray_On_AML():
         self.master_ip_env_name=master_ip_env_name
         self.world_rank_env_name= world_rank_env_name
         self.num_node=maxnode # deprecated, moved to num_node in getRay() method. Will remove this arg in future 
-        try:
-            from azure.ai.ml.entities import AmlCompute
-            self.azureml_version= "v2"
-        except:
-            from azureml.core import  Experiment, Environment, ScriptRunConfig, Run
-            from azureml.core.runconfig import DockerConfiguration,RunConfiguration
-            self.azureml_version= "v1"
-        #Used to set base ray packages for interactive scenario
-        if not base_pip_dep:
-            try:
-                self.base_pip_dep = [f"ray[default]=={ray.__version__}"]
-            except:
-                raise Exception("Ray is not installed")
-        else:
-            self.ray_packages=base_pip_dep
-
+        self.logging_level = logging_level
+        self.job_timeout = job_timeout
         if self.checkNodeType()=="interactive" and ((self.ws is None and self.ml_client is None) or self.compute_cluster is None):
             #Interactive scenario, workspace or ml client is required
             raise Exception("For interactive use, please pass ML client for azureml sdk v2 or workspace for azureml sdk v1 and compute cluster name to the init")
@@ -81,8 +97,11 @@ class Ray_On_AML():
 
 
     def startRayMaster(self,ray_start_head_args):
+        ray.shutdown()
         conda_env_name = sys.executable.split('/')[-3]
         logging.info(f"Using {conda_env_name} for the master node")
+        print(f"Using {conda_env_name} for the master node")
+
         cmd =f"ray start --head --port=6379 {ray_start_head_args}"
         try:
             subprocess.check_output(cmd, shell=True)
@@ -158,52 +177,40 @@ class Ray_On_AML():
 
         self.flush(worker_proc, worker_log)
 
-    def getRay(self, logging_level=logging.ERROR,environment=None, num_node =2, conda_packages=[],
-        pip_packages= [], base_image="mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04",job_timeout=600000,
-        ci_is_head=True, shm_size="8g",ray_start_head_args="",ray_start_worker_args="", input_data=None):
-        """This method automatically creates Azure Machine Learning Compute Cluster with Ray, Dask on Ray, Ray Tune, Ray rrlib, and Ray serve.
-        This class takes care of all from infrastructure to runtime preperation, it may take 10 mintues for the first time execution of the module.
-        Before you run this method, make sure you have existing Virtual Network and subnet in the same Resource Group where Azure Machine Learning Service is.
-        If the Virtual Network is not in the same Resource Group then specify the name of Virtual Network, Subnet name.
-        This method can also be used in AML job to turn the remote cluster into Ray cluster.
-        
-        Example (Interactive use with AML Compute Instance) : 
-        >>> from ray_on_aml.core import Ray_On_AML
-        >>> ml_client = Workspace.from_config()
-        >>> ray_on_aml =Ray_On_AML(ml_client=ml_client,
-        >>>                     exp_name='ray_on_aml',
-        >>>                     compute_cluster ="cpu-ray-cluster",
-        >>>                     additional_pip_packages=['torch==1.10.0', 'torchvision', 'sklearn'],
-        >>>                     num_node=2)
-        >>> ray = ray_on_aml.getRay()
-        Example (use Inside AML Compute Cluster) : 
-        >>> from ray_on_aml.core import Ray_On_AML
-        >>> ray_on_aml =Ray_On_AML()
-        >>> ray = ray_on_aml.getRay()
-        >>> if ray: #in the headnode
-        >>>     #logic to use Ray for distributed ML training, tunning or distributed data transformation with Dask
-        >>> else:
-        >>>     print("in worker node")
-        Parameters
-        ----------
-        logging_level : any
-            Not implemented yet
-        ci_is_head : bool, default=True
-            Interactive mode which is using Compute Instant as head is default.
-        shm_size : str, default='8g'
-            Allow the docker container Ray runs in to make full use of the shared memory available from the host OS. Only applicable for interactive use case
-        Return
-        ----------
-            Returns an object of Ray.        
+    def getRay(self,ci_is_head=False,environment=None, num_node =2, conda_packages=[],
+        pip_packages= [], base_image="mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04",
+         shm_size="8g",ray_start_head_args="",ray_start_worker_args=""):
+
+        """
+        This method execute ray cluster creation on top of azure ml compute cluster.
+        :param ci_is_head: Whether to use the current Compute Instance environment as head node, defaults False, in which case this returns the client IP for you to 
+        initialize ray client.
+        :type conda_packages: [str]
+        :param environment: [Appliable for interactive use only] Azure ML environment object, work for either SDK v1 or v2. This is only used when you need to customize 
+        ray run time environment for advanced use cases. If you want to run GPU cluster, specify a pre-created GPU environment here
+        :type environment: ~azure.ai.ml.entities.Environment or ~azureml.core.environment.Environment or str
+        :param conda_packages: [Appliable for interactive use only] list of conda packages to add to the cluster
+        :type conda_packages: [str]
+        :param pip_packages: [Appliable for interactive use only] list of pip packages to add to the cluster. This is where you can customize ray packages such ["ray[air]==2.1.0","ray[rllib]"]
+        if you do not provide a ray package in pip, the package will take the version of the ray in your compute instance and add "ray[default]==YOUR_VERSION" 
+        to the list.
+        :type pip_packages: [str]
+        :param base_image: [Appliable for interactive use only] base image of the azure ml environment on which ray runs, defaults to mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04
+        :type base_image: str
+        :param shm_size: shm_size for the cluster environment, defaults to 8g, can be adjusted to increase the shm_size required by Ray.
+        :type shm_size: str
+        :param ray_start_head_args: Additional argument values to start ray head. Defaults to empty ""
+        :type ray_start_head_args: str
+        :param ray_start_worker_args: Additional argument values to start ray workders.Defaults to empty ""
+        :type ray_start_worker_args: str
         """
         self.environment = environment
         self.num_node=num_node
         self.conda_packages=conda_packages
         self.pip_packages=pip_packages
-        self.job_timeout = job_timeout
 
         if self.checkNodeType()=="interactive":
-            return self.getRayInteractive(ci_is_head, environment,conda_packages,pip_packages,base_image,shm_size,ray_start_head_args,ray_start_worker_args,logging_level)
+            return self.getRayInteractive(ci_is_head, environment,conda_packages,pip_packages,base_image,shm_size,ray_start_head_args,ray_start_worker_args,self.logging_level)
         elif self.checkNodeType() =='head':
             logging.info(f"head node detected, starting ray with head start args {ray_start_head_args}")
             self.startRayMaster(ray_start_head_args)
@@ -226,8 +233,12 @@ class Ray_On_AML():
         """
         python_version = ["python="+platform.python_version()]
         conda_packages = python_version+conda_packages 
-        pip_packages = self.base_pip_dep +self.pip_packages
-        envPkgs = conda_packages + pip_packages 
+        if "ray" not in str(self.pip_packages):
+            try:
+                self.pip_packages = [f"ray[default]=={ray.__version__}"]+ self.pip_packages
+            except:
+                raise Exception("Ray is not installed")
+        envPkgs = conda_packages + self.pip_packages 
         shEnvPkgs= zlib.adler32(bytes(str(envPkgs),"utf8"))
         if environment:
             envName = environment
@@ -277,6 +288,7 @@ class Ray_On_AML():
         If the script run on Compute Cluster successfully, Ray object will be returned.
         """
         # Verify that cluster does not exist already
+        #Used to set base ray packages for interactive scenario
 
         ##Create the source file
         os.makedirs(".tmp", exist_ok=True)
@@ -398,7 +410,7 @@ class Ray_On_AML():
     def launch_rayjob_v1(self,ci_is_head,ray_start_head_args,shm_size,rayEnv,logging_level):
         from azureml.core import  Experiment, Environment, ScriptRunConfig, Run
         from azureml.core.runconfig import DockerConfiguration,RunConfiguration
-        from azureml.core.compute import ComputeTarget, AmlCompute
+        from azureml.core.compute import ComputeTarget
 
         if ci_is_head:
             master_ip = self.startRayMaster(ray_start_head_args)
@@ -425,8 +437,8 @@ class Ray_On_AML():
         time.sleep(10)
 
         if ci_is_head:
-            ray.shutdown()
-            ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True, logging_level=logging_level)
+            # ray.shutdown()
+            # ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True, logging_level=logging_level)
             # self.run = run
             # self.ray = ray
             print("Waiting for cluster to start")
@@ -510,7 +522,7 @@ class Ray_On_AML():
         return headnode_private_ip
 
         
-    def shutdown(self, end_all_runs=True):
+    def shutdown(self, end_all_runs=False):
         """Stop Ray and Compute Cluster
         Parameters
         ----------
@@ -519,22 +531,22 @@ class Ray_On_AML():
             If you want to stop your own Compute Cluster, you can your following
                 ray_on_aml.shutdown(end_all_runs=False)
         """
-        # def end_all_run():
+        def end_all_run():
             
-        # from azureml.core import  Experiment
-        # exp= Experiment(self.ml_client, self.exp_name)
-        # runs = exp.get_runs()
-        # for run in runs:
-        #     if (run.status =='Running') or (run.status =='Preparing'):
-        #         print("Canceling active run ", run.id, "in", self.exp_name)
-        #         run.cancel()
+            from azureml.core import  Experiment
+            exp= Experiment(self.ws, self.exp_name)
+            runs = exp.get_runs()
+            for run in runs:
+                if (run.status =='Running') or (run.status =='Preparing'):
+                    print("Canceling active run ", run.id, "in", self.exp_name)
+                    run.cancel()
 
-        # if end_all_runs:
-        #     print("Cancel active AML runs if any")
-        #     end_all_run()
-        # else:
-        #     print("Cancel your run")
-        #     self.run.cancel()
+        if end_all_runs:
+            if self.ws is not None:
+                print("Cancel active AML runs if any")
+                end_all_run()
+            #todo for SDK v2
+
         if self.ml_client is not None: 
             self.ml_client.jobs.begin_cancel(self.cluster_job.name)
         else:
