@@ -5,19 +5,23 @@ instrumentation_key = "28f3e437-7871-4f33-a75a-b5b3895438db"
 class _LoggerFactory:
 
     @staticmethod
-    def get_logger(verbosity=logging.DEBUG):
-        logger = logging.getLogger(__name__)
-        logger.setLevel(verbosity)
+    def get_logger(name):
+        logger = logging.getLogger(__name__).getChild(name)
+        logger.propagate = False
+        logger.setLevel(logging.INFO)
+    
         try:
-            from opencensus.ext.azure.log_exporter import AzureLogHandler
+            from opencensus.ext.azure.log_exporter import AzureEventHandler
 
-            if not _LoggerFactory._found_handler(logger, AzureLogHandler):
+            # Doc: Set up Azure Monitor for your Python application
+            # https://learn.microsoft.com/en-us/azure/azure-monitor/app/opencensus-python#send-events
+            if not _LoggerFactory._found_handler(logger, AzureEventHandler):
                 logger.addHandler(
-                    AzureLogHandler(
+                    AzureEventHandler(
                         connection_string="InstrumentationKey=" + instrumentation_key
                     )
                 )
-        except Exception:
+        except ImportError:
             pass
 
         return logger
