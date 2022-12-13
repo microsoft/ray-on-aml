@@ -100,7 +100,6 @@ class Ray_On_AML():
         ray.shutdown()
         conda_env_name = sys.executable.split('/')[-3]
         logging.info(f"Using {conda_env_name} for the master node")
-        print(f"Using {conda_env_name} for the master node")
 
         cmd =f"ray start --head --port=6379 {ray_start_head_args}"
         try:
@@ -112,7 +111,7 @@ class Ray_On_AML():
             try:
                 subprocess.check_output(cmd, shell=True)
             except:
-                print("ray start still fails, continue anyway")
+                logging.warning("ray start still fails, continue anyway")
         ip = self.get_ip()
         return ip
 
@@ -215,7 +214,7 @@ class Ray_On_AML():
             logging.info(f"head node detected, starting ray with head start args {ray_start_head_args}")
             self.startRayMaster(ray_start_head_args)
             time.sleep(10) # wait for the worker nodes to start first
-            ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True )
+            # ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True )
             return ray
         else:
             logging.info(f"workder node detected , starting ray with worker start args {ray_start_worker_args}")
@@ -258,9 +257,8 @@ class Ray_On_AML():
                 return self.ml_client.environments._get_latest_version(envName)
             except:
                 pass
-            print(f"Creating new Environment {envName}")
+            logging.info(f"Creating new Environment {envName}")
             conda_dep.save(".tmp/conda.yml")
-            print("beging creating env in v2")
             from azure.ai.ml.entities import Environment
             rayEnv = Environment(
                 image=base_image,
@@ -277,7 +275,7 @@ class Ray_On_AML():
             rayEnv.docker.base_image = base_image
             rayEnv.python.conda_dependencies=conda_dep
             rayEnv.register(self.ws)
-            return rayEnv
+        return rayEnv
 
 
     def getRayInteractive(self,ci_is_head, environment,conda_packages,pip_packages,base_image, shm_size,ray_start_head_args,ray_start_worker_args,logging_level):
@@ -437,8 +435,8 @@ class Ray_On_AML():
         time.sleep(10)
 
         if ci_is_head:
-            # ray.shutdown()
-            # ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True, logging_level=logging_level)
+            ray.shutdown()
+            ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True, logging_level=logging_level)
             # self.run = run
             # self.ray = ray
             print("Waiting for cluster to start")

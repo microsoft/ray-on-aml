@@ -2,10 +2,13 @@ $schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
 code:  ../../../
 command: >-
   python tests/automated_tests/test_ray_data/test_ray_data.py 
-environment: azureml:ray_data_env@latest
-compute: azureml:d15-v2
+environment: 
+  image: mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04
+  conda_file: conda.yml
+compute: azureml:d13
 resources:
   instance_count: 2
+  shm_size: 16g
 distribution: 
   type: mpi
 display_name: ray_ci_test_ray_data
