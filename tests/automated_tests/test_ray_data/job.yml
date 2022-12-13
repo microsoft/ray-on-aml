@@ -1,11 +1,15 @@
 $schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
 code:  ../../../
 command: >-
-  python tests/automated_tests/test_ray_data/test_ray_data.py 
+  python tests/automated_tests/test_ray_data/test_ray_data.py --datasets ${{inputs.datasets}}
 environment: 
   image: mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04
   conda_file: conda.yml
 compute: azureml:d13
+inputs:
+  datasets: 
+    type: uri_folder
+    path: wasbs://datasets@azuremlexamples.blob.core.windows.net
 resources:
   instance_count: 2
   shm_size: 16g
