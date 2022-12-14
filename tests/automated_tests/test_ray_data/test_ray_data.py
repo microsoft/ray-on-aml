@@ -26,7 +26,8 @@ def parse_args():
 def get_data_count(path):
 
     abfs = AzureBlobFileSystem(account_name="azureopendatastorage",  container_name="isdweatherdatacontainer")
-
+    dataset = ray.data.read_csv("https://azuremlexamples.blob.core.windows.net/datasets/iris.csv").repartition(4)
+    print("iris count ", dataset.count())
     storage_options = {'account_name': 'azureopendatastorage'}
     ddf = dd.read_parquet('az://nyctlc/green/puYear=2019/puMonth=*/*.parquet', storage_options=storage_options)
     data1 = ray.data.read_csv(path+"/iris.csv").repartition(4)

@@ -527,7 +527,7 @@ class Ray_On_AML():
             while headnode_private_ip is None:
                 headnode_private_ip= mlflow.get_run(run_id=run.id).data.params.get('headnode') 
                 print('.', end ="")
-                time.sleep(5)
+                time.sleep(2)
                 if mlflow.get_run(run_id=run.id)._info.status== 'FAILED':
                     print("Cluster startup failed, check detail at run")
                     return None
