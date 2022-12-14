@@ -32,7 +32,7 @@ class _EventLogger:
         if properties is not None:
             custom_dimensions.update(properties)
             
-        logger.info(name, extra=custom_dimensions)
+        logger.info(name, extra={"custom_dimensions": custom_dimensions})
 
     @staticmethod
     def _found_handler(logger, handler_type):
