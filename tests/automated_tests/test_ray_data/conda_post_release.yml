@@ -2,10 +2,15 @@ channels:
   - anaconda
   - conda-forge
 dependencies:
-  - python=3.8.1
+  - python=3.8.5
   - pip:
-      - azureml-defaults==1.41.0
-      - azureml-mlflow==1.41.0
+      - azureml-defaults
+      - azureml-mlflow
       - git+https://github.com/microsoft/ray-on-aml.git@james-dev
-  - pip < 20.3
+      - ray[data]
+      - adlfs
+      - dask==2022.2.0
+      - pyarrow==6.0.1
+      - fsspec
+      - fastparquet
 name: azureml_cfc9e96c7b0b43301a0ba4c6bd3548e5

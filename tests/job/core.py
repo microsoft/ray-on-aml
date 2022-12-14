@@ -232,9 +232,11 @@ class Ray_On_AML():
         import subprocess
         import threading
         import socket
+        import argparse
         import sys, uuid
         import platform
         from azureml.core import Run
+        import logging
         import ray
         run = Run.get_context()
         def flush(proc, proc_log):
