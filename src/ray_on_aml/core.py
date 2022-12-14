@@ -572,6 +572,7 @@ class Ray_On_AML():
         )
         
         self.cluster_job = self.ml_client.jobs.create_or_update(job)
+        headnode_private_ip= None
         if ci_is_head:
             ray.shutdown()
             ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True, logging_level=verbosity)
@@ -591,7 +592,7 @@ class Ray_On_AML():
             
         else:
             print("Waiting cluster to start and return head node's ip")
-            headnode_private_ip= None 
+             
             while headnode_private_ip is None:
                 headnode_private_ip= mlflow.get_run(run_id=self.cluster_job.id.split("/")[-1]).data.params.get('headnode') 
                 print('.', end ="")
@@ -615,7 +616,7 @@ class Ray_On_AML():
             params.pop("headnode","")
             params.pop("master_ip", "")
             self.mount_points = params
-            if self.headnode_private_ip:
+            if headnode_private_ip:
                 print("\n cluster is ready, head node ip ",headnode_private_ip)
             else:
                 print("\n Cluster started successfully")
