@@ -5,7 +5,7 @@ instrumentation_key = "28f3e437-7871-4f33-a75a-b5b3895438db"
 class _LoggerFactory:
 
     @staticmethod
-    def get_logger(verbosity=logging.DEBUG):
+    def get_logger(verbosity=logging.INFO):
         logger = logging.getLogger(__name__)
         logger.setLevel(verbosity)
         try:
@@ -47,3 +47,12 @@ class _LoggerFactory:
             "experiment_id": os.environ.get("AZUREML_EXPERIMENT_ID", ""),
             "location": location,
         }
+    @staticmethod
+    def track(info):
+        logger = _LoggerFactory.get_logger(verbosity=logging.INFO)
+        run_info = _LoggerFactory._try_get_run_info()
+        if run_info is not None:
+            info.update(run_info)        
+        logger.info(msg=info)
+
+

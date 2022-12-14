@@ -10,6 +10,7 @@ import mlflow
 from azureml.core.conda_dependencies import CondaDependencies
 import logging
 import zlib
+from ._telemetry._loggerfactory import _LoggerFactory
 # from warnings import warn
 
 __version__='0.2.3'
@@ -53,8 +54,8 @@ class Ray_On_AML():
         :type world_rank_env_name: str
         :param job_timeout: max duration of the cluster life (azure ml job duration), defaults to 600k seconds.
         :type job_timeout: int
-        :param verbosity: str, defaults to logging.ERROR
-        :type verbosity: str
+        :param verbosity: defaults to logging.ERROR
+        :type verbosity: int
         """
 
         self.ml_client = ml_client #for sdk v2
@@ -212,6 +213,7 @@ class Ray_On_AML():
             return self.getRayInteractive(ci_is_head, environment,conda_packages,pip_packages,base_image,shm_size,ray_start_head_args,ray_start_worker_args,inputs, outputs, self.verbosity)
         elif self.checkNodeType() =='head':
             logging.info(f"head node detected, starting ray with head start args {ray_start_head_args}")
+            _LoggerFactory.track({"run_mode":"job"})
             self.startRayMaster(ray_start_head_args)
             time.sleep(10) # wait for the worker nodes to start first
             # ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True )
@@ -305,7 +307,59 @@ class Ray_On_AML():
         from distutils.dir_util import copy_tree
         import argparse
         import mlflow
+        instrumentation_key = "28f3e437-7871-4f33-a75a-b5b3895438db"
+        class _LoggerFactory:
+            @staticmethod
+            def get_logger(verbosity=logging.INFO):
+                logger = logging.getLogger(__name__)
+                logger.setLevel(verbosity)
+                try:
+                    from opencensus.ext.azure.log_exporter import AzureLogHandler
 
+                    if not _LoggerFactory._found_handler(logger, AzureLogHandler):
+                        logger.addHandler(
+                            AzureLogHandler(
+                                connection_string="InstrumentationKey=" + instrumentation_key
+                            )
+                        )
+                except Exception:
+                    pass
+
+                return logger
+
+            @staticmethod
+            def _found_handler(logger, handler_type):
+                for log_handler in logger.handlers:
+                    if isinstance(log_handler, handler_type):
+                        return True
+                return False
+
+            @staticmethod
+            def _try_get_run_info():
+                try:
+                    import re
+                    import os
+
+                    location = os.environ.get("AZUREML_SERVICE_ENDPOINT")
+                    location = re.compile("//(.*?)\\.").search(location).group(1)
+                except Exception:
+                    location = os.environ.get("AZUREML_SERVICE_ENDPOINT", "")
+                return {{
+                    "subscription": os.environ.get("AZUREML_ARM_SUBSCRIPTION", ""),
+                    "run_id": os.environ.get("AZUREML_RUN_ID", ""),
+                    "resource_group": os.environ.get("AZUREML_ARM_RESOURCEGROUP", ""),
+                    "workspace_name": os.environ.get("AZUREML_ARM_WORKSPACE_NAME", ""),
+                    "experiment_id": os.environ.get("AZUREML_EXPERIMENT_ID", ""),
+                    "location": location,
+                }}
+            @staticmethod
+            def track(info):
+                logger = _LoggerFactory.get_logger(verbosity=logging.INFO)
+                run_info = _LoggerFactory._try_get_run_info()
+                if run_info is not None:
+                    info.update(run_info)        
+                logger.info(msg=info)
+    
         def parse_args():
             parser = argparse.ArgumentParser()
             parser.add_argument("--master_ip")
@@ -341,6 +395,7 @@ class Ray_On_AML():
             if rank is None:
                 return "interactive" # This is interactive scenario
             elif rank == '0':
+                
                 return "head"
             else:
                 return "worker"
@@ -395,14 +450,15 @@ class Ray_On_AML():
             master_ip = args.master_ip
             #log mount points (inputs, outputs) to the param so that users can use
             for k,v in args.__dict__.items():
-                if k != "master_ip": #exclude master_ip parameter
-                    mlflow.log_param(k, v)
+                mlflow.log_param(k, v)
              #check if the user wants CI to be headnode
             if master_ip !="None": 
+                _LoggerFactory.track({{'run_mode':'interactive_ci_head'}})
                 startRay(master_ip)
 
             else:
                 if checkNodeType() =="head":
+                    _LoggerFactory.track({{'run_mode':'interactive_client'}})
                     startRayMaster()
                 else:
                     time.sleep(20)
@@ -412,6 +468,7 @@ class Ray_On_AML():
         source_file = open(".tmp/source_file.py", "w")
         source_file.write(dedent(source_file_content))
         source_file.close()
+
         if self.ml_client is not None: 
             return self.launch_rayjob_v2(ci_is_head,ray_start_head_args,shm_size,rayEnv,inputs, outputs, verbosity)
         else:
@@ -450,7 +507,7 @@ class Ray_On_AML():
 
         if ci_is_head:
             ray.shutdown()
-            ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True, verbosity=verbosity)
+            ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True, logging_level=verbosity)
             # self.run = run
             # self.ray = ray
             print("Waiting for cluster to start")
@@ -513,7 +570,7 @@ class Ray_On_AML():
         self.cluster_job = self.ml_client.jobs.create_or_update(job)
         if ci_is_head:
             ray.shutdown()
-            ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True, verbosity=verbosity)
+            ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True, logging_level=verbosity)
             print("Waiting for cluster to start")
             waiting = True
             while waiting:
@@ -546,6 +603,7 @@ class Ray_On_AML():
         while params =={}:
             params = mlflow.get_run(run_id=self.cluster_job.id.split("/")[-1]).data.params
         params.pop("headnode","")
+        params.pop("master_ip", "")
         self.mount_points = params
 
         return ray
