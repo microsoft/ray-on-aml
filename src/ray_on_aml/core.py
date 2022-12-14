@@ -10,7 +10,7 @@ import mlflow
 from azureml.core.conda_dependencies import CondaDependencies
 import logging
 import zlib
-from ._telemetry._loggerfactory import _LoggerFactory
+from _telemetry._loggerfactory import _LoggerFactory
 # from warnings import warn
 
 __version__='0.2.3'
