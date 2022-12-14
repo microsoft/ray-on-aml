@@ -34,7 +34,7 @@ class Ray_On_AML():
     """
 
     def __init__(self,compute_cluster=None, ws=None, ml_client=None, exp_name ='ray_on_aml',
-                master_ip_env_name="AZ_BATCHAI_MPI_MASTER_NODE", world_rank_env_name="OMPI_COMM_WORLD_RANK",job_timeout=600000, maxnode=2, logging_level=logging.ERROR):
+                master_ip_env_name="AZ_BATCHAI_MPI_MASTER_NODE", world_rank_env_name="OMPI_COMM_WORLD_RANK",job_timeout=600000, maxnode=2, verbosity=logging.ERROR):
 
         """
         Init initializes Ray_On_Aml instances to manage life cycle of ray cluster.
@@ -53,8 +53,8 @@ class Ray_On_AML():
         :type world_rank_env_name: str
         :param job_timeout: max duration of the cluster life (azure ml job duration), defaults to 600k seconds.
         :type job_timeout: int
-        :param logging_level: logging level, defaults to logging.ERROR
-        :type logging_level: str
+        :param verbosity: str, defaults to logging.ERROR
+        :type verbosity: str
         """
 
         self.ml_client = ml_client #for sdk v2
@@ -64,7 +64,7 @@ class Ray_On_AML():
         self.master_ip_env_name=master_ip_env_name
         self.world_rank_env_name= world_rank_env_name
         self.num_node=maxnode # deprecated, moved to num_node in getRay() method. Will remove this arg in future 
-        self.logging_level = logging_level
+        self.verbosity = verbosity
         self.job_timeout = job_timeout
         if self.checkNodeType()=="interactive" and ((self.ws is None and self.ml_client is None) or self.compute_cluster is None):
             #Interactive scenario, workspace or ml client is required
@@ -209,7 +209,7 @@ class Ray_On_AML():
         self.pip_packages=pip_packages
 
         if self.checkNodeType()=="interactive":
-            return self.getRayInteractive(ci_is_head, environment,conda_packages,pip_packages,base_image,shm_size,ray_start_head_args,ray_start_worker_args,inputs, outputs, self.logging_level)
+            return self.getRayInteractive(ci_is_head, environment,conda_packages,pip_packages,base_image,shm_size,ray_start_head_args,ray_start_worker_args,inputs, outputs, self.verbosity)
         elif self.checkNodeType() =='head':
             logging.info(f"head node detected, starting ray with head start args {ray_start_head_args}")
             self.startRayMaster(ray_start_head_args)
@@ -278,7 +278,7 @@ class Ray_On_AML():
         return rayEnv
 
 
-    def getRayInteractive(self,ci_is_head, environment,conda_packages,pip_packages,base_image, shm_size,ray_start_head_args,ray_start_worker_args,inputs, outputs, logging_level):
+    def getRayInteractive(self,ci_is_head, environment,conda_packages,pip_packages,base_image, shm_size,ray_start_head_args,ray_start_worker_args,inputs, outputs, verbosity):
         """Create Compute Cluster, an entry script and Environment
         Create Compute Cluster if given name of Compute Cluster doesn't exist in Azure Machine Learning Workspace
         Get Azure Environement for Ray runtime
@@ -413,13 +413,13 @@ class Ray_On_AML():
         source_file.write(dedent(source_file_content))
         source_file.close()
         if self.ml_client is not None: 
-            return self.launch_rayjob_v2(ci_is_head,ray_start_head_args,shm_size,rayEnv,inputs, outputs, logging_level)
+            return self.launch_rayjob_v2(ci_is_head,ray_start_head_args,shm_size,rayEnv,inputs, outputs, verbosity)
         else:
-            return self.launch_rayjob_v1(ci_is_head,ray_start_head_args,shm_size,rayEnv,logging_level)
+            return self.launch_rayjob_v1(ci_is_head,ray_start_head_args,shm_size,rayEnv,verbosity)
 
 
 
-    def launch_rayjob_v1(self,ci_is_head,ray_start_head_args,shm_size,rayEnv,logging_level):
+    def launch_rayjob_v1(self,ci_is_head,ray_start_head_args,shm_size,rayEnv,verbosity):
         from azureml.core import  Experiment, Environment, ScriptRunConfig, Run
         from azureml.core.runconfig import DockerConfiguration,RunConfiguration
         from azureml.core.compute import ComputeTarget
@@ -450,7 +450,7 @@ class Ray_On_AML():
 
         if ci_is_head:
             ray.shutdown()
-            ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True, logging_level=logging_level)
+            ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True, verbosity=verbosity)
             # self.run = run
             # self.ray = ray
             print("Waiting for cluster to start")
@@ -475,7 +475,7 @@ class Ray_On_AML():
             print("\n cluster is ready, head node ip ",headnode_private_ip)
         return ray
 
-    def launch_rayjob_v2(self,ci_is_head, ray_start_head_args,shm_size,rayEnv,inputs, outputs, logging_level):
+    def launch_rayjob_v2(self,ci_is_head, ray_start_head_args,shm_size,rayEnv,inputs, outputs, verbosity):
         from azure.ai.ml import command
         if ci_is_head:
             master_ip = self.startRayMaster(ray_start_head_args)
@@ -513,7 +513,7 @@ class Ray_On_AML():
         self.cluster_job = self.ml_client.jobs.create_or_update(job)
         if ci_is_head:
             ray.shutdown()
-            ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True, logging_level=logging_level)
+            ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True, verbosity=verbosity)
             print("Waiting for cluster to start")
             waiting = True
             while waiting:
