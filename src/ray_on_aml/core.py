@@ -250,7 +250,7 @@ class Ray_On_AML():
         for conda_package in conda_packages:
             conda_dep.add_conda_package(conda_package)
 
-        for pip_package in pip_packages:
+        for pip_package in self.pip_packages:
             conda_dep.add_pip_package(pip_package)
         if self.ml_client is not None:
             try:
