@@ -3,7 +3,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__),'../../../'))
 from src.ray_on_aml.core import Ray_On_AML
 import ray
-from ray.util.dask import ray_dask_get, enable_dask_on_ray, disable_dask_on_ray
+from ray.util.dask import  enable_dask_on_ray
 import dask.dataframe as dd
 from adlfs import AzureBlobFileSystem
 import mlflow
@@ -17,24 +17,24 @@ def parse_args():
     # add arguments
     parser.add_argument("--datasets", type=str)
     # parse args
-    args,unknown  = parser.parse_args()
+    args  = parser.parse_args()
 
     # return args
-    return args,unknown
+    return args
 
 #demonstrate parallel data processing
 def get_data_count(path):
 
-    # abfs = AzureBlobFileSystem(account_name="azureopendatastorage",  container_name="isdweatherdatacontainer")
+    abfs = AzureBlobFileSystem(account_name="azureopendatastorage",  container_name="isdweatherdatacontainer")
 
-    # storage_options = {'account_name': 'azureopendatastorage'}
-    # ddf = dd.read_parquet('az://nyctlc/green/puYear=2019/puMonth=*/*.parquet', storage_options=storage_options)
-    data = ray.data.read_csv(path+"/iris.csv").repartition(4)
-    # data = ray.data.read_parquet("az://isdweatherdatacontainer/ISDWeather/year=2009", filesystem=abfs)
-    return data.count(),0
+    storage_options = {'account_name': 'azureopendatastorage'}
+    ddf = dd.read_parquet('az://nyctlc/green/puYear=2019/puMonth=*/*.parquet', storage_options=storage_options)
+    data1 = ray.data.read_csv(path+"/iris.csv").repartition(4)
+    data2 = ray.data.read_parquet("az://isdweatherdatacontainer/ISDWeather/year=2009", filesystem=abfs)
+    return data1.count(),data2.count, ddf.count().compute()
 
 if __name__ == "__main__":
-    ray_on_aml =Ray_On_AML(logging_level=logging.INFO)
+    ray_on_aml =Ray_On_AML(verbosity=logging.INFO)
     ray = ray_on_aml.getRay()
     enable_dask_on_ray()
     args = parse_args()

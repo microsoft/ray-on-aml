@@ -34,6 +34,7 @@ class _LoggerFactory:
         try:
             import re
             import os
+            import ray
 
             location = os.environ.get("AZUREML_SERVICE_ENDPOINT")
             location = re.compile("//(.*?)\\.").search(location).group(1)
@@ -46,6 +47,7 @@ class _LoggerFactory:
             "workspace_name": os.environ.get("AZUREML_ARM_WORKSPACE_NAME", ""),
             "experiment_id": os.environ.get("AZUREML_EXPERIMENT_ID", ""),
             "location": location,
+            "ray_version": ray.__version__,
         }
     @staticmethod
     def track(info):

@@ -21,7 +21,7 @@ __version__='0.2.3'
 #Set ci_is_head with False default value
 # Remove GPU support, instead provide environment as an object. Default is mpi 4.0 as base image
 #['adlfs==2021.10.0','pip==21.3.1']
-#['ray[default]', 'ray[air]','azureml-mlflow', 'dask==2021.12.0','pyarrow == 6.0.1','fsspec==2021.10.1','fastparquet==0.7.2','tabulate==0.8.9']
+
 class Ray_On_AML():
     """
     Ray_On_AML let you create ray cluster on top of azure ml compute cluster. It handles head node and worker nodes creation
@@ -239,6 +239,8 @@ class Ray_On_AML():
                 self.pip_packages = [f"ray[default]=={ray.__version__}"]+ self.pip_packages
             except:
                 raise Exception("Ray is not installed")
+        if "azureml-mlflow" not in str(self.pip_packages):
+            self.pip_packages = [f"azureml-mlflow"]+ self.pip_packages
         envPkgs = conda_packages + self.pip_packages 
         shEnvPkgs= zlib.adler32(bytes(str(envPkgs),"utf8"))
         if environment:
@@ -339,7 +341,7 @@ class Ray_On_AML():
                 try:
                     import re
                     import os
-
+                    import ray
                     location = os.environ.get("AZUREML_SERVICE_ENDPOINT")
                     location = re.compile("//(.*?)\\.").search(location).group(1)
                 except Exception:
@@ -351,6 +353,7 @@ class Ray_On_AML():
                     "workspace_name": os.environ.get("AZUREML_ARM_WORKSPACE_NAME", ""),
                     "experiment_id": os.environ.get("AZUREML_EXPERIMENT_ID", ""),
                     "location": location,
+                    "ray_version": ray.__version__,
                 }}
             @staticmethod
             def track(info):
@@ -508,8 +511,7 @@ class Ray_On_AML():
         if ci_is_head:
             ray.shutdown()
             ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True, logging_level=verbosity)
-            # self.run = run
-            # self.ray = ray
+
             print("Waiting for cluster to start")
             while True:
                 active_run = Run.get(self.ws,run.id)
@@ -518,6 +520,7 @@ class Ray_On_AML():
                     time.sleep(5)
                 else:
                     break 
+            print("\n Cluster started successfully")
         else:
             print("Waiting cluster to start and return head node ip")
             headnode_private_ip= None 
@@ -527,9 +530,10 @@ class Ray_On_AML():
                 time.sleep(5)
                 if mlflow.get_run(run_id=run.id)._info.status== 'FAILED':
                     print("Cluster startup failed, check detail at run")
-                    return None, None
+                    return None
             self.headnode_private_ip= headnode_private_ip
             print("\n cluster is ready, head node ip ",headnode_private_ip)
+
         return ray
 
     def launch_rayjob_v2(self,ci_is_head, ray_start_head_args,shm_size,rayEnv,inputs, outputs, verbosity):
@@ -584,7 +588,7 @@ class Ray_On_AML():
                     break
                 else:
                     time.sleep(5)
-            print("\n Cluster started successfully")
+            
         else:
             print("Waiting cluster to start and return head node's ip")
             headnode_private_ip= None 
@@ -594,17 +598,30 @@ class Ray_On_AML():
                 time.sleep(5)
                 if mlflow.get_run(run_id=self.cluster_job.id.split("/")[-1])._info.status== 'FAILED':
                     print("Cluster startup failed, check azure ml run")
-                    return None, None
+                    return None
             self.headnode_private_ip= headnode_private_ip
 
-            print("\n cluster is ready, head node ip ",headnode_private_ip)
 
         params = {}
-        while params =={}:
+        max_retry = 20
+        count =0
+        while count<max_retry:
             params = mlflow.get_run(run_id=self.cluster_job.id.split("/")[-1]).data.params
-        params.pop("headnode","")
-        params.pop("master_ip", "")
-        self.mount_points = params
+            count+=1
+            time.sleep(1)
+            if params !={}:
+                break
+        if params!={}:
+            params.pop("headnode","")
+            params.pop("master_ip", "")
+            self.mount_points = params
+            if self.headnode_private_ip:
+                print("\n cluster is ready, head node ip ",headnode_private_ip)
+            else:
+                print("\n Cluster started successfully")
+        else:
+            print("Cluster startup failed, check azure ml run")
+            return None
 
         return ray
 
