@@ -2,10 +2,10 @@ $schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
 code : ../../../
 command: >-
   python tests/automated_tests/test_ray_ml/test_ray_ml.py 
-environment: azureml:ray_ml_env@latest
-compute: azureml:gpunc6
+environment: azureml:ray-torch@latest
+compute: azureml:cpu-cluster
 resources:
-  instance_count: 2
+  instance_count: 3
 distribution: 
   type: mpi
 display_name: ray_ci_test_ray_ml

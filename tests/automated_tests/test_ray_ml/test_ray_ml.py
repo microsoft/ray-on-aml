@@ -16,7 +16,7 @@ from torch.utils.data import DataLoader
 import torch.nn.functional as F
 import ray.train.torch
 from ray import train
-from ray.train import Trainer
+from ray.train.torch import TorchTrainer
 from ray import tune
 # from ray.tune import Callback
 from ray.tune.schedulers import ASHAScheduler
@@ -160,7 +160,7 @@ if __name__ == "__main__":
     run = Run.get_context()
     ws = run.experiment.workspace
     ray_on_aml =Ray_On_AML()
-    ray = ray_on_aml.getRay(additional_ray_start_head_args="--temp-dir ./outputs",additional_ray_start_worker_args="--temp-dir ./outputs")
+    ray = ray_on_aml.getRay(ray_start_head_args="--temp-dir ./outputs",ray_start_worker_args="--temp-dir ./outputs")
 
     if ray: #in the headnode
         print("head node detected")
@@ -169,7 +169,7 @@ if __name__ == "__main__":
         print("torch.cuda.is_available: ", torch.cuda.is_available())
 
 
-        trainer = Trainer(backend="torch", num_workers=2,use_gpu =True)
+        trainer = TorchTrainer(backend="torch", num_workers=2,use_gpu =True)
         trainer.start()
         trainer.run(train_func, config={"num_epochs": 5})
         trainer.shutdown()

@@ -2,7 +2,7 @@ import logging
 
 instrumentation_key = "28f3e437-7871-4f33-a75a-b5b3895438db"
 
-class _LoggerFactory:
+class _EventLogger:
 
     @staticmethod
     def get_logger(name):
@@ -15,7 +15,7 @@ class _LoggerFactory:
 
             # Doc: Set up Azure Monitor for your Python application
             # https://learn.microsoft.com/en-us/azure/azure-monitor/app/opencensus-python#send-events
-            if not _LoggerFactory._found_handler(logger, AzureEventHandler):
+            if not _EventLogger._found_handler(logger, AzureEventHandler):
                 logger.addHandler(
                     AzureEventHandler(
                         connection_string="InstrumentationKey=" + instrumentation_key
@@ -25,6 +25,14 @@ class _LoggerFactory:
             pass
 
         return logger
+    
+    @staticmethod
+    def track_event(logger, name, properties=None):
+        custom_dimensions = _EventLogger._try_get_run_info()
+        if properties is not None:
+            custom_dimensions.update(properties)
+            
+        logger.info(name, extra=custom_dimensions)
 
     @staticmethod
     def _found_handler(logger, handler_type):

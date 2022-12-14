@@ -10,9 +10,12 @@ import mlflow
 from azureml.core.conda_dependencies import CondaDependencies
 import logging
 import zlib
-# from warnings import warn
+
+from ._telemetry._event_logger import _EventLogger
 
 __version__='0.2.3'
+
+module_event_logger = _EventLogger.get_logger(__name__)
 
 #planning
 #new feature only supported in v2 SDK
@@ -185,22 +188,22 @@ class Ray_On_AML():
         :param ci_is_head: Whether to use the current Compute Instance environment as head node, defaults False, in which case this returns the client IP for you to 
         initialize ray client.
         :type conda_packages: [str]
-        :param environment: [Appliable for interactive use only] Azure ML environment object, work for either SDK v1 or v2. This is only used when you need to customize 
+        :param environment: [Applicable for interactive use only] Azure ML environment object, work for either SDK v1 or v2. This is only used when you need to customize 
         ray run time environment for advanced use cases. If you want to run GPU cluster, specify a pre-created GPU environment here
         :type environment: ~azure.ai.ml.entities.Environment or ~azureml.core.environment.Environment or str
-        :param conda_packages: [Appliable for interactive use only] list of conda packages to add to the cluster
+        :param conda_packages: [Applicable for interactive use only] list of conda packages to add to the cluster
         :type conda_packages: [str]
-        :param pip_packages: [Appliable for interactive use only] list of pip packages to add to the cluster. This is where you can customize ray packages such ["ray[air]==2.1.0","ray[rllib]"]
+        :param pip_packages: [Applicable for interactive use only] list of pip packages to add to the cluster. This is where you can customize ray packages such ["ray[air]==2.1.0","ray[rllib]"]
         if you do not provide a ray package in pip, the package will take the version of the ray in your compute instance and add "ray[default]==YOUR_VERSION" 
         to the list.
         :type pip_packages: [str]
-        :param base_image: [Appliable for interactive use only] base image of the azure ml environment on which ray runs, defaults to mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04
+        :param base_image: [Applicable for interactive use only] base image of the azure ml environment on which ray runs, defaults to mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04
         :type base_image: str
         :param shm_size: shm_size for the cluster environment, defaults to 8g, can be adjusted to increase the shm_size required by Ray.
         :type shm_size: str
         :param ray_start_head_args: Additional argument values to start ray head. Defaults to empty ""
         :type ray_start_head_args: str
-        :param ray_start_worker_args: Additional argument values to start ray workders.Defaults to empty ""
+        :param ray_start_worker_args: Additional argument values to start ray workers.Defaults to empty ""
         :type ray_start_worker_args: str
         """
         self.environment = environment
@@ -208,9 +211,17 @@ class Ray_On_AML():
         self.conda_packages=conda_packages
         self.pip_packages=pip_packages
 
-        if self.checkNodeType()=="interactive":
+        node_type = self.checkNodeType()
+        
+        _EventLogger.track_event(module_event_logger, "getRay", {
+            "version": __version__,
+            "node_type": node_type,
+            "ci_is_head": ci_is_head
+        })
+
+        if node_type=="interactive":
             return self.getRayInteractive(ci_is_head, environment,conda_packages,pip_packages,base_image,shm_size,ray_start_head_args,ray_start_worker_args,self.logging_level)
-        elif self.checkNodeType() =='head':
+        elif node_type =='head':
             logging.info(f"head node detected, starting ray with head start args {ray_start_head_args}")
             self.startRayMaster(ray_start_head_args)
             time.sleep(10) # wait for the worker nodes to start first
@@ -223,7 +234,7 @@ class Ray_On_AML():
 
 
     def getRayEnvironment(self,environment,conda_packages,pip_packages,base_image):
-        """Manager Azure Machine Learning Environement 
+        """Manager Azure Machine Learning Environment 
         If 'rayEnv__version__' exists in Azure Machine Learning Environment, use the existing one.
         If not, create new one and register it in AML workspace.
         Return
