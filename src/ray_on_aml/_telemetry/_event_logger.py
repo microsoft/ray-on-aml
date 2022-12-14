@@ -46,6 +46,7 @@ class _EventLogger:
         try:
             import re
             import os
+            import ray
 
             location = os.environ.get("AZUREML_SERVICE_ENDPOINT")
             location = re.compile("//(.*?)\\.").search(location).group(1)
@@ -58,4 +59,14 @@ class _EventLogger:
             "workspace_name": os.environ.get("AZUREML_ARM_WORKSPACE_NAME", ""),
             "experiment_id": os.environ.get("AZUREML_EXPERIMENT_ID", ""),
             "location": location,
+            "ray_version": ray.__version__,
         }
+    # @staticmethod
+    # def track(info):
+    #     logger = _LoggerFactory.get_logger(verbosity=logging.INFO)
+    #     run_info = _LoggerFactory._try_get_run_info()
+    #     if run_info is not None:
+    #         info.update(run_info)        
+    #     logger.info(msg=info)
+
+
