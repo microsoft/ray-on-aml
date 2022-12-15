@@ -11,7 +11,7 @@ from azureml.core.conda_dependencies import CondaDependencies
 import logging
 import zlib
 import sys
-from _event_logger import _EventLogger
+from ._event_logger import _EventLogger
 
 __version__='0.2.4'
 
