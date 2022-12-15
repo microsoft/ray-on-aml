@@ -1,7 +1,8 @@
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__),'../../../'))
-from src.ray_on_aml.core import Ray_On_AML
+# sys.path.append(os.path.join(os.path.dirname(__file__),'../../../'))
+# from src.ray_on_aml.core import Ray_On_AML
+from ray_on_aml.core import Ray_On_AML
 import ray
 from ray.util.dask import  enable_dask_on_ray
 import dask.dataframe as dd
