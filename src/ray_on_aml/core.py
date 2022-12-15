@@ -10,6 +10,8 @@ import mlflow
 from azureml.core.conda_dependencies import CondaDependencies
 import logging
 import zlib
+import sys
+sys.path.append('./')
 from _telemetry._event_logger import _EventLogger
 # from warnings import warn
 
