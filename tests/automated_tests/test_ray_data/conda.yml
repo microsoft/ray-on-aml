@@ -7,6 +7,7 @@ dependencies:
       - azureml-defaults
       - azureml-mlflow
       - ray[data]
+      - git+https://github.com/microsoft/ray-on-aml.git@james-dev
       - adlfs
       - dask==2022.2.0
       - pyarrow==6.0.1

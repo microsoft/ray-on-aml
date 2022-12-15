@@ -10,17 +10,13 @@ import mlflow
 from azureml.core.conda_dependencies import CondaDependencies
 import logging
 import zlib
-from ._telemetry._loggerfactory import _LoggerFactory
-# from warnings import warn
+import sys
+from ._telemetry._event_logger import _EventLogger
 
-__version__='0.2.3'
+__version__='0.2.4'
 
-#planning
-#new feature only supported in v2 SDK
-#adding environment object as string
-#Set ci_is_head with False default value
-# Remove GPU support, instead provide environment as an object. Default is mpi 4.0 as base image
-#['adlfs==2021.10.0','pip==21.3.1']
+module_event_logger = _EventLogger.get_logger(__name__)
+
 
 class Ray_On_AML():
     """
@@ -213,7 +209,7 @@ class Ray_On_AML():
             return self.getRayInteractive(ci_is_head, environment,conda_packages,pip_packages,base_image,shm_size,ray_start_head_args,ray_start_worker_args,inputs, outputs, self.verbosity)
         elif self.checkNodeType() =='head':
             logging.info(f"head node detected, starting ray with head start args {ray_start_head_args}")
-            _LoggerFactory.track({"run_mode":"job"})
+            _EventLogger.track_event(module_event_logger, "getRay",{"run_mode":"job"})
             self.startRayMaster(ray_start_head_args)
             time.sleep(10) # wait for the worker nodes to start first
             # ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True )
@@ -310,24 +306,37 @@ class Ray_On_AML():
         import argparse
         import mlflow
         instrumentation_key = "28f3e437-7871-4f33-a75a-b5b3895438db"
-        class _LoggerFactory:
-            @staticmethod
-            def get_logger(verbosity=logging.INFO):
-                logger = logging.getLogger(__name__)
-                logger.setLevel(verbosity)
-                try:
-                    from opencensus.ext.azure.log_exporter import AzureLogHandler
+        class _EventLogger:
 
-                    if not _LoggerFactory._found_handler(logger, AzureLogHandler):
+            @staticmethod
+            def get_logger(name):
+                logger = logging.getLogger(__name__).getChild(name)
+                logger.propagate = False
+                logger.setLevel(logging.INFO)
+            
+                try:
+                    from opencensus.ext.azure.log_exporter import AzureEventHandler
+
+                    # Doc: Set up Azure Monitor for your Python application
+                    # https://learn.microsoft.com/en-us/azure/azure-monitor/app/opencensus-python#send-events
+                    if not _EventLogger._found_handler(logger, AzureEventHandler):
                         logger.addHandler(
-                            AzureLogHandler(
+                            AzureEventHandler(
                                 connection_string="InstrumentationKey=" + instrumentation_key
                             )
                         )
-                except Exception:
+                except ImportError:
                     pass
 
                 return logger
+            
+            @staticmethod
+            def track_event(logger, name, properties=None):
+                custom_dimensions = _EventLogger._try_get_run_info()
+                if properties is not None:
+                    custom_dimensions.update(properties)
+                    
+                logger.info(name, extra={{"custom_dimensions": custom_dimensions}})
 
             @staticmethod
             def _found_handler(logger, handler_type):
@@ -342,6 +351,7 @@ class Ray_On_AML():
                     import re
                     import os
                     import ray
+
                     location = os.environ.get("AZUREML_SERVICE_ENDPOINT")
                     location = re.compile("//(.*?)\\.").search(location).group(1)
                 except Exception:
@@ -355,13 +365,6 @@ class Ray_On_AML():
                     "location": location,
                     "ray_version": ray.__version__,
                 }}
-            @staticmethod
-            def track(info):
-                logger = _LoggerFactory.get_logger(verbosity=logging.INFO)
-                run_info = _LoggerFactory._try_get_run_info()
-                if run_info is not None:
-                    info.update(run_info)        
-                logger.info(msg=info)
     
         def parse_args():
             parser = argparse.ArgumentParser()
@@ -448,7 +451,7 @@ class Ray_On_AML():
             if return_code == 0:
                 time.sleep({0})
         if __name__ == "__main__":
-
+            module_event_logger = _EventLogger.get_logger(__name__)
             args = parse_args()
             master_ip = args.master_ip
             #log mount points (inputs, outputs) to the param so that users can use
@@ -456,12 +459,12 @@ class Ray_On_AML():
                 mlflow.log_param(k, v)
              #check if the user wants CI to be headnode
             if master_ip !="None": 
-                _LoggerFactory.track({{'run_mode':'interactive_ci_head'}})
+                _EventLogger.track_event(module_event_logger, "getRay",{{"run_mode":"interactive_ci_head"}})
                 startRay(master_ip)
 
             else:
                 if checkNodeType() =="head":
-                    _LoggerFactory.track({{'run_mode':'interactive_client'}})
+                    _EventLogger.track_event(module_event_logger, "getRay",{{"run_mode":"interactive_client"}})
                     startRayMaster()
                 else:
                     time.sleep(20)
