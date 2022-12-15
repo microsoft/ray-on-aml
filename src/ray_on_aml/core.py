@@ -11,11 +11,9 @@ from azureml.core.conda_dependencies import CondaDependencies
 import logging
 import zlib
 import sys
-sys.path.append('./')
-from _telemetry._event_logger import _EventLogger
-# from warnings import warn
+from _event_logger import _EventLogger
 
-__version__='0.2.3'
+__version__='0.2.4'
 
 module_event_logger = _EventLogger.get_logger(__name__)
 
