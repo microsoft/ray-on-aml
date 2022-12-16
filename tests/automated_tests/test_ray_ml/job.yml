@@ -3,9 +3,10 @@ code : ../../../
 command: >-
   python tests/automated_tests/test_ray_ml/test_ray_ml.py 
 environment: azureml:ray_ml_env@latest
-compute: azureml:gpunc6
+compute: azureml:nc6s
 resources:
   instance_count: 2
+  shm_size: 24g
 distribution: 
   type: mpi
 display_name: ray_ci_test_ray_ml

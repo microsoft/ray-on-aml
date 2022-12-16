@@ -2,8 +2,9 @@ channels:
   - anaconda
   - conda-forge
 dependencies:
-  - python=3.7.10
+  - python=3.8.5
   - pip:
+      - azureml-mlflow
       - azureml-defaults
       - gym==0.21.0
       - dm-tree
@@ -14,5 +15,4 @@ dependencies:
       - tensorflow
       - scikit-image
   - matplotlib
-  - pip < 20.3
 name: azureml_cfc9e96c7b0b43301a0ba4c6bd3548e5

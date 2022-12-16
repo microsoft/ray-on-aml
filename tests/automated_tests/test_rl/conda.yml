@@ -2,17 +2,16 @@ channels:
   - anaconda
   - conda-forge
 dependencies:
-  - python=3.7.10
+  - python=3.8.5
   - pip:
       - azureml-defaults
       - gym==0.21.0
       - dm-tree
       - git+https://github.com/microsoft/ray-on-aml.git@james-dev
-      - ray[rllib,tune]==0.8.7
+      - ray[air]
       - torch
       - torchvision==0.8.1
       - tensorflow
       - scikit-image
   - matplotlib
-  - pip < 20.3
 name: azureml_cfc9e96c7b0b43301a0ba4c6bd3548e5

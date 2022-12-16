@@ -41,7 +41,8 @@ channels:
 dependencies:
 - python=3.8.5
 - pip:
-    - azureml-mlflow==1.48.0
+    - azureml-mlflow
+    - azureml-defaults
     - ray-on-aml
     - ray[data]==2.2.0 #add ray packages and versions
     - ..other packages

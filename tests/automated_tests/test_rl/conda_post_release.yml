@@ -8,7 +8,7 @@ dependencies:
       - gym==0.21.0
       - dm-tree
       - git+https://github.com/microsoft/ray-on-aml.git@james-dev
-      - ray[rllib,tune]==0.8.7
+      - ray[air]
       - torch
       - torchvision==0.8.1
       - tensorflow

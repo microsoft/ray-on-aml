@@ -1,8 +1,0 @@
-Requirement already satisfied: torch in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (1.13.0)
-Requirement already satisfied: typing-extensions in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from torch) (4.4.0)
-Requirement already satisfied: nvidia-cublas-cu11==11.10.3.66 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from torch) (11.10.3.66)
-Requirement already satisfied: nvidia-cudnn-cu11==8.5.0.96 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from torch) (8.5.0.96)
-Requirement already satisfied: nvidia-cuda-runtime-cu11==11.7.99 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from torch) (11.7.99)
-Requirement already satisfied: nvidia-cuda-nvrtc-cu11==11.7.99 in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from torch) (11.7.99)
-Requirement already satisfied: setuptools in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from nvidia-cublas-cu11==11.10.3.66->torch) (65.5.0)
-Requirement already satisfied: wheel in /anaconda/envs/azureml_py310_sdkv2/lib/python3.10/site-packages (from nvidia-cublas-cu11==11.10.3.66->torch) (0.37.1)
