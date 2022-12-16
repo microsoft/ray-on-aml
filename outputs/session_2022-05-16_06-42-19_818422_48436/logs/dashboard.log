@@ -1,0 +1,271 @@
+2022-05-16 06:42:22,767	INFO head.py:122 -- Dashboard head grpc address: 127.0.0.1:54953
+2022-05-16 06:42:22,771	INFO utils.py:99 -- Get all modules by type: DashboardHeadModule
+2022-05-16 06:42:25,668	INFO utils.py:132 -- Available modules: [<class 'ray.dashboard.modules.actor.actor_head.ActorHead'>, <class 'ray.dashboard.modules.event.event_head.EventHead'>, <class 'ray.dashboard.modules.job.job_head.JobHead'>, <class 'ray.dashboard.modules.log.log_head.LogHead'>, <class 'ray.dashboard.modules.node.node_head.NodeHead'>, <class 'ray.dashboard.modules.reporter.reporter_head.ReportHead'>, <class 'ray.dashboard.modules.serve.serve_head.ServeHead'>, <class 'ray.dashboard.modules.snapshot.snapshot_head.APIHead'>, <class 'ray.dashboard.modules.tune.tune_head.TuneController'>, <class 'ray.dashboard.modules.usage_stats.usage_stats_head.UsageStatsHead'>]
+2022-05-16 06:42:25,668	INFO head.py:183 -- Loading DashboardHeadModule: <class 'ray.dashboard.modules.actor.actor_head.ActorHead'>
+2022-05-16 06:42:25,684	INFO head.py:183 -- Loading DashboardHeadModule: <class 'ray.dashboard.modules.event.event_head.EventHead'>
+2022-05-16 06:42:25,685	INFO head.py:183 -- Loading DashboardHeadModule: <class 'ray.dashboard.modules.job.job_head.JobHead'>
+2022-05-16 06:42:25,685	INFO head.py:183 -- Loading DashboardHeadModule: <class 'ray.dashboard.modules.log.log_head.LogHead'>
+2022-05-16 06:42:25,685	INFO head.py:183 -- Loading DashboardHeadModule: <class 'ray.dashboard.modules.node.node_head.NodeHead'>
+2022-05-16 06:42:25,685	INFO head.py:183 -- Loading DashboardHeadModule: <class 'ray.dashboard.modules.reporter.reporter_head.ReportHead'>
+2022-05-16 06:42:25,685	INFO head.py:183 -- Loading DashboardHeadModule: <class 'ray.dashboard.modules.serve.serve_head.ServeHead'>
+2022-05-16 06:42:25,685	INFO head.py:183 -- Loading DashboardHeadModule: <class 'ray.dashboard.modules.snapshot.snapshot_head.APIHead'>
+2022-05-16 06:42:25,685	INFO head.py:183 -- Loading DashboardHeadModule: <class 'ray.dashboard.modules.tune.tune_head.TuneController'>
+2022-05-16 06:42:25,685	INFO head.py:183 -- Loading DashboardHeadModule: <class 'ray.dashboard.modules.usage_stats.usage_stats_head.UsageStatsHead'>
+2022-05-16 06:42:25,688	INFO head.py:188 -- Loaded 10 modules.
+2022-05-16 06:42:25,688	INFO http_server_head.py:61 -- Setup static dir for dashboard: c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\dashboard\client\build
+2022-05-16 06:42:25,688	INFO http_server_head.py:131 -- Dashboard head http address: 127.0.0.1:8265
+2022-05-16 06:42:25,688	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /logical/actor_groups> -> <function ActorHead.get_actor_groups at 0x0000020259F89C10>
+2022-05-16 06:42:25,688	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /logical/actors> -> <function ActorHead.get_all_actors[cache ttl=2, max_size=128] at 0x0000020259F89D30>
+2022-05-16 06:42:25,688	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /logical/kill_actor> -> <function ActorHead.kill_actor at 0x0000020259F89EE0>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /events> -> <function EventHead.get_event[cache ttl=2, max_size=128] at 0x000002025B21BF70>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /api/version> -> <function JobHead.get_version at 0x000002025B3A55E0>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <DynamicResource  /api/packages/{protocol}/{package_name}> -> <function JobHead.get_package at 0x000002025B3A5670>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [PUT] <DynamicResource  /api/packages/{protocol}/{package_name}> -> <function JobHead.upload_package at 0x000002025B3A5820>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [POST] <PlainResource  /api/jobs/> -> <function JobHead.submit_job at 0x000002025B3A59D0>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [POST] <DynamicResource  /api/jobs/{job_id}/stop> -> <function JobHead.stop_job at 0x000002025B3A5B80>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <DynamicResource  /api/jobs/{job_id}> -> <function JobHead.get_job_info at 0x000002025B3A5D30>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /api/jobs/> -> <function JobHead.list_jobs at 0x000002025B3A5EE0>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <DynamicResource  /api/jobs/{job_id}/logs> -> <function JobHead.get_job_logs at 0x000002025B3A10D0>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <DynamicResource  /api/jobs/{job_id}/logs/tail> -> <function JobHead.tail_job_logs at 0x000002025B3A1280>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /log_index> -> <function LogHead.get_log_index at 0x000002025B3A1A60>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /log_proxy> -> <function LogHead.get_log_from_proxy at 0x000002025B3A1B80>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /nodes> -> <function NodeHead.get_all_nodes[cache ttl=2, max_size=128] at 0x000002025B38E550>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <DynamicResource  /nodes/{node_id}> -> <function NodeHead.get_node[cache ttl=2, max_size=128] at 0x000002025B38E700>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /memory/memory_table> -> <function NodeHead.get_memory_table at 0x000002025B38E8B0>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /memory/set_fetch> -> <function NodeHead.set_fetch_memory_info at 0x000002025B38E9D0>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /node_logs> -> <function NodeHead.get_logs at 0x000002025B38EAF0>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /node_errors> -> <function NodeHead.get_errors at 0x000002025B38EC10>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /api/launch_profiling> -> <function ReportHead.launch_profiling at 0x000002025B451700>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /api/ray_config> -> <function ReportHead.get_ray_config at 0x000002025B451820>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /api/cluster_status> -> <function ReportHead.get_cluster_status at 0x000002025B451940>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /api/serve/deployments/> -> <function ServeHead.get_all_deployments at 0x000002025B488280>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /api/serve/deployments/status> -> <function ServeHead.get_all_deployment_statuses at 0x000002025B488430>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [DELETE] <PlainResource  /api/serve/deployments/> -> <function ServeHead.delete_serve_application at 0x000002025B4885E0>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [PUT] <PlainResource  /api/serve/deployments/> -> <function ServeHead.put_all_deployments at 0x000002025B488790>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /api/actors/kill> -> <function APIHead.kill_actor_gcs at 0x000002025B488CA0>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /api/snapshot> -> <function APIHead.snapshot at 0x000002025B488DC0>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /tune/info> -> <function TuneController.tune_info at 0x000002025C58C790>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /tune/availability> -> <function TuneController.get_availability at 0x000002025C58C8B0>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /tune/set_experiment> -> <function TuneController.set_tune_experiment at 0x000002025C58C9D0>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /tune/enable_tensorboard> -> <function TuneController.enable_tensorboard at 0x000002025C58CAF0>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <StaticResource  /logs -> WindowsPath('C:/Users/janguy/OneDrive - Microsoft/Documents/projects/developments/ray-on-aml/outputs/session_2022-05-16_06-42-19_818422_48436/logs')> -> <bound method StaticResource._handle of <StaticResource  /logs -> WindowsPath('C:/Users/janguy/OneDrive - Microsoft/Documents/projects/developments/ray-on-aml/outputs/session_2022-05-16_06-42-19_818422_48436/logs')>>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /> -> <function HttpServerDashboardHead.get_index at 0x000002025C591820>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <PlainResource  /favicon.ico> -> <function HttpServerDashboardHead.get_favicon at 0x000002025C591940>
+2022-05-16 06:42:25,703	INFO http_server_head.py:137 -- <ResourceRoute [GET] <StaticResource  /static -> WindowsPath('C:/Users/janguy/Anaconda3/envs/dlresearch/Lib/site-packages/ray/dashboard/client/build/static')> -> <bound method StaticResource._handle of <StaticResource  /static -> WindowsPath('C:/Users/janguy/Anaconda3/envs/dlresearch/Lib/site-packages/ray/dashboard/client/build/static')>>
+2022-05-16 06:42:25,703	INFO http_server_head.py:138 -- Registered 38 routes.
+2022-05-16 06:42:25,703	INFO datacenter.py:70 -- Purge data.
+2022-05-16 06:42:25,703	INFO event_utils.py:123 -- Monitor events logs modified after 1652706744.4551783 on outputs\session_2022-05-16_06-42-19_818422_48436\logs\events, the source types are ['GCS'].
+2022-05-16 06:42:25,703	INFO usage_stats_head.py:89 -- Usage reporting is disabled.
+2022-05-16 06:42:25,703	INFO actor_head.py:105 -- Getting all actor info from GCS.
+2022-05-16 06:42:25,724	INFO actor_head.py:131 -- Received 0 actor info from GCS.
+2022-05-16 06:46:06,807	ERROR node_head.py:259 -- Error updating node stats of 9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3.
+Traceback (most recent call last):
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\dashboard\modules\node\node_head.py", line 250, in _update_node_stats
+    reply = await stub.GetNodeStats(
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\grpc\aio\_call.py", line 290, in __await__
+    raise _create_rpc_error(self._cython_call._initial_metadata,
+grpc.aio._call.AioRpcError: <AioRpcError of RPC that terminated with:
+	status = StatusCode.DEADLINE_EXCEEDED
+	details = "Deadline Exceeded"
+	debug_error_string = "{"created":"@1652708766.806000000","description":"Deadline Exceeded","file":"src/core/ext/filters/deadline/deadline_filter.cc","file_line":81,"grpc_status":4}"
+>
+2022-05-16 06:46:08,883	ERROR node_head.py:259 -- Error updating node stats of 9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3.
+Traceback (most recent call last):
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\dashboard\modules\node\node_head.py", line 250, in _update_node_stats
+    reply = await stub.GetNodeStats(
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\grpc\aio\_call.py", line 290, in __await__
+    raise _create_rpc_error(self._cython_call._initial_metadata,
+grpc.aio._call.AioRpcError: <AioRpcError of RPC that terminated with:
+	status = StatusCode.UNAVAILABLE
+	details = "failed to connect to all addresses"
+	debug_error_string = "{"created":"@1652708768.883000000","description":"Failed to pick subchannel","file":"src/core/ext/filters/client_channel/client_channel.cc","file_line":3187,"referenced_errors":[{"created":"@1652708768.883000000","description":"failed to connect to all addresses","file":"src/core/lib/transport/error_utils.cc","file_line":146,"grpc_status":14}]}"
+>
+2022-05-16 06:46:10,926	ERROR node_head.py:259 -- Error updating node stats of 9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3.
+Traceback (most recent call last):
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\dashboard\modules\node\node_head.py", line 250, in _update_node_stats
+    reply = await stub.GetNodeStats(
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\grpc\aio\_call.py", line 290, in __await__
+    raise _create_rpc_error(self._cython_call._initial_metadata,
+grpc.aio._call.AioRpcError: <AioRpcError of RPC that terminated with:
+	status = StatusCode.UNAVAILABLE
+	details = "failed to connect to all addresses"
+	debug_error_string = "{"created":"@1652708770.926000000","description":"Failed to pick subchannel","file":"src/core/ext/filters/client_channel/client_channel.cc","file_line":3187,"referenced_errors":[{"created":"@1652708770.926000000","description":"failed to connect to all addresses","file":"src/core/lib/transport/error_utils.cc","file_line":146,"grpc_status":14}]}"
+>
+2022-05-16 06:46:11,929	ERROR node_head.py:259 -- Error updating node stats of 9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3.
+Traceback (most recent call last):
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\dashboard\modules\node\node_head.py", line 250, in _update_node_stats
+    reply = await stub.GetNodeStats(
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\grpc\aio\_call.py", line 290, in __await__
+    raise _create_rpc_error(self._cython_call._initial_metadata,
+grpc.aio._call.AioRpcError: <AioRpcError of RPC that terminated with:
+	status = StatusCode.UNAVAILABLE
+	details = "failed to connect to all addresses"
+	debug_error_string = "{"created":"@1652708771.930000000","description":"Failed to pick subchannel","file":"src/core/ext/filters/client_channel/client_channel.cc","file_line":3187,"referenced_errors":[{"created":"@1652708771.930000000","description":"failed to connect to all addresses","file":"src/core/lib/transport/error_utils.cc","file_line":146,"grpc_status":14}]}"
+>
+2022-05-16 06:46:13,991	ERROR node_head.py:259 -- Error updating node stats of 9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3.
+Traceback (most recent call last):
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\dashboard\modules\node\node_head.py", line 250, in _update_node_stats
+    reply = await stub.GetNodeStats(
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\grpc\aio\_call.py", line 290, in __await__
+    raise _create_rpc_error(self._cython_call._initial_metadata,
+grpc.aio._call.AioRpcError: <AioRpcError of RPC that terminated with:
+	status = StatusCode.UNAVAILABLE
+	details = "failed to connect to all addresses"
+	debug_error_string = "{"created":"@1652708773.991000000","description":"Failed to pick subchannel","file":"src/core/ext/filters/client_channel/client_channel.cc","file_line":3187,"referenced_errors":[{"created":"@1652708773.991000000","description":"failed to connect to all addresses","file":"src/core/lib/transport/error_utils.cc","file_line":146,"grpc_status":14}]}"
+>
+2022-05-16 06:46:15,013	ERROR node_head.py:259 -- Error updating node stats of 9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3.
+Traceback (most recent call last):
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\dashboard\modules\node\node_head.py", line 250, in _update_node_stats
+    reply = await stub.GetNodeStats(
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\grpc\aio\_call.py", line 290, in __await__
+    raise _create_rpc_error(self._cython_call._initial_metadata,
+grpc.aio._call.AioRpcError: <AioRpcError of RPC that terminated with:
+	status = StatusCode.UNAVAILABLE
+	details = "failed to connect to all addresses"
+	debug_error_string = "{"created":"@1652708775.013000000","description":"Failed to pick subchannel","file":"src/core/ext/filters/client_channel/client_channel.cc","file_line":3187,"referenced_errors":[{"created":"@1652708775.013000000","description":"failed to connect to all addresses","file":"src/core/lib/transport/error_utils.cc","file_line":146,"grpc_status":14}]}"
+>
+2022-05-16 06:46:17,290	ERROR node_head.py:259 -- Error updating node stats of 9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3.
+Traceback (most recent call last):
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\dashboard\modules\node\node_head.py", line 250, in _update_node_stats
+    reply = await stub.GetNodeStats(
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\grpc\aio\_call.py", line 290, in __await__
+    raise _create_rpc_error(self._cython_call._initial_metadata,
+grpc.aio._call.AioRpcError: <AioRpcError of RPC that terminated with:
+	status = StatusCode.UNAVAILABLE
+	details = "failed to connect to all addresses"
+	debug_error_string = "{"created":"@1652708777.290000000","description":"Failed to pick subchannel","file":"src/core/ext/filters/client_channel/client_channel.cc","file_line":3187,"referenced_errors":[{"created":"@1652708777.290000000","description":"failed to connect to all addresses","file":"src/core/lib/transport/error_utils.cc","file_line":146,"grpc_status":14}]}"
+>
+2022-05-16 06:46:18,300	ERROR node_head.py:259 -- Error updating node stats of 9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3.
+Traceback (most recent call last):
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\dashboard\modules\node\node_head.py", line 250, in _update_node_stats
+    reply = await stub.GetNodeStats(
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\grpc\aio\_call.py", line 290, in __await__
+    raise _create_rpc_error(self._cython_call._initial_metadata,
+grpc.aio._call.AioRpcError: <AioRpcError of RPC that terminated with:
+	status = StatusCode.UNAVAILABLE
+	details = "failed to connect to all addresses"
+	debug_error_string = "{"created":"@1652708778.300000000","description":"Failed to pick subchannel","file":"src/core/ext/filters/client_channel/client_channel.cc","file_line":3187,"referenced_errors":[{"created":"@1652708778.300000000","description":"failed to connect to all addresses","file":"src/core/lib/transport/error_utils.cc","file_line":146,"grpc_status":14}]}"
+>
+2022-05-16 06:46:19,312	ERROR node_head.py:259 -- Error updating node stats of 9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3.
+Traceback (most recent call last):
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\dashboard\modules\node\node_head.py", line 250, in _update_node_stats
+    reply = await stub.GetNodeStats(
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\grpc\aio\_call.py", line 290, in __await__
+    raise _create_rpc_error(self._cython_call._initial_metadata,
+grpc.aio._call.AioRpcError: <AioRpcError of RPC that terminated with:
+	status = StatusCode.UNAVAILABLE
+	details = "failed to connect to all addresses"
+	debug_error_string = "{"created":"@1652708779.312000000","description":"Failed to pick subchannel","file":"src/core/ext/filters/client_channel/client_channel.cc","file_line":3187,"referenced_errors":[{"created":"@1652708779.312000000","description":"failed to connect to all addresses","file":"src/core/lib/transport/error_utils.cc","file_line":146,"grpc_status":14}]}"
+>
+2022-05-16 06:46:20,324	ERROR node_head.py:259 -- Error updating node stats of 9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3.
+Traceback (most recent call last):
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\dashboard\modules\node\node_head.py", line 250, in _update_node_stats
+    reply = await stub.GetNodeStats(
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\grpc\aio\_call.py", line 290, in __await__
+    raise _create_rpc_error(self._cython_call._initial_metadata,
+grpc.aio._call.AioRpcError: <AioRpcError of RPC that terminated with:
+	status = StatusCode.UNAVAILABLE
+	details = "failed to connect to all addresses"
+	debug_error_string = "{"created":"@1652708780.325000000","description":"Failed to pick subchannel","file":"src/core/ext/filters/client_channel/client_channel.cc","file_line":3187,"referenced_errors":[{"created":"@1652708780.325000000","description":"failed to connect to all addresses","file":"src/core/lib/transport/error_utils.cc","file_line":146,"grpc_status":14}]}"
+>
+2022-05-16 06:46:21,326	ERROR node_head.py:259 -- Error updating node stats of 9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3.
+Traceback (most recent call last):
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\dashboard\modules\node\node_head.py", line 250, in _update_node_stats
+    reply = await stub.GetNodeStats(
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\grpc\aio\_call.py", line 290, in __await__
+    raise _create_rpc_error(self._cython_call._initial_metadata,
+grpc.aio._call.AioRpcError: <AioRpcError of RPC that terminated with:
+	status = StatusCode.UNAVAILABLE
+	details = "failed to connect to all addresses"
+	debug_error_string = "{"created":"@1652708781.326000000","description":"Failed to pick subchannel","file":"src/core/ext/filters/client_channel/client_channel.cc","file_line":3187,"referenced_errors":[{"created":"@1652708781.326000000","description":"failed to connect to all addresses","file":"src/core/lib/transport/error_utils.cc","file_line":146,"grpc_status":14}]}"
+>
+2022-05-16 06:46:23,969	ERROR node_head.py:259 -- Error updating node stats of 9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3.
+Traceback (most recent call last):
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\dashboard\modules\node\node_head.py", line 250, in _update_node_stats
+    reply = await stub.GetNodeStats(
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\grpc\aio\_call.py", line 290, in __await__
+    raise _create_rpc_error(self._cython_call._initial_metadata,
+grpc.aio._call.AioRpcError: <AioRpcError of RPC that terminated with:
+	status = StatusCode.UNAVAILABLE
+	details = "failed to connect to all addresses"
+	debug_error_string = "{"created":"@1652708783.969000000","description":"Failed to pick subchannel","file":"src/core/ext/filters/client_channel/client_channel.cc","file_line":3187,"referenced_errors":[{"created":"@1652708783.969000000","description":"failed to connect to all addresses","file":"src/core/lib/transport/error_utils.cc","file_line":146,"grpc_status":14}]}"
+>
+2022-05-16 06:46:24,975	ERROR node_head.py:259 -- Error updating node stats of 9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3.
+Traceback (most recent call last):
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\dashboard\modules\node\node_head.py", line 250, in _update_node_stats
+    reply = await stub.GetNodeStats(
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\grpc\aio\_call.py", line 290, in __await__
+    raise _create_rpc_error(self._cython_call._initial_metadata,
+grpc.aio._call.AioRpcError: <AioRpcError of RPC that terminated with:
+	status = StatusCode.UNAVAILABLE
+	details = "failed to connect to all addresses"
+	debug_error_string = "{"created":"@1652708784.975000000","description":"Failed to pick subchannel","file":"src/core/ext/filters/client_channel/client_channel.cc","file_line":3187,"referenced_errors":[{"created":"@1652708784.975000000","description":"failed to connect to all addresses","file":"src/core/lib/transport/error_utils.cc","file_line":146,"grpc_status":14}]}"
+>
+2022-05-16 06:46:25,676	ERROR node_head.py:320 -- Error receiving error info from GCS.
+Traceback (most recent call last):
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\dashboard\modules\node\node_head.py", line 315, in _update_error_info
+    ) = await self._dashboard_head.gcs_error_subscriber.poll()
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\_private\gcs_pubsub.py", line 582, in poll
+    await self._poll(timeout=timeout)
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\_private\gcs_pubsub.py", line 544, in _poll
+    self._last_batch_size = len(poll.result().pub_messages)
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\_private\gcs_pubsub.py", line 528, in _poll_call
+    return await self._stub.GcsSubscriberPoll(req, timeout=timeout)
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\grpc\aio\_call.py", line 290, in __await__
+    raise _create_rpc_error(self._cython_call._initial_metadata,
+grpc.aio._call.AioRpcError: <AioRpcError of RPC that terminated with:
+	status = StatusCode.UNKNOWN
+	details = "Stream removed"
+	debug_error_string = "{"created":"@1652708785.674000000","description":"Error received from peer ipv4:127.0.0.1:6379","file":"src/core/lib/surface/call.cc","file_line":1070,"grpc_message":"Stream removed","grpc_status":2}"
+>
+2022-05-16 06:46:25,677	ERROR actor_head.py:182 -- Error processing actor info from GCS.
+Traceback (most recent call last):
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\dashboard\modules\actor\actor_head.py", line 176, in _update_actors
+    actor_id, actor_table_data = await subscriber.poll()
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\_private\gcs_pubsub.py", line 637, in poll
+    await self._poll(timeout=timeout)
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\_private\gcs_pubsub.py", line 544, in _poll
+    self._last_batch_size = len(poll.result().pub_messages)
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\_private\gcs_pubsub.py", line 528, in _poll_call
+    return await self._stub.GcsSubscriberPoll(req, timeout=timeout)
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\grpc\aio\_call.py", line 290, in __await__
+    raise _create_rpc_error(self._cython_call._initial_metadata,
+grpc.aio._call.AioRpcError: <AioRpcError of RPC that terminated with:
+	status = StatusCode.UNKNOWN
+	details = "Stream removed"
+	debug_error_string = "{"created":"@1652708785.674000000","description":"Error received from peer ipv4:127.0.0.1:6379","file":"src/core/lib/surface/call.cc","file_line":1070,"grpc_message":"Stream removed","grpc_status":2}"
+>
+2022-05-16 06:46:25,678	ERROR reporter_head.py:165 -- Error receiving node physical stats from reporter agent.
+Traceback (most recent call last):
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\dashboard\modules\reporter\reporter_head.py", line 158, in run
+    key, data = await subscriber.poll()
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\_private\gcs_pubsub.py", line 619, in poll
+    await self._poll(timeout=timeout)
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\_private\gcs_pubsub.py", line 544, in _poll
+    self._last_batch_size = len(poll.result().pub_messages)
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\_private\gcs_pubsub.py", line 528, in _poll_call
+    return await self._stub.GcsSubscriberPoll(req, timeout=timeout)
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\grpc\aio\_call.py", line 290, in __await__
+    raise _create_rpc_error(self._cython_call._initial_metadata,
+grpc.aio._call.AioRpcError: <AioRpcError of RPC that terminated with:
+	status = StatusCode.UNKNOWN
+	details = "Stream removed"
+	debug_error_string = "{"created":"@1652708785.674000000","description":"Error received from peer ipv4:127.0.0.1:6379","file":"src/core/lib/surface/call.cc","file_line":1070,"grpc_message":"Stream removed","grpc_status":2}"
+>
+2022-05-16 06:46:25,678	ERROR node_head.py:287 -- Error receiving log from GCS.
+Traceback (most recent call last):
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\dashboard\modules\node\node_head.py", line 282, in _update_log_info
+    log_batch = await self._dashboard_head.gcs_log_subscriber.poll()
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\_private\gcs_pubsub.py", line 601, in poll
+    await self._poll(timeout=timeout)
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\_private\gcs_pubsub.py", line 544, in _poll
+    self._last_batch_size = len(poll.result().pub_messages)
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\_private\gcs_pubsub.py", line 528, in _poll_call
+    return await self._stub.GcsSubscriberPoll(req, timeout=timeout)
+  File "c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\grpc\aio\_call.py", line 290, in __await__
+    raise _create_rpc_error(self._cython_call._initial_metadata,
+grpc.aio._call.AioRpcError: <AioRpcError of RPC that terminated with:
+	status = StatusCode.UNKNOWN
+	details = "Stream removed"
+	debug_error_string = "{"created":"@1652708785.674000000","description":"Error received from peer ipv4:127.0.0.1:6379","file":"src/core/lib/surface/call.cc","file_line":1070,"grpc_message":"Stream removed","grpc_status":2}"
+>

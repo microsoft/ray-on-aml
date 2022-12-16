@@ -1,0 +1,15 @@
+2022-05-16 06:42:28,937	INFO agent.py:109 -- Dashboard agent grpc address: 127.0.0.1:59670
+2022-05-16 06:42:28,938	INFO utils.py:99 -- Get all modules by type: DashboardAgentModule
+2022-05-16 06:42:31,477	INFO utils.py:132 -- Available modules: [<class 'ray.dashboard.modules.event.event_agent.EventAgent'>, <class 'ray.dashboard.modules.log.log_agent.LogAgent'>, <class 'ray.dashboard.modules.reporter.reporter_agent.ReporterAgent'>, <class 'ray.dashboard.modules.runtime_env.runtime_env_agent.RuntimeEnvAgent'>]
+2022-05-16 06:42:31,477	INFO agent.py:129 -- Loading DashboardAgentModule: <class 'ray.dashboard.modules.event.event_agent.EventAgent'>
+2022-05-16 06:42:31,477	INFO event_agent.py:28 -- Event agent cache buffer size: 10240
+2022-05-16 06:42:31,477	INFO agent.py:129 -- Loading DashboardAgentModule: <class 'ray.dashboard.modules.log.log_agent.LogAgent'>
+2022-05-16 06:42:31,477	INFO agent.py:129 -- Loading DashboardAgentModule: <class 'ray.dashboard.modules.reporter.reporter_agent.ReporterAgent'>
+2022-05-16 06:42:31,483	INFO agent.py:129 -- Loading DashboardAgentModule: <class 'ray.dashboard.modules.runtime_env.runtime_env_agent.RuntimeEnvAgent'>
+2022-05-16 06:42:31,492	INFO agent.py:134 -- Loaded 4 modules.
+2022-05-16 06:42:31,496	INFO http_server_agent.py:63 -- Dashboard agent http address: 127.0.0.1:54978
+2022-05-16 06:42:31,496	INFO http_server_agent.py:70 -- <ResourceRoute [GET] <StaticResource  /logs -> WindowsPath('C:/Users/janguy/OneDrive - Microsoft/Documents/projects/developments/ray-on-aml/outputs/session_2022-05-16_06-42-19_818422_48436/logs')> -> <bound method StaticResource._handle of <StaticResource  /logs -> WindowsPath('C:/Users/janguy/OneDrive - Microsoft/Documents/projects/developments/ray-on-aml/outputs/session_2022-05-16_06-42-19_818422_48436/logs')>>
+2022-05-16 06:42:31,496	INFO http_server_agent.py:70 -- <ResourceRoute [OPTIONS] <StaticResource  /logs -> WindowsPath('C:/Users/janguy/OneDrive - Microsoft/Documents/projects/developments/ray-on-aml/outputs/session_2022-05-16_06-42-19_818422_48436/logs')> -> <bound method _PreflightHandler._preflight_handler of <aiohttp_cors.cors_config._CorsConfigImpl object at 0x000001B0DC0F4430>>
+2022-05-16 06:42:31,496	INFO http_server_agent.py:71 -- Registered 2 routes.
+2022-05-16 06:42:31,496	INFO event_agent.py:45 -- Report events to b'127.0.0.1:54953'
+2022-05-16 06:42:31,496	INFO event_utils.py:123 -- Monitor events logs modified after 1652706750.460368 on outputs\session_2022-05-16_06-42-19_818422_48436\logs\events, the source types are ['RAYLET', 'CORE_WORKER', 'COMMON'].

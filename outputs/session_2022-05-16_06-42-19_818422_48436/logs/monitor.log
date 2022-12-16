@@ -1,0 +1,1017 @@
+2022-05-16 06:42:22,611	INFO monitor.py:586 -- Starting monitor using ray installation: c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\__init__.py
+2022-05-16 06:42:22,611	INFO monitor.py:587 -- Ray version: 1.12.0
+2022-05-16 06:42:22,611	INFO monitor.py:588 -- Ray commit: f18fc31c7562990955556899090f8e8656b48d2d
+2022-05-16 06:42:22,611	INFO monitor.py:589 -- Monitor started with command: ['c:\\users\\janguy\\anaconda3\\envs\\dlresearch\\lib\\site-packages\\ray\\autoscaler/_private\\monitor.py', '--logs-dir=outputs\\session_2022-05-16_06-42-19_818422_48436\\logs', '--logging-rotate-bytes=536870912', '--logging-rotate-backup-count=5', '--gcs-address=127.0.0.1:6379', '--redis-password=5241590000000000', '--monitor-ip=127.0.0.1']
+2022-05-16 06:42:22,613	WARNING monitor.py:158 -- redis_password has been deprecated.
+2022-05-16 06:42:22,618	INFO monitor.py:196 -- Starting autoscaler metrics server on port 44217
+2022-05-16 06:42:22,630	INFO monitor.py:215 -- Monitor: Started
+2022-05-16 06:42:22,727	INFO autoscaler.py:282 -- StandardAutoscaler: {'cluster_name': 'default', 'max_workers': 0, 'upscaling_speed': 1.0, 'docker': {}, 'idle_timeout_minutes': 0, 'provider': {'type': 'readonly', 'use_node_id_as_ip': True}, 'auth': {}, 'available_node_types': {'ray.head.default': {'resources': {}, 'node_config': {}, 'max_workers': 0}}, 'head_node_type': 'ray.head.default', 'file_mounts': {}, 'cluster_synced_files': [], 'file_mounts_sync_continuously': False, 'rsync_exclude': [], 'rsync_filter': [], 'initialization_commands': [], 'setup_commands': [], 'head_setup_commands': [], 'worker_setup_commands': [], 'head_start_ray_commands': [], 'worker_start_ray_commands': [], 'head_node': {}, 'worker_nodes': {}}
+2022-05-16 06:42:22,744	INFO monitor.py:353 -- Autoscaler has not yet received load metrics. Waiting.
+2022-05-16 06:42:27,756	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:42:27.756885 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:42:32,777	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:42:32.777180 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:42:37,794	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:42:37.794914 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:42:42,811	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:42:42.811725 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:42:47,814	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:42:47.814454 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:42:52,821	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:42:52.821436 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:42:57,825	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:42:57.825984 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:43:02,871	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:43:02.871632 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:43:07,935	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:43:07.934505 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:43:12,943	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:43:12.943854 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:43:17,960	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:43:17.960532 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:43:22,982	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:43:22.982740 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:43:27,988	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:43:27.988392 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:43:32,995	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:43:32.995461 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:43:38,001	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:43:38.001050 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:43:43,014	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:43:43.014658 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:43:48,030	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:43:48.030189 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:43:53,041	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:43:53.041856 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:43:58,043	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:43:58.043292 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:44:03,056	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:44:03.055427 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:44:08,070	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:44:08.070787 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:44:13,080	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:44:13.080401 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:44:18,085	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:44:18.085937 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:44:23,095	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:44:23.095935 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:44:28,108	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:44:28.108063 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:44:33,126	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:44:33.126732 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:44:38,135	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:44:38.135537 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:44:43,151	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:44:43.151907 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:44:48,171	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:44:48.171200 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:44:53,182	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:44:53.182843 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:44:58,201	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:44:58.201461 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:45:03,207	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:45:03.207722 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:45:08,218	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:45:08.218244 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:45:13,224	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:45:13.223955 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:45:18,244	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:45:18.244849 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:45:23,253	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:45:23.253865 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:45:28,274	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:45:28.274267 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:45:33,294	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:45:33.294176 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:45:38,308	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:45:38.308013 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:45:43,361	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:45:43.360599 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:45:48,408	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:45:48.408334 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:45:53,428	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:45:53.428164 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:45:58,429	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:45:58.429799 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:46:03,443	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:46:03.443198 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:46:08,451	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:46:08.451306 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:46:13,466	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:46:13.466923 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:46:18,471	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:46:18.471438 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)
+2022-05-16 06:46:23,482	INFO autoscaler.py:330 -- 
+======== Autoscaler status: 2022-05-16 06:46:23.482706 ========
+Node status
+---------------------------------------------------------------
+Healthy:
+ 1 node_9663bd940a0daa64eeca0c373c0aade2f22e2da599d3f0953fc63fb3
+Pending:
+ (no pending nodes)
+Recent failures:
+ (no failures)
+
+Resources
+---------------------------------------------------------------
+Usage:
+ 0.0/8.0 CPU
+ 0.0/1.0 GPU
+ 0.00/4.948 GiB memory
+ 0.00/2.474 GiB object_store_memory
+
+Demands:
+ (no resource demands)

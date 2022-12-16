@@ -1,0 +1,11 @@
+[2022-05-16 06:40:16,992 I 12728 46840] io_service_pool.cc:35: IOServicePool is running with 1 io_service.
+[2022-05-16 06:40:19,213 I 12728 46840] store_runner.cc:30: Allowing the Plasma store to use up to 2.72959GB of memory.
+[2022-05-16 06:40:19,214 I 12728 46840] store_runner.cc:46: Starting object store with directory C:\Users\janguy\AppData\Local\Temp, fallback outputs, and huge page support disabled
+[2022-05-16 06:40:19,231 I 12728 46840] grpc_server.cc:71: ObjectManager server started, listening on port 54887.
+[2022-05-16 06:40:19,236 I 12728 46840] node_manager.cc:283: Initializing NodeManager with ID dda6551251733a9935477bda1f92288d00d426475967cbdcd4992505
+[2022-05-16 06:40:19,237 I 12728 46840] grpc_server.cc:71: NodeManager server started, listening on port 54889.
+[2022-05-16 06:40:19,339 I 12728 50640] agent_manager.cc:78: Monitor agent process with pid 47348, register timeout 30000ms.
+[2022-05-16 06:40:19,353 I 12728 46840] raylet.cc:100: Raylet of id, dda6551251733a9935477bda1f92288d00d426475967cbdcd4992505 started. Raylet consists of node_manager and object_manager. node_manager address: 192.168.50.44:54889 object_manager address: 192.168.50.44:54887 hostname: 192.168.50.44
+[2022-05-16 06:40:19,361 I 12728 46840] service_based_accessor.cc:595: Received notification for node id = dda6551251733a9935477bda1f92288d00d426475967cbdcd4992505, IsAlive = 1
+[2022-05-16 06:40:29,129 W 12728 48316] metric_exporter.cc:206: Export metrics to agent failed: IOError: 14: failed to connect to all addresses. This won't affect Ray, but you can lose metrics from the cluster.
+[2022-05-16 06:40:37,150 W 12728 48316] metric_exporter.cc:206: Export metrics to agent failed: IOError: 14: failed to connect to all addresses. This won't affect Ray, but you can lose metrics from the cluster.

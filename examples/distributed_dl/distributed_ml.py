@@ -62,6 +62,7 @@ if __name__ == "__main__":
     if ray: #in the headnode
         print("head node detected")
         print("test distributed DL trainining")
+        ray.init(address="auto")
         print("resources for ray cluster ", ray.cluster_resources())
 
 
