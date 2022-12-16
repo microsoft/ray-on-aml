@@ -60,7 +60,7 @@ if __name__ == "__main__":
 see example at [job](https://github.com/microsoft/ray-on-aml/tree/master/examples/job)
 
 
-There's no need for vnet setup. Go straight to section 4.3 below to run your azure ml job with ray.
+There's no need for vnet setup.
 
 If you like setup an interactive ray cluster to work with from a ray client or directly on the head node, follow the following setup:
 ## Option 2: Use ray cluster interactively 
