@@ -144,7 +144,8 @@ def get_data_count():
 if __name__ == "__main__":
     if ray: #in the headnode
         print("head node detected")
-        print(ray.cluster_resources)
+        ray.init(address="auto",ignore_reinit_error=True )
+        print(ray.cluster_resources())
 
         datasets.MNIST("~/data", train=True, download=True)
         #demonstate parallel hyper param tuning
