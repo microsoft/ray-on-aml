@@ -5,11 +5,11 @@ dependencies:
   - python=3.8.5
   - pip:
       - azureml-mlflow==1.48.0
+      - azureml-defaults==1.48.0
       - ray[air]==2.2.0
       - ray-on-aml==0.2.4
-      - torch==1.13.0+cu111
-      - torchvision==0.14.1+cu111
-      - azureml-defaults==1.48.0
+      - torch==1.8.1+cu111
+      - torchvision==0.9.1+cu111
   - cudatoolkit==11.1.1
   - nvidia-apex==0.1.0
   - pip=22.1.2 

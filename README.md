@@ -51,6 +51,7 @@ In your job script, you ray cluster handler is available at the head node for yo
 ```
 if __name__ == "__main__":
     if ray: #in the headnode
+        ray.init(address="auto")
         print(ray.cluster_resources)
         #Your ray logic follows
 
