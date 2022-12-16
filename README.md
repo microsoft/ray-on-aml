@@ -5,11 +5,6 @@ compute instance and compute cluster. With this, you can take advantage of both 
 
 With support for both interactive and job uses, you can do interactive development in client/interactive mode then operationalize with job mode.
 
-
-## Architecture
-
-![RayOnAML_Interactive_Arch](https://github.com/james-tn/ray-on-aml/raw/master/images/RayOnAML_Interactive_Arch.png)
-
 ### [Updates 12/14/2022]
 
 
@@ -21,13 +16,13 @@ __Support AML SDK v2__
 
 __Better control of ray versions and ray packages by user__
 
-- Users no longer need to use fixed ray packages that comes with Ray-On-AML. You can specify ray components and versions to use in ``getRay()`` method.
+- Users no longer need to use fixed ray packages that comes with Ray-On-AML. You can specify ray components and versions to use in ``getRay()`` method for interactive mode or include ray version and ray packages in your job [environment](https://learn.microsoft.com/en-us/azure/machine-learning/how-to-manage-environments-v2?tabs=cli)/dependencies for job mode.
 
 __Ability to mount inputs and outputs to ray cluster (with AML v2) for interactive use__
 
 - No more download or move larger volume of data from Data Lake to compute cluster for processing. Just mounting Data, you can access for read and write data.
 - Manage data using Data(Set) in AML, and use the name to mount for in/output
-- You can read data as Arrow dataset or other dataframe for your project
+- The path to the mounted folder can be used in ray client for ray to access data.
 
 __Support user define docker environment to greater customize ray environment__
 
@@ -35,47 +30,78 @@ __Support user define docker environment to greater customize ray environment__
 
 ## Setup & Quick Start Guide
 
-### 1. Prepare Azure Resources (infrastructure)
 
-Make sure setup a compute cluster and a compute instance in the same VNET.
+## Option 1: Run ray workload within an [azure ml job](https://learn.microsoft.com/en-us/cli/azure/ml/job?view=azure-cli-latest) (non-interactive mode)
+ 1. Setup a [azure ml compute cluster](https://learn.microsoft.com/en-us/azure/machine-learning/how-to-create-attach-compute-cluster?tabs=python) 
+ 2. include ray-on-aml,azureml-mlflow and ray package(s) as job dependencies like below in conda or in your job's [environment](https://learn.microsoft.com/en-us/azure/machine-learning/how-to-manage-environments-v2?tabs=cli)
+ ```
+channels:
+- anaconda
+- conda-forge
+dependencies:
+- python=3.8.5
+- pip:
+    - azureml-mlflow==1.48.0
+    - ray-on-aml
+    - ray[data]==2.2.0 #add ray packages and versions
+    - ..other packages
+```
+In your job script, you ray cluster handler is available at the head node for you
+```
+if __name__ == "__main__":
+    if ray: #in the headnode
+        print(ray.cluster_resources)
+        #Your ray logic follows
 
+    else:
+        print("in worker node, do nothing")
+```
+see example at [job](https://github.com/microsoft/ray-on-aml/tree/master/examples/job)
+
+
+There's no need for vnet setup. Go straight to section 4.3 below to run your azure ml job with ray.
+
+If you like setup an interactive ray cluster to work with from a ray client or directly on the head node, follow the following setup:
+## Option 2: Use ray cluster interactively 
+You can setup a ray cluster and use it to develop and test interactively either from a head node or with a [ray client](https://docs.ray.io/en/latest/cluster/running-applications/job-submission/ray-client.html)
+For this, ray-on-aml relies on a [AML Compute Instance](https://learn.microsoft.com/en-us/azure/machine-learning/concept-compute-instance) (CI) as the head node or ray client machine and [AML compute cluster](https://learn.microsoft.com/en-us/azure/machine-learning/how-to-create-attach-compute-cluster?tabs=python) as a complete remote ray cluster in case the CI is used as ray client only or ray cluster worker(s) in case the CI is used as head node.
+
+## Architecture for Interactive Mode
+
+![RayOnAML_Interactive_Arch](https://github.com/james-tn/ray-on-aml/raw/master/images/RayOnAML_Interactive_Arch.png)
+
+### 1. Setup resources
+To setup this mode, you will need a compute instance, compute cluster and they need to be in the same vnet to communicate to each other. Review the following check list
 __Checklist for service provisioning__
-
 > [ ] Azure Machine Learning Workspace
 > 
 > [ ] Virtual network/Subnet
 >
 > [ ] Network Security Group in/outbound
 >
-> [ ] Create Compute Instance in the Virtual Network
+> [ ] Create Compute Instance (CI) in the Virtual Network
 > 
 > [ ] Create Compute Cluster in the same Virtual Network
 
-### 2. Select kernel
+### 2. Select kernel 
 
 Use a python 3.7+ conda environment from ```Notebook``` in Azure Machine Learning Studio or ```Jupyter Notebook``` in Azure Machine Learning Compute Instance (CI).
 
 ### 3. Install library
 
-#### 3.1 Configure runtime environment in CI
-
-Download and install packages for your project in CI 
+Download and install ray-on-aml and ray packages in your notebook conda's environment 
 
 For example, following python command will download and install `ray 2.2.0`, `Azure Machine Learning SDK v2 for python` and other packages
-
 ```bash
 pip install --upgrade ray==2.2.0 ray[air]==2.2.0 ray[data]==2.2.0 azure-ai-ml ray-on-aml
 ```
 
-### 4. Run ray-on-aml
+There are two modes to run Ray interactively 
 
-There are two modes to run Ray.
+- [Client Mode](https://docs.ray.io/en/latest/cluster/running-applications/job-submission/ray-client.html)
+ - Run directly from the head node
 
-- Client Mode
-- Interative Cluster Mode
-- Job
-
-### 4.1. (MODE I.) Client mode
+### 4.1. Client mode
 
 By default CI won't be part of Ray cluster but it will be used as a terminal to execute job on Ray running on Compute Cluster
 
@@ -93,10 +119,11 @@ client = ray.init(f"ray://{ray_on_aml.headnode_private_ip}:10001")
 
 If you ran above sample, make sure you have the same version of ray==2.2.0 in CI.
 If you don't specify pip_packages, ray[default] with the same version of ray installed in your CI will be used for the cluster
+Behind the scene, an [Azure ML job](https://github.com/microsoft/ray-on-aml/tree/master/examples/job) is launched and create a remote ray cluster that your client connects to.
+After this check the resources with ```ray.cluster_resources()``` to see how much resource you have for your ray cluster.
+### 4.2. Run at headnode
 
-### 4.2. (MODE II.) Interative Cluster mode
-
-If you want to use CI as header node, then you have to use `ci_is_head = True` to make CI as a part of Ray cluster and act as Head node of the cluster
+This means CI is setup as header node in the cluster and a remote [azure ml job](https://github.com/microsoft/ray-on-aml/tree/master/examples/job) is launched to provide worker nodes for the cluster . To enable this, set `ci_is_head = True`
 
 ```python
 from ray_on_aml.core import Ray_On_AML
@@ -107,51 +134,10 @@ ray_on_aml =Ray_On_AML(ml_client=ml_client, compute_cluster ="{COMPUTE_CLUSTER_N
 # MODE II. CI as Ray cluster Header node
 ray = ray_on_aml.getRay(ci_is_head=True, num_node=2)
 ```
+> Note: To install additional library, use ```pip_packages``` and ```onda_packages``` parameters.
+> The ray cluster will request 2 nodes from AML if ``num_nodes`` is not specified.
 
-> Note: To install additional library, use ```additional_pip_packages``` and ```additional_conda_packages``` parameters.
-> The ray cluster will request 5 nodes from AML if ``maxnode`` is not specified.
-
-### 4.3. (MODE III.) ray-on-aml in AML Job
-
-To use in an Azure ML job, include ray_on_aml as a pip dependency and inside your script, do this to get ray
-Remember to use RunConfiguration(communicator='OpenMpi') in your AML job's ScriptRunConfig so that ray-on-aml can work correctly.
-
-```python
-from azureml.core import Workspace, Experiment, Environment,ScriptRunConfig
-
-from azureml.core.compute import ComputeTarget, AmlCompute
-from azureml.core.compute_target import ComputeTargetException
-from azureml.core.runconfig import RunConfiguration
-from azureml.core.conda_dependencies import CondaDependencies
-from azureml.core.runconfig import DockerConfiguration,RunConfiguration
-
-#Remember the AML job has to have distribted setings (MPI type) for ray-on-aml to work correctly.
-ws = Workspace.from_config()
-compute_cluster = '{COMPUTE_CLUSTER_NAME}' #This can be another cluster different from the interactive cluster. 
-ray_cluster = ComputeTarget(workspace=ws, name=compute_cluster)
-
-aml_run_config_ml = RunConfiguration(communicator='OpenMpi')
-docker_config = DockerConfiguration(use_docker=True, shm_size='48gb')
-
-
-rayEnv = Environment.from_conda_specification(name = "RLEnv",
-                                             file_path = "conda_env.yml")
-rayEnv.docker.base_image = "mcr.microsoft.com/azureml/openmpi4.1.0-cuda11.1-cudnn8-ubuntu18.04:20220329.v1"
-
-aml_run_config_ml.target = ray_cluster
-aml_run_config_ml.node_count = 2
-aml_run_config_ml.environment = rayEnv
-aml_run_config_ml.docker =docker_config
-
-src = ScriptRunConfig(source_directory='../examples/job',
-                    script='aml_job.py',
-                    run_config = aml_run_config_ml,
-                   )
-
-run = Experiment(ws, "rl_on_aml_job").submit(src)
-```
-
-### 5. (AML SDK v2 only) Mount Data(Set) to CC
+### 5. (AML SDK v2 only) Mount Data(Set) to ray cluster
 
 If you are using AML SDK v2, you can mount Data(Set) to Compute Cluster
 
@@ -210,7 +196,7 @@ ray_on_aml.shutdown()
 
 ### 8. Specify Ray version and add other Ray and python packages
 
-Interactive cluster: You can use ```pip_packages``` and ```conda_packages``` arguments in `getRay()` function of the Ray_On_AML object to configure the ray's run time environment. 
+For Interactive cluster: You can use ```pip_packages``` and ```conda_packages``` arguments in `getRay()` function of the Ray_On_AML object  to configure the ray's run time environment. 
 You can also configure your own custom azure ml environment using ``environment`` argument in in `getRay()`.
 It can be azureml environmen object or name of the environment.
 
@@ -223,7 +209,7 @@ pip_packages=["ray[air]==2.2.0","ray[data]==2.2.0","torch==1.13.0","fastparquet=
 "azureml-mlflow==1.48.0", "pyarrow==6.0.1", "dask==2022.2.0", "adlfs==2022.11.2", "fsspec==2022.11.0"])
 ```
 
-AML Job cluster: simply add ray-on-aml and ray component(s) among other dependencies to your conda file of 
+For Job cluster: simply add ray-on-aml and ray component(s) among other dependencies to your conda file of 
 azure ml job or azure ml pipeline.
 
 ```python
@@ -287,6 +273,12 @@ This information will help us triage your report more quickly.
 
 If you are reporting for a bug bounty, more complete reports can contribute to a higher bounty award. Please visit our [Microsoft Bug Bounty Program](https://microsoft.com/msrc/bounty) page for more details about our active programs.
 
+## Data Collection
+
+The software may collect information about you and your use of the software and send it to Microsoft. Microsoft may use this information to provide services and improve our products and services. You may turn off the telemetry as described in the repository. There are also some features in the software that may enable you and Microsoft to collect data from users of your applications. If you use these features, you must comply with applicable law, including providing appropriate notices to users of your applications together with a copy of Microsoft’s privacy statement. Our privacy statement is located at https://go.microsoft.com/fwlink/?LinkID=824704. You can learn more about data collection and use in the help documentation and our privacy statement. Your use of the software operates as your consent to these practices.
+
+Information on managing Azure telemetry is available at https://azure.microsoft.com/en-us/privacy-data-management/.
+
 
 ## Preferred Languages
 
@@ -296,10 +288,4 @@ We prefer all communications to be in English.
 
 Microsoft follows the principle of [Coordinated Vulnerability Disclosure](https://www.microsoft.com/en-us/msrc/cvd).
 
-
-## Data Collection
-
-The software may collect information about you and your use of the software and send it to Microsoft. Microsoft may use this information to provide services and improve our products and services. You may turn off the telemetry as described in the repository. There are also some features in the software that may enable you and Microsoft to collect data from users of your applications. If you use these features, you must comply with applicable law, including providing appropriate notices to users of your applications together with a copy of Microsoft’s privacy statement. Our privacy statement is located at https://go.microsoft.com/fwlink/?LinkID=824704. You can learn more about data collection and use in the help documentation and our privacy statement. Your use of the software operates as your consent to these practices.
-
-Information on managing Azure telemetry is available at https://azure.microsoft.com/en-us/privacy-data-management/.
 
