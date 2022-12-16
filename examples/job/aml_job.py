@@ -12,27 +12,14 @@ from ray import tune
 # from ray.tune import Callback
 from ray.tune.schedulers import ASHAScheduler
 from ray.tune.integration.mlflow import MLflowLoggerCallback
-from ray.util.dask import ray_dask_get
 from ray_on_aml.core import Ray_On_AML
-import dask
-import dask.array as da
-import dask.dataframe as dd
-from adlfs import AzureBlobFileSystem
-import mlflow
-from azureml.core import Run
 
-dask.config.set(scheduler=ray_dask_get)
+# from adlfs import AzureBlobFileSystem
+import mlflow
 
 # Change these values if you want the training to run quicker or slower.
 EPOCH_SIZE = 512
 TEST_SIZE = 256
-run = Run.get_context()
-ws = run.experiment.workspace
-# set mlflow uri
-mlflow.set_tracking_uri(ws.get_mlflow_tracking_uri())
-mlflow.set_experiment(run.experiment.name)
-ray_on_aml =Ray_On_AML( master_ip_env_name="AZ_BATCHAI_MPI_MASTER_NODE", world_rank_env_name="OMPI_COMM_WORLD_RANK")
-ray = ray_on_aml.getRay()
 
 class ConvNet(nn.Module):
     def __init__(self):
@@ -130,32 +117,21 @@ search_space = {
     "momentum": tune.uniform(0.01, 0.09)
 }
 
-#demonstrate parallel data processing
-def get_data_count():
-
-    abfs = AzureBlobFileSystem(account_name="azureopendatastorage",  container_name="isdweatherdatacontainer")
-
-    storage_options = {'account_name': 'azureopendatastorage'}
-    ddf = dd.read_parquet('az://nyctlc/green/puYear=2019/puMonth=*/*.parquet', storage_options=storage_options)
-
-    data = ray.data.read_parquet("az://isdweatherdatacontainer/ISDWeather/year=2009", filesystem=abfs)
-    return data.count(),ddf.count().compute()
 
 if __name__ == "__main__":
+    ray_on_aml =Ray_On_AML()
+    ray = ray_on_aml.getRay()
     if ray: #in the headnode
         print("head node detected")
-        ray.init(address="auto",ignore_reinit_error=True )
+        ray.init(address="auto")
         print(ray.cluster_resources())
-
+        
         datasets.MNIST("~/data", train=True, download=True)
         #demonstate parallel hyper param tuning
         # Use captureMetrics callback
-        # analysis = tune.run(train_mnist, config=search_space, callbacks=[captureMetrics()])
-        # run.log_list('acc', accList)
-        analysis = tune.run(train_mnist,local_dir ='./outputs',raise_on_failed_trial=False, sync_config=tune.SyncConfig(syncer=None),resources_per_trial={"cpu": 1, "gpu": 1}, config=search_space,num_samples=10, callbacks=[MLflowLoggerCallback(experiment_name=run.experiment.name, tags={"Framework":"Ray 1.12.0"}, save_artifact=True)])
 
-        #demonstrate parallel data processing
-        print("data count result", get_data_count())
+        analysis = tune.run(train_mnist,local_dir ='./outputs',raise_on_failed_trial=False, sync_config=tune.SyncConfig(syncer=None),resources_per_trial={"cpu": 1, "gpu": 1}, config=search_space,num_samples=10, callbacks=[MLflowLoggerCallback(tags={"Framework":"Ray 1.12.0"}, save_artifact=True)])
+
 
     else:
-        print("in worker node")
+        print("in worker node, do nothing")
