@@ -1,10 +1,9 @@
 # Ray on Azure ML
 
-This package simplifies setup of core Ray and Ray's components such as Dask on Ray, Ray tune,Ray rrlib, Ray serve and Spark in Azure ML worksapce.
+This package enables you to use ray and ray's components such as dask on ray, ray[air], ray[data] on top of Azure ML's 
+compute instance and compute cluster. With this, you can take advantage of both ray's distributed computing capabilities and Azure machine learning platform. For example you can run ray's distributed ML within AzureML's pipeline and on  managed compute cluster.
 
-It also comes with supports for high performance data access to Azure data sources such as Azure Storage, Delta Lake , Synapse SQL.
-
-It supports both interactive and job use cases.
+With support for both interactive and job uses, you can do interactive development in client/interactive mode then operationalize with job mode.
 
 
 ## Architecture
@@ -22,7 +21,7 @@ __Support AML SDK v2__
 
 __Better control of ray versions and ray packages by user__
 
-- Users no longer need to use fixed packages that comes with Ray-On-AML. However user need to specify packages in the constructure of the Ray-On-AML class.
+- Users no longer need to use fixed ray packages that comes with Ray-On-AML. You can specify ray components and versions to use in ``getRay()`` method.
 
 __Ability to mount inputs and outputs to ray cluster (with AML v2) for interactive use__
 
@@ -32,8 +31,7 @@ __Ability to mount inputs and outputs to ray cluster (with AML v2) for interacti
 
 __Support user define docker environment to greater customize ray environment__
 
-- You can review and track change of Ray environment in AML Environment. Custom AML Environment will be automatically created when you add/remove package for the Ray cluster
-- The environment for the Ray Cluster will be containerized and the container image will be reused when you try to use the same libraries or runtime environment
+- If you need greater control over the ray's run time environment, you can build the environment using Azure ML's [environment](https://learn.microsoft.com/en-us/python/api/azure-ai-ml/azure.ai.ml.entities.environment?view=azure-python&viewFallbackFrom=azure-ml-py)
 
 ## Setup & Quick Start Guide
 
@@ -69,12 +67,6 @@ For example, following python command will download and install `ray 2.2.0`, `Az
 pip install --upgrade ray==2.2.0 ray[air]==2.2.0 ray[data]==2.2.0 azure-ai-ml ray-on-aml
 ```
 
-The installed packages in CI will be automatially discoverd by the ray-on-aml during Compute Cluster setup
-
-> Note: If you don't install Ray in CI, note that following packages and its version will be installed with ray-on-aml automatically
->
-> ```ray[tune]==1.12.0,  ray[serve]==1.12.0, pyarrow>= 5.0.0, dask[complete]==2021.12.0, adlfs==2021.10.0, fsspec==2021.10.1, xgboost_ray==0.1.8, fastparquet==0.7.2```
-
 ### 4. Run ray-on-aml
 
 There are two modes to run Ray.
@@ -89,7 +81,6 @@ By default CI won't be part of Ray cluster but it will be used as a terminal to 
 
 ```python
 from ray_on_aml.core import Ray_On_AML
-import logging
 
 ray_on_aml =Ray_On_AML(ml_client=ml_client, compute_cluster ="{COMPUTE_CLUSTER_NAME}")
 
@@ -100,7 +91,8 @@ ray = ray_on_aml.getRay(num_node=2,pip_packages=["ray[air]==2.2.0","ray[data]==2
 client = ray.init(f"ray://{ray_on_aml.headnode_private_ip}:10001")
 ```
 
-If you ran above sample, make sure you have the same version of ray==2.2.0 in CI
+If you ran above sample, make sure you have the same version of ray==2.2.0 in CI.
+If you don't specify pip_packages, ray[default] with the same version of ray installed in your CI will be used for the cluster
 
 ### 4.2. (MODE II.) Interative Cluster mode
 
@@ -108,7 +100,6 @@ If you want to use CI as header node, then you have to use `ci_is_head = True` t
 
 ```python
 from ray_on_aml.core import Ray_On_AML
-import logging
 
 ray_on_aml =Ray_On_AML(ml_client=ml_client, compute_cluster ="{COMPUTE_CLUSTER_NAME}")
 
@@ -167,7 +158,6 @@ If you are using AML SDK v2, you can mount Data(Set) to Compute Cluster
 ```python
 from azure.ai.ml import command, Input, Output
 from ray_on_aml.core import Ray_On_AML
-import logging
 
 ray_on_aml =Ray_On_AML(ml_client=ml_client, compute_cluster ="{COMPUTE_CLUSTER_NAME}")
 
@@ -198,7 +188,7 @@ client = ray.init(f"ray://{ray_on_aml.headnode_private_ip}:10001")
 
 ### 6. Ray Dashboard
 
-The easiest way to view Ray dashboard is using the connection from [VSCode for Azure ML](https://code.visualstudio.com/docs/datascience/azure-machine-learning). 
+[Only when CI is used as head node ```ci_is_head=True``` ] The easiest way to view Ray dashboard is using the connection from [VSCode for Azure ML](https://code.visualstudio.com/docs/datascience/azure-machine-learning). 
 Open VSCode to your Compute Instance then open a terminal, type http://127.0.0.1:8265/ then ctrl+click to open the Ray Dashboard.
 ![VSCode terminal trick](./images/vs_terminal.jpg)
 
@@ -206,6 +196,7 @@ This trick tells VScode to forward port to your local machine without having to 
 
 ![Ray Dashboard](./images/ray_dashboard.jpg)
 
+When running ray in client mode or in job mode with Azure ML cluster, you will need to ssh into the head node and configure port forwarding to view Ray Dashboard
 
 ### 7. Shutdown ray cluster
 
@@ -217,9 +208,12 @@ To shutdown cluster,  run following
 ray_on_aml.shutdown()
 ```
 
-### 8. Customize Ray version and the library's base configurations
+### 8. Specify Ray version and add other Ray and python packages
 
-Interactive cluster: There are two arguments in Ray_On_AML() class initilization to specify AML Workspace and Compute Cluster. And then you can define runtime environment using `getRay()` function of the Ray_on_AML object. 
+Interactive cluster: You can use ```pip_packages``` and ```conda_packages``` arguments in `getRay()` function of the Ray_On_AML object to configure the ray's run time environment. 
+You can also configure your own custom azure ml environment using ``environment`` argument in in `getRay()`.
+It can be azureml environmen object or name of the environment.
+
 
 ```python
 ray_on_aml =Ray_On_AML(ml_client=ml_client, compute_cluster ="{COMPUTE_CLUSTER_NAME}")
@@ -229,20 +223,13 @@ pip_packages=["ray[air]==2.2.0","ray[data]==2.2.0","torch==1.13.0","fastparquet=
 "azureml-mlflow==1.48.0", "pyarrow==6.0.1", "dask==2022.2.0", "adlfs==2022.11.2", "fsspec==2022.11.0"])
 ```
 
-By default you don't need to provide ray or its version in the getRay function because Ray_On_AML will automatically detect the version of Ray package and will include the package in the pip_packages list.
-
-However, you can change ray and other libraries versions in the pip_packages list. Do this with extreme care as it may result in conflicts impacting intended features of the package.
-
-And also note that if you change ray version here, you will need to manually re-install the ray library at the compute instance to match with the custom version of the cluster in case the compute instance is the head node.
-
-AML Job cluster: If you need to customize your ray version, you can do so by adding ray dependency after ray-on-aml. The reason is ray-on-aml comes with some recent ray version. It needs to be overidden. For example if you need ray 0.8.7, you can do like following in your job's env.yml file
+AML Job cluster: simply add ray-on-aml and ray component(s) among other dependencies to your conda file of 
+azure ml job or azure ml pipeline.
 
 ```python
-      - ray-on-aml==0.2.2
-      - ray[rllib,tune,serve]==2.2.0
+      - ray-on-aml==0.2.5
+      - ray[air]==2.2.0
 ```
-
-Check out [RLlib example with customized ray version](./examples/rl/rl_main.ipynb) to learn more
 
 ### 9. Quick start examples
 
@@ -308,3 +295,11 @@ We prefer all communications to be in English.
 ## Policy
 
 Microsoft follows the principle of [Coordinated Vulnerability Disclosure](https://www.microsoft.com/en-us/msrc/cvd).
+
+
+## Data Collection
+
+The software may collect information about you and your use of the software and send it to Microsoft. Microsoft may use this information to provide services and improve our products and services. You may turn off the telemetry as described in the repository. There are also some features in the software that may enable you and Microsoft to collect data from users of your applications. If you use these features, you must comply with applicable law, including providing appropriate notices to users of your applications together with a copy of Microsoft’s privacy statement. Our privacy statement is located at https://go.microsoft.com/fwlink/?LinkID=824704. You can learn more about data collection and use in the help documentation and our privacy statement. Your use of the software operates as your consent to these practices.
+
+Information on managing Azure telemetry is available at https://azure.microsoft.com/en-us/privacy-data-management/.
+
