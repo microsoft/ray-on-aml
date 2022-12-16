@@ -33,7 +33,7 @@ __Support user define docker environment to greater customize ray environment__
 
 ## Option 1: Run ray workload within an [azure ml job](https://learn.microsoft.com/en-us/cli/azure/ml/job?view=azure-cli-latest) (non-interactive mode)
  1. Setup a [azure ml compute cluster](https://learn.microsoft.com/en-us/azure/machine-learning/how-to-create-attach-compute-cluster?tabs=python) 
- 2. include ray-on-aml,azureml-mlflow and ray package(s) as job dependencies like below in conda or in your job's [environment](https://learn.microsoft.com/en-us/azure/machine-learning/how-to-manage-environments-v2?tabs=cli)
+ 2. Include ray-on-aml,azureml-defaults, azureml-mlflow and ray package(s) as job dependencies like below in conda or in your job's [environment](https://learn.microsoft.com/en-us/azure/machine-learning/how-to-manage-environments-v2?tabs=cli)
  ```
 channels:
 - anaconda
@@ -122,7 +122,7 @@ If you ran above sample, make sure you have the same version of ray==2.2.0 in CI
 If you don't specify pip_packages, ray[default] with the same version of ray installed in your CI will be used for the cluster
 Behind the scene, an [Azure ML job](https://github.com/microsoft/ray-on-aml/tree/master/examples/job) is launched and create a remote ray cluster that your client connects to.
 After this check the resources with ```ray.cluster_resources()``` to see how much resource you have for your ray cluster.
-### 4.2. Run at headnode
+### 4.2. Run at head node
 
 This means CI is setup as header node in the cluster and a remote [azure ml job](https://github.com/microsoft/ray-on-aml/tree/master/examples/job) is launched to provide worker nodes for the cluster . To enable this, set `ci_is_head = True`
 
