@@ -6,10 +6,10 @@ dependencies:
   - pip:
       - azureml-defaults
       - azureml-mlflow
-      - git+https://github.com/microsoft/ray-on-aml.git@james-dev
       - ray[data]
+      - ray-on-aml
       - adlfs
-      - dask==2022.2.0
+      - dask==2022.3.0
       - pyarrow==6.0.1
       - fsspec
       - fastparquet
