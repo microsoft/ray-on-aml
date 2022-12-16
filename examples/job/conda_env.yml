@@ -7,8 +7,11 @@ dependencies:
       - azureml-mlflow==1.48.0
       - ray[air]==2.2.0
       - ray-on-aml==0.2.4
+      - cudatoolkit==11.1.1
+      - nvidia-apex==0.1.0
       - torch==1.13.0
       - torchvision
       - azureml-defaults==1.48.0
+  - pip=22.1.2 
   - matplotlib
 name: azureml_cfc9e96c7b0b43301a0ba4c6bd3548e5
