@@ -45,7 +45,7 @@ dependencies:
     - azureml-defaults
     - ray-on-aml
     - ray[data]==2.2.0 #add ray packages and versions
-    - ..other packages
+    # ..other packages
 ```
 In your job script, you ray cluster handler is available at the head node for you
 ```
