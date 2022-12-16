@@ -4,11 +4,11 @@ command: >-
   python aml_job.py 
 environment: 
   image: mcr.microsoft.com/azureml/openmpi4.1.0-cuda11.1-cudnn8-ubuntu18.04:20211221.v1
-  conda_file: conda.yml
+  conda_file: conda_env.yml
 compute: azureml:nc6s
 resources:
   instance_count: 2
-  shm_size: 24g
+  shm_size: 48g
 distribution: 
   type: mpi
 display_name: ray_aml_job_example
