@@ -3,7 +3,7 @@ code : ../../../
 command: >-
   python tests/automated_tests/test_rl/test_ray_rl.py 
 environment: azureml:ray_rl_env@latest
-compute: azureml:d15-v2
+compute: azureml:d13
 resources:
   instance_count: 2
 distribution: 

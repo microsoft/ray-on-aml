@@ -5,9 +5,10 @@ command: >-
 environment: 
   image: mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04
   conda_file: conda_post_release.yml
-compute: azureml:d15-v2
+compute: azureml:d13
 resources:
   instance_count: 2
+  shm_size: 24g
 distribution: 
   type: mpi
 display_name: ray_ci_test_ray_rl
