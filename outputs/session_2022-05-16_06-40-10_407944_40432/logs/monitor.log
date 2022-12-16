@@ -1,0 +1,6 @@
+2022-05-16 06:40:14,318	INFO monitor.py:400 -- Starting monitor using ray installation: c:\users\janguy\anaconda3\envs\dlresearch\lib\site-packages\ray\__init__.py
+2022-05-16 06:40:14,318	INFO monitor.py:401 -- Ray version: 1.5.1
+2022-05-16 06:40:14,318	INFO monitor.py:402 -- Ray commit: {{RAY_COMMIT_SHA}}
+2022-05-16 06:40:14,318	INFO monitor.py:403 -- Monitor started with command: ['c:\\users\\janguy\\anaconda3\\envs\\dlresearch\\lib\\site-packages\\ray\\autoscaler/_private\\monitor.py', '--logs-dir=outputs\\session_2022-05-16_06-40-10_407944_40432\\logs', '--redis-address=192.168.50.44:6379', '--logging-rotate-bytes=536870912', '--logging-rotate-backup-count=5', '--redis-password=5241590000000000', '--monitor-ip=192.168.50.44']
+2022-05-16 06:40:14,372	INFO monitor.py:141 -- Starting autoscaler metrics server on port 44217
+2022-05-16 06:40:14,387	INFO monitor.py:151 -- Monitor: Started

@@ -1,0 +1,3 @@
+2022-05-16 06:42:28,721	INFO log_monitor.py:206 -- Beginning to track file raylet.err
+2022-05-16 06:42:28,722	INFO log_monitor.py:206 -- Beginning to track file gcs_server.err
+2022-05-16 06:42:28,722	INFO log_monitor.py:206 -- Beginning to track file monitor.log

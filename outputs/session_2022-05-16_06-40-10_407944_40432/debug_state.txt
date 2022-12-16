@@ -1,0 +1,115 @@
+NodeManager:
+InitialConfigResources: {node:192.168.50.44: 1.000000}, {CPU: 8.000000}, {GPU: 1.000000}, {memory: 5.084267 GiB}, {object_store_memory: 2.542133 GiB}
+ClusterTaskManager:
+========== Node: dda6551251733a9935477bda1f92288d00d426475967cbdcd4992505 =================
+Infeasible queue length: 0
+Schedule queue length: 0
+Dispatch queue length: 0
+Waiting tasks size: 0
+Number of executing tasks: 0
+Number of pinned task arguments: 0
+cluster_resource_scheduler state: 
+Local id: 2292243549083266526 Local resources: {
+	CPU: ([10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000]:[10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000])
+	MEM: ([54591897600000]:[54591897600000])
+	GPU: ([10000]:[10000])
+	OBJECT_STORE_MEM: ([27295948800000]:[27295948800000])
+	-9133432237253905909:([10000]:[10000])
+}
+node id: 2292243549083266526 {
+	CPU: (80000:80000)
+	MEM: (54591897600000:54591897600000)
+	GPU: (10000:10000)
+	OBJECT_STORE_MEM: (27295948800000:27295948800000)
+	node:192.168.50.44:(10000:10000)
+}
+
+==================================================
+ClusterResources:
+LocalObjectManager:
+- num pinned objects: 0
+- pinned objects size: 0
+- num objects pending restore: 0
+- num objects pending spill: 0
+- num bytes pending spill: 0
+- cumulative spill requests: 0
+- cumulative restore requests: 0
+
+ObjectManager:
+- num local objects: 0
+- num active wait requests: 0
+- num unfulfilled push requests: 0
+- num pull requests: 0
+- num buffered profile events: 0
+- num chunks received total: 0
+- num chunks received failed (all): 0
+- num chunks received failed / cancelled: 0
+- num chunks received failed / plasma error: 0
+Event stats:Stats collection disabled, turn on event_stats flag to enable event loop stats collection
+PushManager:
+- num pushes in flight: 0
+- num chunks in flight: 0
+- num chunks remaining: 0
+- max chunks allowed: 3518437208473
+OwnershipBasedObjectDirectory:
+- num listeners: 0
+- cumulative location updates: 0
+- num location updates per second: 0.000
+- num location lookups per second: 0.000
+- num locations added per second: 0.000
+- num locations removed per second: 0.000
+BufferPool:
+- create buffer state map size: 0
+PullManager:
+- num bytes available for pulled objects: 2729594880
+- num bytes being pulled (all): 0
+- num bytes being pulled / pinned: 0
+- num get request bundles: 0
+- num wait request bundles: 0
+- num task request bundles: 0
+- first get request bundle: N/A
+- first wait request bundle: N/A
+- first task request bundle: N/A
+- num objects queued: 0
+- num objects actively pulled (all): 0
+- num objects actively pulled / pinned: 0
+- num bundles being pulled: 0
+- num pull retries: 0
+- max timeout seconds: 0
+- max timeout request is already processed. No entry.
+
+WorkerPool:
+- num PYTHON workers: 0
+- num PYTHON drivers: 0
+- num object spill callbacks queued: 0
+- num object restore queued: 0
+- num util functions queued: 0
+- num idle workers: 0
+TaskDependencyManager:
+- task deps map size: 0
+- get req map size: 0
+- wait req map size: 0
+- local objects map size: 0
+Subscriber:
+Channel WORKER_OBJECT_EVICTION
+- cumulative subscribe requests: 0
+- cumulative unsubscribe requests: 0
+- active subscribed publishers: 0
+- cumulative published messages: 0
+- cumulative processed messages: 0
+Channel WORKER_REF_REMOVED_CHANNEL
+- cumulative subscribe requests: 0
+- cumulative unsubscribe requests: 0
+- active subscribed publishers: 0
+- cumulative published messages: 0
+- cumulative processed messages: 0
+Channel WORKER_OBJECT_LOCATIONS_CHANNEL
+- cumulative subscribe requests: 0
+- cumulative unsubscribe requests: 0
+- active subscribed publishers: 0
+- cumulative published messages: 0
+- cumulative processed messages: 0
+num async plasma notifications: 0
+Remote node managers: 
+Event stats:Stats collection disabled, turn on event_stats flag to enable event loop stats collection
+DebugString() time ms: 0

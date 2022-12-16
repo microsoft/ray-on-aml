@@ -1,8 +1,0 @@
-__pycache__
-.config/
-.ipynb_aml_checkpoints/
-.ipynb_checkpoints/
-.tmp/
-*.amlignore
-*.amltmp
-.vscode/
