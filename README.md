@@ -75,15 +75,15 @@ For this, ray-on-aml relies on a [AML Compute Instance](https://learn.microsoft.
 ### 1. Setup resources
 To setup this mode, you will need a compute instance, compute cluster and they need to be in the same vnet to communicate to each other. Review the following check list
 __Checklist for service provisioning__
-> [ ] Azure Machine Learning Workspace
+> - [ ] Azure Machine Learning Workspace
 > 
-> [ ] Virtual network/Subnet
+> - [ ] Virtual network/Subnet
 >
-> [ ] Network Security Group in/outbound
+> - [ ] Network Security Group in/outbound
 >
-> [ ] Create Compute Instance (CI) in the Virtual Network
+> - [ ] Create Compute Instance (CI) in the Virtual Network
 > 
-> [ ] Create Compute Cluster in the same Virtual Network
+> - [ ] Create Compute Cluster in the same Virtual Network
 
 ### 2. Select kernel 
 
