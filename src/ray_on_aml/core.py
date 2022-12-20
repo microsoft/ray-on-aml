@@ -1,13 +1,15 @@
 import os
 import time
 import subprocess
-import socket
-import sys, uuid
+import sys
 import platform
 import ray
-from textwrap import dedent
 import mlflow
 from azureml.core.conda_dependencies import CondaDependencies
+from amlsdkv1_util import get_aml_env_v1, run_ray_exp_run_v1
+from amlsdkv2_util import get_aml_env_v2
+from generate_entry_script import generate_entry_script
+from util import flush, get_ip
 import logging
 import zlib
 import sys
@@ -32,7 +34,6 @@ class Ray_On_AML():
 
     def __init__(self,compute_cluster=None, ws=None, ml_client=None, exp_name ='ray_on_aml',
                 master_ip_env_name="AZ_BATCHAI_MPI_MASTER_NODE", world_rank_env_name="OMPI_COMM_WORLD_RANK",job_timeout=600000, maxnode=2, verbosity=logging.ERROR):
-
         """
         Init initializes Ray_On_Aml instances to manage life cycle of ray cluster.
         :param compute_cluster: Name of Azure ML cluster created with your Azure ML workspace. In case of interactive use, 
@@ -63,42 +64,49 @@ class Ray_On_AML():
         self.num_node=maxnode # deprecated, moved to num_node in getRay() method. Will remove this arg in future 
         self.verbosity = verbosity
         self.job_timeout = job_timeout
+
+
         if self.checkNodeType()=="interactive" and ((self.ws is None and self.ml_client is None) or self.compute_cluster is None):
             #Interactive scenario, workspace or ml client is required
             raise Exception("For interactive use, please pass ML client for azureml sdk v2 or workspace for azureml sdk v1 and compute cluster name to the init")
 
+        # SDK V2
+        if self.ml_client != None and self.ws == None:
+            # check compute_cluster exist 
+            try:
+                ml_client.compute.get(self.compute_cluster)
+                print(f"{self.compute_cluster} is found")
+            except:
+                raise Exception(f"You don't have a cluster named {self.compute_cluster}.") 
+        # SDK v1
+        elif self.ws != None and self.ml_client == None:
+            # check compute_cluster exist            
+            try:
+                if self.compute_cluster in ws.compute_target:
+                    print(f"{self.compute_cluster} is found")
+            except:
+                raise Exception(f"You don't have a cluster named {self.compute_cluster}.")
+        else:
+            raise Exception("You can't use both ml_clinet and ws") 
 
-    def flush(self,proc, proc_log):
-        while True:
-            proc_out = proc.stdout.readline()
-            if proc_out == "" and proc.poll() is not None:
-                proc_log.close()
-                break
-            elif proc_out:
-                sys.stdout.write(proc_out)
-                proc_log.write(proc_out)
-                proc_log.flush()
+        if maxnode != None:
+            print("maxnode will be deprecated in the future. It will be moved to num_node in getRay() method.")
 
 
-    def get_ip(self):
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    def startRayMaster(self, ray_start_head_args):
         try:
-            # doesn't even have to be reachable
-            s.connect(('10.255.255.255', 1))
-            IP = s.getsockname()[0]
-        except Exception:
-            IP = '127.0.0.1'
-        finally:
-            s.close()
-        return IP
-
-
-    def startRayMaster(self,ray_start_head_args):
-        ray.shutdown()
+            ray.shutdown()
+            time.sleep(3)
+            ray.shutdown()
+        except:
+            pass
+        
         conda_env_name = sys.executable.split('/')[-3]
         logging.info(f"Using {conda_env_name} for the master node")
 
         cmd =f"ray start --head --port=6379 {ray_start_head_args}"
+
         try:
             subprocess.check_output(cmd, shell=True)
         except:
@@ -109,12 +117,19 @@ class Ray_On_AML():
                 subprocess.check_output(cmd, shell=True)
             except:
                 logging.warning("ray start still fails, continue anyway")
-        ip = self.get_ip()
+        ip = get_ip()
         return ip
 
 
     def checkNodeType(self):
+        """
+        This function checks the environment variable name 'world_rank_env_name'. 
+        If it doesn't exist, it means 'interactive' mode. 
+        If it does exist, it mean non-interactive mode.
+        """
+
         rank = os.environ.get(self.world_rank_env_name)
+
         if rank is None:
             return "interactive" # This is interactive scenario
         elif rank == '0':
@@ -124,8 +139,8 @@ class Ray_On_AML():
 
 
     #check if the current node is headnode
-    def startRay(self,additional_ray_start_worker_args, master_ip=None):
-        ip = self.get_ip()
+    def startRay(self, additional_ray_start_worker_args, master_ip=None):
+        ip = get_ip()
         logging.info(f"- env: MASTER_ADDR: {os.environ.get(self.master_ip_env_name)}")
         rank = os.environ.get(self.world_rank_env_name)
         if master_ip is None:
@@ -171,7 +186,7 @@ class Ray_On_AML():
                 logging.warn("Cannot start ray worker, abort...")
                 break
 
-        self.flush(worker_proc, worker_log)
+        flush(worker_proc, worker_log)
 
     def getRay(self,ci_is_head=False,environment=None, num_node =2, conda_packages=[],
         pip_packages= [], base_image="mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04",
@@ -199,6 +214,9 @@ class Ray_On_AML():
         :type ray_start_head_args: str
         :param ray_start_worker_args: Additional argument values to start ray workders.Defaults to empty ""
         :type ray_start_worker_args: str
+        Return
+        ----------
+            Returns Ray object
         """
         self.environment = environment
         self.num_node=num_node
@@ -219,8 +237,7 @@ class Ray_On_AML():
             self.startRay(ray_start_worker_args)
 
 
-
-    def getRayEnvironment(self,environment,conda_packages,pip_packages,base_image):
+    def getRayEnvironment(self, environment, conda_packages, pip_packages, base_image):
         """Manager Azure Machine Learning Environement 
         If 'rayEnv__version__' exists in Azure Machine Learning Environment, use the existing one.
         If not, create new one and register it in AML workspace.
@@ -230,21 +247,27 @@ class Ray_On_AML():
         """
         python_version = ["python="+platform.python_version()]
         conda_packages = python_version+conda_packages 
+
         if "ray" not in str(self.pip_packages):
             try:
                 self.pip_packages = [f"ray[default]=={ray.__version__}"]+ self.pip_packages
             except:
                 raise Exception("Ray is not installed")
+
         if "azureml-mlflow" not in str(self.pip_packages):
             self.pip_packages = [f"azureml-mlflow"]+ self.pip_packages
         envPkgs = conda_packages + self.pip_packages 
         shEnvPkgs= zlib.adler32(bytes(str(envPkgs),"utf8"))
+
         if environment:
             envName = environment
         else:
             envName = f"ray-on-aml-{shEnvPkgs}"
+
+        # Find the correct type for sdk v1 and v2
         if type(envName) !=str: #in case user pass a custom environment object, just return it
             return envName
+
         #this conda dep is common to both v1 and v2. In the futre, if v1 is completely deprecated then this needs to be updated    
         conda_dep = CondaDependencies()
         for conda_package in conda_packages:
@@ -252,300 +275,62 @@ class Ray_On_AML():
 
         for pip_package in self.pip_packages:
             conda_dep.add_pip_package(pip_package)
+        
+        # in case SDK v2 is used
         if self.ml_client is not None:
-            try:
-                return self.ml_client.environments._get_latest_version(envName)
-            except:
-                pass
-            logging.info(f"Creating new Environment {envName}")
-            conda_dep.save(".tmp/conda.yml")
-            from azure.ai.ml.entities import Environment
-            rayEnv = Environment(
-                image=base_image,
-                conda_file=".tmp/conda.yml",
-                name=envName,
-                description="Environment for ray cluster.",
-            )
-            self.ml_client.environments.create_or_update(rayEnv)
-        else: # in case skd v1 is used
-            from azureml.core.environment import Environment
-            if Environment.list(self.ws).get(envName) != None:
-                return Environment.get(self.ws, envName)
-            rayEnv = Environment(name=envName)
-            rayEnv.docker.base_image = base_image
-            rayEnv.python.conda_dependencies=conda_dep
-            rayEnv.register(self.ws)
-        return rayEnv
+            return get_aml_env_v2(self.ml_client, envName, conda_dep, base_image)
+        else: # in case SDK v1 is used   
+            return get_aml_env_v1(self.ws, envName, base_image, conda_dep)
 
 
-    def getRayInteractive(self,ci_is_head, environment,conda_packages,pip_packages,base_image, shm_size,ray_start_head_args,ray_start_worker_args,inputs, outputs, verbosity):
+    def getRayInteractive(self, ci_is_head, environment,conda_packages,pip_packages,base_image, shm_size,ray_start_head_args,ray_start_worker_args,inputs, outputs, verbosity):
         """Create Compute Cluster, an entry script and Environment
         Create Compute Cluster if given name of Compute Cluster doesn't exist in Azure Machine Learning Workspace
         Get Azure Environement for Ray runtime
         Generate entry script to run Ray in Compute Cluster
         If the script run on Compute Cluster successfully, Ray object will be returned.
+        Return
+        ----------
+            Returns Ray object
         """
         # Verify that cluster does not exist already
         #Used to set base ray packages for interactive scenario
 
         ##Create the source file
-        os.makedirs(".tmp", exist_ok=True)
-        rayEnv = self.getRayEnvironment(environment,conda_packages,pip_packages,base_image)
-        source_file_content = """
-        import os
-        import time
-        import subprocess
-        import threading
-        import socket
-        import sys, uuid
-        import platform
-        import logging
-        import ray
-        import shutil
-        from distutils.dir_util import copy_tree
-        import argparse
-        import mlflow
-        instrumentation_key = "28f3e437-7871-4f33-a75a-b5b3895438db"
-        class _EventLogger:
-
-            @staticmethod
-            def get_logger(name):
-                logger = logging.getLogger(__name__).getChild(name)
-                logger.propagate = False
-                logger.setLevel(logging.INFO)
-            
-                try:
-                    from opencensus.ext.azure.log_exporter import AzureEventHandler
-
-                    # Doc: Set up Azure Monitor for your Python application
-                    # https://learn.microsoft.com/en-us/azure/azure-monitor/app/opencensus-python#send-events
-                    if not _EventLogger._found_handler(logger, AzureEventHandler):
-                        logger.addHandler(
-                            AzureEventHandler(
-                                connection_string="InstrumentationKey=" + instrumentation_key
-                            )
-                        )
-                except ImportError:
-                    pass
-
-                return logger
-            
-            @staticmethod
-            def track_event(logger, name, properties=None):
-                custom_dimensions = _EventLogger._try_get_run_info()
-                if properties is not None:
-                    custom_dimensions.update(properties)
-                    
-                logger.info(name, extra={{"custom_dimensions": custom_dimensions}})
-
-            @staticmethod
-            def _found_handler(logger, handler_type):
-                for log_handler in logger.handlers:
-                    if isinstance(log_handler, handler_type):
-                        return True
-                return False
-
-            @staticmethod
-            def _try_get_run_info():
-                try:
-                    import re
-                    import os
-                    import ray
-
-                    location = os.environ.get("AZUREML_SERVICE_ENDPOINT")
-                    location = re.compile("//(.*?)\\.").search(location).group(1)
-                except Exception:
-                    location = os.environ.get("AZUREML_SERVICE_ENDPOINT", "")
-                return {{
-                    "subscription": os.environ.get("AZUREML_ARM_SUBSCRIPTION", ""),
-                    "run_id": os.environ.get("AZUREML_RUN_ID", ""),
-                    "resource_group": os.environ.get("AZUREML_ARM_RESOURCEGROUP", ""),
-                    "workspace_name": os.environ.get("AZUREML_ARM_WORKSPACE_NAME", ""),
-                    "experiment_id": os.environ.get("AZUREML_EXPERIMENT_ID", ""),
-                    "location": location,
-                    "ray_version": ray.__version__,
-                }}
-    
-        def parse_args():
-            parser = argparse.ArgumentParser()
-            parser.add_argument("--master_ip")
-            # parse args
-            args,unknown = parser.parse_known_args()
-            for arg in unknown:
-                if arg.startswith(("-", "--")):
-                    parser.add_argument(arg.split('=')[0])
-            args = parser.parse_args()
-            return args
-        def flush(proc, proc_log):
-            while True:
-                proc_out = proc.stdout.readline()
-                if proc_out == "" and proc.poll() is not None:
-                    proc_log.close()
-                    break
-                elif proc_out:
-                    sys.stdout.write(proc_out)
-                    proc_log.write(proc_out)
-                    proc_log.flush()
-        def startRayMaster():
+        rayEnv = self.getRayEnvironment(environment, conda_packages, pip_packages, base_image)
         
-            cmd ='ray start --head --port=6379 {3}'
-            subprocess.Popen(
-            cmd.split(),
-            universal_newlines=True
-            )
-            ip = socket.gethostbyname(socket.gethostname())
-            mlflow.log_param("headnode", ip)
-            time.sleep({0})
-        def checkNodeType():
-            rank = os.environ.get("{2}")
-            if rank is None:
-                return "interactive" # This is interactive scenario
-            elif rank == '0':
-                
-                return "head"
-            else:
-                return "worker"
-        def startRay(master_ip=None):
-            ip = socket.gethostbyname(socket.gethostname())
-            logging.info("- env: MASTER_ADDR: ", os.environ.get("{1}"))
-            logging.info("- env: RANK: ", os.environ.get("{2}"))
-            rank = os.environ.get("{2}")
-            master = os.environ.get("{1}")
-            logging.info("- my rank is ", rank)
-            logging.info("- my ip is ", ip)
-            logging.info("- master is ", master)
-            if not os.path.exists("logs"):
-                os.makedirs("logs")
-            logging.info("free disk space on /tmp")
-            os.system(f"df -P /tmp")
-            if master_ip is None:
-                master_ip =master
-            cmd = "ray start --address="+master_ip+":6379 {4}"
-            logging.info(cmd)
-            worker_log = open("logs/worker_"+rank+"_log.txt", "w")
-            return_code=-1
-            max_tries =20
-            counter =0
-            while return_code!=0:
-                worker_proc = subprocess.Popen(
-                cmd.split(),
-                universal_newlines=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                )
-                while worker_proc.poll() is None:
-                    # Process hasn't exited yet, let's wait some
-                    time.sleep(1)
-                # Get return code from process
-                return_code = worker_proc.returncode
-                
-                if return_code!=0:
-                    logging.warn("Get non zero return code "+str(return_code)+ " retrying after 5s")
-                    time.sleep(5)
-                    counter += 1
-                else:
-                    logging.info("Start ray successfully")
-                if counter>=max_tries:
-                    logging.warn("Cannot start ray worker, abort...")
-                    break
-            if return_code == 0:
-                time.sleep({0})
-        if __name__ == "__main__":
-            module_event_logger = _EventLogger.get_logger(__name__)
-            args = parse_args()
-            master_ip = args.master_ip
-            #log mount points (inputs, outputs) to the param so that users can use
-            for k,v in args.__dict__.items():
-                mlflow.log_param(k, v)
-             #check if the user wants CI to be headnode
-            if master_ip !="None": 
-                _EventLogger.track_event(module_event_logger, "getRay",{{"run_mode":"interactive_ci_head"}})
-                startRay(master_ip)
-
-            else:
-                if checkNodeType() =="head":
-                    _EventLogger.track_event(module_event_logger, "getRay",{{"run_mode":"interactive_client"}})
-                    startRayMaster()
-                else:
-                    time.sleep(20)
-                    startRay()
-        """.format(self.job_timeout, self.master_ip_env_name, self.world_rank_env_name,ray_start_head_args,ray_start_worker_args)
-
+        os.makedirs(".tmp", exist_ok=True)
         source_file = open(".tmp/source_file.py", "w")
-        source_file.write(dedent(source_file_content))
+        source_file.write(generate_entry_script(self.job_timeout, self.master_ip_env_name, self.world_rank_env_name, ray_start_head_args, ray_start_worker_args))
         source_file.close()
 
         if self.ml_client is not None: 
-            return self.launch_rayjob_v2(ci_is_head,ray_start_head_args,shm_size,rayEnv,inputs, outputs, verbosity)
+            return self.launch_rayjob_v2(ci_is_head, ray_start_head_args,shm_size,rayEnv, inputs, outputs, verbosity)
         else:
-            return self.launch_rayjob_v1(ci_is_head,ray_start_head_args,shm_size,rayEnv,verbosity)
-
+            if inputs != None or outputs != None:
+                raise Exception ("Ray-on-aml currently doesn't support inputs/outputs using AML SDK v1, try to use v2 for inputs/outputs")
+            return self.launch_rayjob_v1(ci_is_head, ray_start_head_args, shm_size, rayEnv, verbosity)
 
 
     def launch_rayjob_v1(self,ci_is_head,ray_start_head_args,shm_size,rayEnv,verbosity):
-        from azureml.core import  Experiment, Environment, ScriptRunConfig, Run
-        from azureml.core.runconfig import DockerConfiguration,RunConfiguration
-        from azureml.core.compute import ComputeTarget
-
         if ci_is_head:
             master_ip = self.startRayMaster(ray_start_head_args)
         else:
             master_ip= "None"
 
-        docker_config = DockerConfiguration(use_docker=True, shm_size=shm_size)
-        aml_run_config_ml = RunConfiguration(communicator='OpenMpi')
-        ray_cluster = ComputeTarget(workspace=self.ws, name=self.compute_cluster)
+        return run_ray_exp_run_v1(self.ws, self.compute_cluster, self.num_node, ci_is_head, ray_start_head_args, shm_size, rayEnv, master_ip, verbosity)
 
-        aml_run_config_ml.target = ray_cluster
-        aml_run_config_ml.docker =docker_config
-        aml_run_config_ml.node_count = self.num_node
-        aml_run_config_ml.environment = rayEnv
-        src = ScriptRunConfig(source_directory='.tmp',
-                            script='source_file.py',
-                            run_config = aml_run_config_ml,
-                            arguments = ["--master_ip",master_ip]
-                           )
-
-        run = Experiment(self.ws, self.exp_name).submit(src)
-        self.run=run
-
-        time.sleep(10)
-
-        if ci_is_head:
-            ray.shutdown()
-            ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True, logging_level=verbosity)
-
-            print("Waiting for cluster to start")
-            while True:
-                active_run = Run.get(self.ws,run.id)
-                if active_run.status != 'Running':
-                    print('.', end ="")
-                    time.sleep(5)
-                else:
-                    break 
-            print("\n Cluster started successfully")
-        else:
-            print("Waiting cluster to start and return head node ip")
-            headnode_private_ip= None 
-            while headnode_private_ip is None:
-                headnode_private_ip= mlflow.get_run(run_id=run.id).data.params.get('headnode') 
-                print('.', end ="")
-                time.sleep(2)
-                if mlflow.get_run(run_id=run.id)._info.status== 'FAILED':
-                    print("Cluster startup failed, check detail at run")
-                    return None
-            self.headnode_private_ip= headnode_private_ip
-            print("\n cluster is ready, head node ip ",headnode_private_ip)
-
-        return ray
 
     def launch_rayjob_v2(self,ci_is_head, ray_start_head_args,shm_size,rayEnv,inputs, outputs, verbosity):
         from azure.ai.ml import command
+
         if ci_is_head:
             master_ip = self.startRayMaster(ray_start_head_args)
         else:
             master_ip= "None"
+            
         job_input = {"master_ip": master_ip}
+
         if inputs:
             inputs.update(job_input) 
             job_input = inputs
@@ -576,14 +361,24 @@ class Ray_On_AML():
         
         self.cluster_job = self.ml_client.jobs.create_or_update(job)
         headnode_private_ip= None
+        
+        # CI as Ray Cluster Head
         if ci_is_head:
-            ray.shutdown()
-            ray.init(address="auto", dashboard_port =5000,ignore_reinit_error=True, logging_level=verbosity)
+            try:
+                ray.shutdown()
+                time.sleep(3)
+                ray.shutdown()
+            except:
+                pass
+
+            ray.init(address="auto", dashboard_port =5000, ignore_reinit_error=True, logging_level=verbosity)
+
             print("Waiting for cluster to start")
             waiting = True
             while waiting:
                 print('.', end ="")
-                status= mlflow.get_run(run_id=self.cluster_job.id.split("/")[-1])._info.status 
+                status= mlflow.get_run(run_id=self.cluster_job.id.split("/")[-1])._info.status
+
                 if status == 'FAILED':
                     print("Cluster startup failed, check azure ml run")
                     return None, None
@@ -591,8 +386,7 @@ class Ray_On_AML():
                     time.sleep(10)
                     break
                 else:
-                    time.sleep(5)
-            
+                    time.sleep(5)            
         else:
             print("Waiting cluster to start and return head node's ip")
              
@@ -629,7 +423,7 @@ class Ray_On_AML():
 
         return ray
 
-        
+    
     def shutdown(self, end_all_runs=False):
         """Stop Ray and Compute Cluster
         Parameters
@@ -639,9 +433,9 @@ class Ray_On_AML():
             If you want to stop your own Compute Cluster, you can your following
                 ray_on_aml.shutdown(end_all_runs=False)
         """
-        def end_all_run():
-            
+        def end_all_run():            
             from azureml.core import  Experiment
+
             exp= Experiment(self.ws, self.exp_name)
             runs = exp.get_runs()
             for run in runs:
