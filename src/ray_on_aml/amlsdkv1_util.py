@@ -6,7 +6,7 @@ from azureml.core.environment import Environment
 from azureml.core.runconfig import DockerConfiguration,RunConfiguration
 from azureml.core.compute import ComputeTarget
 
-def run_ray_exp_run_v1(ws, compute_cluster, ci_is_head, num_node, exp_name, ray_start_head_args, shm_size, rayEnv, master_ip,verbosity):
+def run_ray_exp_run_v1(ws, compute_cluster, ci_is_head, num_node, exp_name, ray_start_head_args, shm_size, rayEnv, master_ip, verbosity):
     docker_config = DockerConfiguration(use_docker=True, shm_size=shm_size)
     aml_run_config_ml = RunConfiguration(communicator='OpenMpi')
     ray_cluster = ComputeTarget(workspace=ws, name=compute_cluster)
