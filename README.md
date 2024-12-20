@@ -32,7 +32,7 @@ __Support user define docker environment to greater customize ray environment__
 
 
 ## Option 1: Run ray workload within an [azure ml job](https://learn.microsoft.com/en-us/cli/azure/ml/job?view=azure-cli-latest) (non-interactive mode)
- 1. Setup a [azure ml compute cluster](https://learn.microsoft.com/en-us/azure/machine-learning/how-to-create-attach-compute-cluster?tabs=python) 
+ 1. Setup an [azure ml compute cluster](https://learn.microsoft.com/en-us/azure/machine-learning/how-to-create-attach-compute-cluster?tabs=python) 
  2. Include ray-on-aml,azureml-defaults, azureml-mlflow and ray package(s) as job dependencies like below in conda or in your job's [environment](https://learn.microsoft.com/en-us/azure/machine-learning/how-to-manage-environments-v2?tabs=cli)
  ```
 channels:
@@ -66,7 +66,7 @@ There's no need for vnet setup.
 If you like setup an interactive ray cluster to work with from a ray client or directly on the head node, follow the following setup:
 ## Option 2: Use ray cluster interactively 
 You can setup a ray cluster and use it to develop and test interactively either from a head node or with a [ray client](https://docs.ray.io/en/latest/cluster/running-applications/job-submission/ray-client.html)
-For this, ray-on-aml relies on a [AML Compute Instance](https://learn.microsoft.com/en-us/azure/machine-learning/concept-compute-instance) (CI) as the head node or ray client machine and [AML compute cluster](https://learn.microsoft.com/en-us/azure/machine-learning/how-to-create-attach-compute-cluster?tabs=python) as a complete remote ray cluster in case the CI is used as ray client only or ray cluster worker(s) in case the CI is used as head node.
+For this, ray-on-aml relies on an [AML Compute Instance](https://learn.microsoft.com/en-us/azure/machine-learning/concept-compute-instance) (CI) as the head node or ray client machine and [AML compute cluster](https://learn.microsoft.com/en-us/azure/machine-learning/how-to-create-attach-compute-cluster?tabs=python) as a complete remote ray cluster in case the CI is used as ray client only or ray cluster worker(s) in case the CI is used as head node.
 
 ## Architecture for Interactive Mode
 
