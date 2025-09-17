@@ -13,7 +13,7 @@ import zlib
 import sys
 from ._telemetry._event_logger import _EventLogger
 
-__version__='0.2.4'
+__version__='0.2.5'
 
 module_event_logger = _EventLogger.get_logger(__name__)
 
@@ -175,7 +175,7 @@ class Ray_On_AML():
 
     def getRay(self,ci_is_head=False,environment=None, num_node =2, conda_packages=[],
         pip_packages= [], base_image="mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04",
-         shm_size="12g",ray_start_head_args="",ray_start_worker_args="", inputs=None, outputs=None):
+         shm_size="12g",ray_start_head_args="",ray_start_worker_args="", inputs=None, outputs=None, python_version=None):
 
         """
         This method execute ray cluster creation on top of azure ml compute cluster.
@@ -206,7 +206,7 @@ class Ray_On_AML():
         self.pip_packages=pip_packages
 
         if self.checkNodeType()=="interactive":
-            return self.getRayInteractive(ci_is_head, environment,conda_packages,pip_packages,base_image,shm_size,ray_start_head_args,ray_start_worker_args,inputs, outputs, self.verbosity)
+            return self.getRayInteractive(ci_is_head, environment,conda_packages,pip_packages,base_image,shm_size,ray_start_head_args,ray_start_worker_args,inputs, outputs, self.verbosity, python_version)
         elif self.checkNodeType() =='head':
             logging.info(f"head node detected, starting ray with head start args {ray_start_head_args}")
             _EventLogger.track_event(module_event_logger, "getRay",{"run_mode":"job"})
@@ -220,7 +220,7 @@ class Ray_On_AML():
 
 
 
-    def getRayEnvironment(self,environment,conda_packages,pip_packages,base_image):
+    def getRayEnvironment(self,environment,conda_packages,pip_packages,base_image,python_version=None):
         """Manager Azure Machine Learning Environement 
         If 'rayEnv__version__' exists in Azure Machine Learning Environment, use the existing one.
         If not, create new one and register it in AML workspace.
@@ -228,8 +228,27 @@ class Ray_On_AML():
         ----------
             Returns an object of Azure Machine Learning Environment.
         """
-        python_version = ["python="+platform.python_version()]
-        conda_packages = python_version+conda_packages 
+        # Determine python version for remote environment. Allow override; default to local interpreter.
+        if python_version is not None:
+            # sanitize common forms like '3.9' or '3.9.18'
+            cleaned = python_version.strip()
+            if cleaned.startswith("python="):
+                cleaned = cleaned.split("=",1)[1]
+            # basic validation
+            parts = cleaned.split('.')
+            if not all(p.isdigit() for p in parts):
+                raise ValueError(f"Invalid python_version '{python_version}'. Expected format like 3.8 or 3.9.18")
+            py_spec_list = ["python="+cleaned]
+            # warn for 3.10+ with default base image (historical conda issues)
+            try:
+                maj = int(parts[0]); minv = int(parts[1]) if len(parts)>1 else 0
+                if (maj==3 and minv>=10) and base_image=="mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04":
+                    logging.warning("You are requesting Python %s with default base image; ensure dependent AML system packages support this version.", cleaned)
+            except Exception:
+                pass
+        else:
+            py_spec_list = ["python="+platform.python_version()]
+        conda_packages = py_spec_list+conda_packages 
         if "ray" not in str(self.pip_packages):
             try:
                 self.pip_packages = [f"ray[default]=={ray.__version__}"]+ self.pip_packages
@@ -278,7 +297,7 @@ class Ray_On_AML():
         return rayEnv
 
 
-    def getRayInteractive(self,ci_is_head, environment,conda_packages,pip_packages,base_image, shm_size,ray_start_head_args,ray_start_worker_args,inputs, outputs, verbosity):
+    def getRayInteractive(self,ci_is_head, environment,conda_packages,pip_packages,base_image, shm_size,ray_start_head_args,ray_start_worker_args,inputs, outputs, verbosity, python_version=None):
         """Create Compute Cluster, an entry script and Environment
         Create Compute Cluster if given name of Compute Cluster doesn't exist in Azure Machine Learning Workspace
         Get Azure Environement for Ray runtime
@@ -290,7 +309,7 @@ class Ray_On_AML():
 
         ##Create the source file
         os.makedirs(".tmp", exist_ok=True)
-        rayEnv = self.getRayEnvironment(environment,conda_packages,pip_packages,base_image)
+        rayEnv = self.getRayEnvironment(environment,conda_packages,pip_packages,base_image,python_version)
         source_file_content = """
         import os
         import time

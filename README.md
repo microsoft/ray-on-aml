@@ -202,6 +202,25 @@ For Interactive cluster: You can use ```pip_packages``` and ```conda_packages```
 You can also configure your own custom azure ml environment using ``environment`` argument in in `getRay()`.
 It can be azureml environmen object or name of the environment.
 
+#### 8.1 Override Python version for remote cluster (>=0.2.5)
+
+When your local development environment uses a newer Python (e.g. 3.10/3.11) that is not yet supported by the default Azure ML base image or you simply want a different Python version on the cluster, pass `python_version` to `getRay()`.
+
+Examples:
+```python
+# Force remote environment to use Python 3.9 even if local is 3.11
+ray = ray_on_aml.getRay(num_node=2, python_version="3.9", pip_packages=["ray[data]==2.2.0"])  
+
+# Explicit micro version
+ray = ray_on_aml.getRay(num_node=2, python_version="3.9.18")
+
+# Accepts forms like 'python=3.9'
+ray = ray_on_aml.getRay(num_node=2, python_version="python=3.9")
+```
+
+If not provided, the library keeps its legacy behavior: inherit the Python version from the local (CI) interpreter.
+For Python >=3.10 with the default base image `mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04`, a warning is emitted so you can choose a compatible custom image if needed.
+
 
 ```python
 ray_on_aml =Ray_On_AML(ml_client=ml_client, compute_cluster ="{COMPUTE_CLUSTER_NAME}")
