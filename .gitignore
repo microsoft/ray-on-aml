@@ -1,0 +1,19 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Environment / config files with secrets
+config.json
+
+# Distribution / packaging
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/

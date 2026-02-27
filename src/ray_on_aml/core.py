@@ -324,7 +324,7 @@ class Ray_On_AML():
         from distutils.dir_util import copy_tree
         import argparse
         import mlflow
-        instrumentation_key = "28f3e437-7871-4f33-a75a-b5b3895438db"
+        instrumentation_key = os.environ.get("APPINSIGHTS_INSTRUMENTATION_KEY", "")
         class _EventLogger:
 
             @staticmethod
@@ -338,7 +338,7 @@ class Ray_On_AML():
 
                     # Doc: Set up Azure Monitor for your Python application
                     # https://learn.microsoft.com/en-us/azure/azure-monitor/app/opencensus-python#send-events
-                    if not _EventLogger._found_handler(logger, AzureEventHandler):
+                    if instrumentation_key and not _EventLogger._found_handler(logger, AzureEventHandler):
                         logger.addHandler(
                             AzureEventHandler(
                                 connection_string="InstrumentationKey=" + instrumentation_key

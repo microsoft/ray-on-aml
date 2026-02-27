@@ -1,5 +1,5 @@
 {
-    "subscription_id": "840b5c5c-3f4a-459a-94fc-6bad2a969f9d",
-    "resource_group": "ml",
-    "workspace_name": "ws02ent"
+    "subscription_id": "<YOUR_SUBSCRIPTION_ID>",
+    "resource_group": "<YOUR_RESOURCE_GROUP>",
+    "workspace_name": "<YOUR_WORKSPACE_NAME>"
 }

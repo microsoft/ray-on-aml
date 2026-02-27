@@ -30,7 +30,7 @@ jobs:
       - name: Install az ml & set default values for AML
         run: |
           az extension add -n ml -y 
-          az configure --defaults group=ml workspace=ws02ent location=westus
+          az configure --defaults group=${{ vars.AZURE_RESOURCE_GROUP }} workspace=${{ vars.AZURE_WORKSPACE_NAME }} location=${{ vars.AZURE_LOCATION }}
       - name: run ray rl test
         run: |
           run_id=$(az ml job create -f tests/automated_tests/test_rl/job_post_release.yml --query name -o tsv)
